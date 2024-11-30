@@ -10,6 +10,7 @@ import { mainnet, base, bsc } from "@reown/appkit/networks";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { supabase } from "../utils/supaBaseClient";
 import Cookies from "js-cookie";
+import { useRouter } from "next/router";
 
 export const appKit = createAppKit({
   adapters: [wagmiAdapter],
@@ -79,7 +80,7 @@ export const AuthProvider = ({ children, cookies }: AuthProviderProps) => {
   const { disconnect: wagmiDisconnect } = useDisconnect();
   const { connect, connectors } = useConnect();
   const { address, isConnected, caipAddress, status } = useAppKitAccount();
-
+  const router = useRouter();
   // Use cookies for initial state
   const [walletAddress, setWalletAddress] = useState<string | null>(
     validateCookie("walletAddress", cookies?.walletAddress ?? null, "0x")
@@ -112,19 +113,22 @@ export const AuthProvider = ({ children, cookies }: AuthProviderProps) => {
   const fetchProfiles = async (identifier: string) => {
     try {
       if (profileCache.current.has(identifier)) {
-        setProfiles(profileCache.current.get(identifier)!);
+        const profiles = profileCache.current.get(identifier)!;
+        setProfiles(profiles);
+        setActiveProfile(profiles[0] || null); // Set the active profile
+        if (profiles[0]) router.replace("/auth/overview"); // Redirect if a profile exists
         return;
       }
-
+  
       const { data, error } = await supabase
         .from("profiles")
         .select(
           "id, display_name, username, about, profile_image_url, banner_image_url, membership_tier, profile_type, role, wallet_address, account_identifier, blockchain_wallet, email, password, short_id, linked, links"
         )
         .eq("account_identifier", identifier);
-
+  
       if (error) throw new Error(error.message);
-
+  
       const formattedData = (data || []).map((profile) => ({
         id: profile.id,
         displayName: profile.display_name,
@@ -144,16 +148,19 @@ export const AuthProvider = ({ children, cookies }: AuthProviderProps) => {
         linked: profile.linked,
         links: profile.links,
       }));
-
+  
       profileCache.current.set(identifier, formattedData);
       setProfiles(formattedData);
-      setUsername(formattedData[0]?.username || null);
+      setActiveProfile(formattedData[0] || null); // Set the active profile
+  
+      if (formattedData[0]) router.replace("/auth/overview"); // Redirect if a profile exists
     } catch (error) {
       console.error("Error fetching profiles:", error);
       setProfiles([]);
-      setUsername(null);
+      setActiveProfile(null);
     }
   };
+  
 
   // Event synchronization across tabs
   useEffect(() => {
