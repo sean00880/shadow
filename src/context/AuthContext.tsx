@@ -10,8 +10,6 @@ import { mainnet, base, bsc } from "@reown/appkit/networks";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { supabase } from "../utils/supaBaseClient";
 import Cookies from "js-cookie";
-import { useRouter } from "next/router";
-
 export const appKit = createAppKit({
   adapters: [wagmiAdapter],
   projectId,
@@ -56,7 +54,7 @@ export interface AuthContextType {
   connect: (connector: Connector) => Promise<void>;
   disconnect: () => Promise<void>;
   connectors: readonly Connector[];
-  fetchProfiles: (accountIdentifier: string) => Promise<void>;
+  fetchProfiles: (accountIdentifier: string) => Promise<Profile[]>; // Updated
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -80,7 +78,7 @@ export const AuthProvider = ({ children, cookies }: AuthProviderProps) => {
   const { disconnect: wagmiDisconnect } = useDisconnect();
   const { connect, connectors } = useConnect();
   const { address, isConnected, caipAddress, status } = useAppKitAccount();
-  const router = useRouter();
+
   // Use cookies for initial state
   const [walletAddress, setWalletAddress] = useState<string | null>(
     validateCookie("walletAddress", cookies?.walletAddress ?? null, "0x")
@@ -88,10 +86,10 @@ export const AuthProvider = ({ children, cookies }: AuthProviderProps) => {
   const [accountIdentifier, setAccountIdentifier] = useState<string | null>(
     validateCookie("accountIdentifier", cookies?.accountIdentifier ?? null, "user-")
   );
-  
+
 
   // Remaining state variables remain unchanged
-  const [username, setUsername] = useState<string | null>(null);
+  const [username] = useState<string | null>(null);
   const [blockchainWallet, setBlockchainWallet] = useState<string | null>(null);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [activeWallet, setActiveWallet] = useState<string | null>(null);
@@ -110,25 +108,31 @@ export const AuthProvider = ({ children, cookies }: AuthProviderProps) => {
     setActiveProfile(profiles.find((p) => p.walletAddress === wallet) || null);
   };
 
-  const fetchProfiles = async (identifier: string) => {
+  const fetchProfiles = async (identifier: string): Promise<Profile[]> => {
     try {
+      // Use cache if available
       if (profileCache.current.has(identifier)) {
-        const profiles = profileCache.current.get(identifier)!;
-        setProfiles(profiles);
-        setActiveProfile(profiles[0] || null); // Set the active profile
-        if (profiles[0]) router.replace("/auth/overview"); // Redirect if a profile exists
-        return;
+        const cachedProfiles = profileCache.current.get(identifier)!;
+        setProfiles(cachedProfiles);
+        setActiveProfile(cachedProfiles[0] || null); // Set the first profile as active
+        console.log("Profiles fetched from cache:", cachedProfiles);
+        return cachedProfiles;
       }
-  
+
+      // Fetch profiles from Supabase
       const { data, error } = await supabase
         .from("profiles")
         .select(
           "id, display_name, username, about, profile_image_url, banner_image_url, membership_tier, profile_type, role, wallet_address, account_identifier, blockchain_wallet, email, password, short_id, linked, links"
         )
         .eq("account_identifier", identifier);
-  
-      if (error) throw new Error(error.message);
-  
+
+      if (error) {
+        console.error("Error fetching profiles from Supabase:", error.message);
+        throw new Error(error.message);
+      }
+
+      // Format and cache fetched profiles
       const formattedData = (data || []).map((profile) => ({
         id: profile.id,
         displayName: profile.display_name,
@@ -148,19 +152,22 @@ export const AuthProvider = ({ children, cookies }: AuthProviderProps) => {
         linked: profile.linked,
         links: profile.links,
       }));
-  
-      profileCache.current.set(identifier, formattedData);
+
+      profileCache.current.set(identifier, formattedData); // Cache the profiles
       setProfiles(formattedData);
-      setActiveProfile(formattedData[0] || null); // Set the active profile
-  
-      if (formattedData[0]) router.replace("/auth/overview"); // Redirect if a profile exists
+      setActiveProfile(formattedData[0] || null); // Set the first profile as active
+      console.log("Profiles fetched from Supabase:", formattedData);
+
+      return formattedData;
     } catch (error) {
-      console.error("Error fetching profiles:", error);
+      console.error("Error in fetchProfiles:", error);
       setProfiles([]);
       setActiveProfile(null);
+      return [];
     }
   };
-  
+
+
 
   // Event synchronization across tabs
   useEffect(() => {
@@ -248,6 +255,7 @@ export const AuthProvider = ({ children, cookies }: AuthProviderProps) => {
     </WagmiProvider>
   );
 };
+
 
 export const useAuthContext = () => {
   const context = useContext(AuthContext);
