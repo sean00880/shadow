@@ -84,11 +84,10 @@ export default function TopBar({
             onMouseLeave={handleProfileLeave}
             ref={menuRef}
           >
-            <w3m-button />
             {/* Profile Image */}
             <Image
               src={profileImage}
-              alt="Profile"
+              alt="Profile Image"
               width={40}
               height={40}
               className="rounded-full cursor-pointer"
@@ -102,7 +101,10 @@ export default function TopBar({
                     <li
                       key={profile.walletAddress}
                       className={`px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer ${
-                        activeProfile?.walletAddress === profile.walletAddress ? "font-bold" : ""
+                        activeProfile?.walletAddress ===
+                        profile.walletAddress
+                          ? "font-bold"
+                          : ""
                       }`}
                       onClick={() => switchProfile(profile.walletAddress)}
                     >
@@ -120,8 +122,8 @@ export default function TopBar({
             )}
           </div>
         ) : (
-          // Wallet Connectors
-          <w3m-button />
+          // Wallet Connectors Dropdown
+          <w3m-button/>
         )}
       </div>
     </div>
