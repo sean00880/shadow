@@ -6,29 +6,23 @@ import { useAuthContext } from "../context/AuthContext";
 import { useUserProfile } from "./useUserProfile";
 
 export const useAuthRedirect = () => {
-  const { walletAddress, accountIdentifier } = useAuthContext();
+  const { walletAddress } = useAuthContext();
   const { profile, loading } = useUserProfile();
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    const redirectLogic = () => {
-      // Wait for wallet and profile data to load
-      if (loading) return;
+    if (loading) return; // Wait for loading to complete before redirect logic
 
-      // Redirect based on wallet and profile status
-      if (!walletAddress) {
-        console.log("No wallet connected. Redirecting to /auth/connect...");
-        if (pathname !== "/auth/connect") router.replace("/auth/connect");
-      } else if (!profile && accountIdentifier) {
-        console.log("No profile found. Redirecting to /auth/create-profile...");
-        if (pathname !== "/auth/create-profile") router.replace("/auth/create-profile");
-      } else if (pathname.startsWith("/auth") && profile) {
-        console.log("Profile found. Redirecting to /auth/overview...");
-        if (pathname !== "/auth/overview") router.replace("/auth/overview");
-      }
-    };
-
-    redirectLogic();
-  }, [walletAddress, profile, loading, pathname, router, accountIdentifier]);
+    if (!walletAddress && pathname !== "/auth/connect") {
+      console.log("Redirecting to /auth/connect...");
+      router.replace("/auth/connect");
+    } else if (walletAddress && !profile && pathname !== "/auth/create-profile") {
+      console.log("Redirecting to /auth/create-profile...");
+      router.replace("/auth/create-profile");
+    } else if (profile && pathname.startsWith("/auth") && pathname !== "/auth/overview") {
+      console.log("Redirecting to /auth/overview...");
+      router.replace("/auth/overview");
+    }
+  }, [walletAddress, profile, loading, pathname, router]);
 };

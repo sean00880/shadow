@@ -103,24 +103,24 @@ export default function CreateProfilePage() {
       if (!walletAddress) errors.push("Please connect your wallet.");
       if (!isFormValid) errors.push("Please fix all errors before submitting.");
       if (!accountIdentifier) errors.push("Account identifier is missing.");
-  
+
       setAlertMessage(errors.join(" "));
       return;
     }
-  
+
     setLoading(true);
-  
+
     try {
       const profileFolder = profileData.username || "default";
-  
+
       // Concurrently upload images for optimization
       const [profileImageUrl, bannerImageUrl] = await Promise.all([
         uploadImageToBucket(profileData.profilePicture, profileFolder, "profile"),
         uploadImageToBucket(profileData.bannerImage, profileFolder, "banner"),
       ]);
-  
+
       const shortId = await generateShortId();
-  
+
       const payload = {
         display_name: profileData.displayName,
         username: profileData.username,
@@ -139,7 +139,7 @@ export default function CreateProfilePage() {
         ...(profileData.links.length > 0 && { links: profileData.links }),
         short_id: shortId,
       };
-  
+
       // Check for existing profiles by wallet address or username
       const [existingProfilesByWallet, existingProfilesByUsername] = await Promise.all([
         supabase
@@ -152,24 +152,24 @@ export default function CreateProfilePage() {
           .eq("account_identifier", accountIdentifier)
           .eq("username", profileData.username),
       ]);
-  
+
       if (existingProfilesByWallet.data?.length) {
         throw new Error("A profile already exists for this wallet address.");
       }
-  
+
       if (existingProfilesByUsername.data?.length) {
         throw new Error("A profile with the same username already exists under this account.");
       }
-  
+
       // Insert the new profile
       const { error } = await supabase.from("profiles").insert(payload);
       if (error) throw new Error(error.message);
-  
+
       // Refresh profiles after creation
       if (accountIdentifier) {
         await fetchProfiles(accountIdentifier);
       }
-  
+
       setAlertMessage("Profile created successfully!");
       setShowRedirect(true);
     } catch (error) {
@@ -181,7 +181,6 @@ export default function CreateProfilePage() {
       setLoading(false);
     }
   };
-  
 
   const alertModal = useMemo(() => {
     if (!alertMessage) return null;

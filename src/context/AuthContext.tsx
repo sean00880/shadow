@@ -161,13 +161,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchProfiles = useCallback(async (identifier: string): Promise<Profile[]> => {
     if (!identifier) return [];
-    
-    const cached = profileCache.current.get(identifier);
-    if (cached && isCacheValid(cached.timestamp)) {
-      return cached.data;
-    }
   
     try {
+      const cached = profileCache.current.get(identifier);
+      if (cached && isCacheValid(cached.timestamp)) {
+        dispatch({ type: "SET_PROFILES", payload: cached.data });
+        dispatch({ type: "SET_ACTIVE_PROFILE", payload: cached.data[0] || null });
+        return cached.data;
+      }
+  
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
