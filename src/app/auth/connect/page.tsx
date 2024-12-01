@@ -16,12 +16,11 @@ export default function ConnectPage() {
   } = useAuthContext();
 
   useEffect(() => {
-    // Automatically fetch profiles when `accountIdentifier` changes
-    if (accountIdentifier) {
+    if (accountIdentifier && !profiles.length) {
       fetchProfiles(accountIdentifier);
     }
-  }, [accountIdentifier, fetchProfiles]);
-
+  }, [accountIdentifier, profiles.length, fetchProfiles]);
+  
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <motion.h2

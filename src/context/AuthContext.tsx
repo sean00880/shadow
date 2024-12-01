@@ -99,7 +99,12 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const storageHelper = {
   get: (key: string) => {
     const value = localStorage.getItem(key);
-    return value ? JSON.parse(value) : null;
+    try {
+      return value ? JSON.parse(value) : null;
+    } catch {
+      console.warn(`Invalid JSON format for key: ${key}`);
+      return value; // Return raw value if not JSON
+    }
   },
   set: (key: string, value: unknown) => {
     localStorage.setItem(key, JSON.stringify(value));
@@ -133,7 +138,6 @@ export const isCacheValid = (timestamp: number): boolean => {
   return Date.now() - timestamp < 3600000; // 1 hour
 };
 
-
 // AuthProvider Component
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { disconnect: wagmiDisconnect } = useDisconnect();
@@ -151,38 +155,43 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const generateAccountIdentifier = useCallback(
-    () => `user-${crypto.randomUUID()}`,
-    []
-  );
+  const generateAccountIdentifier = useCallback(() => {
+    return `user-${crypto.randomUUID()}`;
+  }, []);
 
-  
   const fetchProfiles = useCallback(async (identifier: string): Promise<Profile[]> => {
+    if (!identifier) return [];
+    
     const cached = profileCache.current.get(identifier);
     if (cached && isCacheValid(cached.timestamp)) {
-      dispatch({ type: "SET_PROFILES", payload: cached.data });
-      dispatch({ type: "SET_ACTIVE_PROFILE", payload: cached.data[0] || null });
       return cached.data;
     }
-
-    const { data, error } = await supabase.from("profiles").select("*").eq("account_identifier", identifier);
-    if (error) {
-      console.error("Error fetching profiles:", error.message);
-      dispatch({ type: "SET_PROFILES", payload: [] });
-      dispatch({ type: "SET_ACTIVE_PROFILE", payload: null });
+  
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("account_identifier", identifier);
+  
+      if (error) throw error;
+  
+      profileCache.current.set(identifier, { data, timestamp: Date.now() });
+      dispatch({ type: "SET_PROFILES", payload: data });
+      dispatch({ type: "SET_ACTIVE_PROFILE", payload: data[0] || null });
+      return data || [];
+    } catch (error) {
+      console.error("Error fetching profiles:", error);
       return [];
     }
-
-    profileCache.current.set(identifier, { data, timestamp: Date.now() });
-    dispatch({ type: "SET_PROFILES", payload: data });
-    dispatch({ type: "SET_ACTIVE_PROFILE", payload: data[0] || null });
-    return data || [];
   }, []);
+  
 
   const logoutProfile = useCallback(() => {
     dispatch({ type: "RESET_AUTH" });
     profileCache.current.clear();
-    ["walletAddress", "accountIdentifier", "profiles", "activeWallet", "activeProfile"].forEach(storageHelper.clear);
+    ["walletAddress", "accountIdentifier", "profiles", "activeWallet", "activeProfile"].forEach(
+      storageHelper.clear
+    );
     ["walletAddress", "accountIdentifier"].forEach((key) => Cookies.remove(key));
   }, []);
 
@@ -195,7 +204,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (cachedProfiles) dispatch({ type: "SET_PROFILES", payload: cachedProfiles });
     if (cachedActiveProfile) dispatch({ type: "SET_ACTIVE_PROFILE", payload: cachedActiveProfile });
     if (cachedWalletAddress) dispatch({ type: "SET_WALLET_ADDRESS", payload: cachedWalletAddress });
-    if (cachedAccountIdentifier) dispatch({ type: "SET_ACCOUNT_IDENTIFIER", payload: cachedAccountIdentifier });
+    if (cachedAccountIdentifier)
+      dispatch({ type: "SET_ACCOUNT_IDENTIFIER", payload: cachedAccountIdentifier });
   }, []);
 
   useEffect(() => {
@@ -221,7 +231,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             profiles: state.profiles,
             activeWallet: state.activeWallet,
             activeProfile: state.activeProfile,
-            setActiveWallet: (wallet) => dispatch({ type: "SET_ACTIVE_WALLET", payload: wallet }),
+            setActiveWallet: (wallet) =>
+              dispatch({ type: "SET_ACTIVE_WALLET", payload: wallet }),
             switchProfile: (wallet) => {
               const selectedProfile = state.profiles.find((p) => p.walletAddress === wallet);
               if (!selectedProfile) {

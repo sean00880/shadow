@@ -98,24 +98,29 @@ export default function CreateProfilePage() {
   };
 
   const handleSubmitProfile = async () => {
-    const errorMessages: string[] = [];
-    if (!walletAddress) errorMessages.push("Please connect your wallet.");
-    if (!isFormValid) errorMessages.push("Please fix all errors before submitting.");
-    if (!accountIdentifier) errorMessages.push("Account identifier is missing.");
-
-    if (errorMessages.length > 0) {
-      setAlertMessage(errorMessages.join(" "));
+    if (!walletAddress || !isFormValid || !accountIdentifier) {
+      const errors = [];
+      if (!walletAddress) errors.push("Please connect your wallet.");
+      if (!isFormValid) errors.push("Please fix all errors before submitting.");
+      if (!accountIdentifier) errors.push("Account identifier is missing.");
+  
+      setAlertMessage(errors.join(" "));
       return;
     }
-
+  
     setLoading(true);
+  
     try {
       const profileFolder = profileData.username || "default";
-      const profileImageUrl = await uploadImageToBucket(profileData.profilePicture, profileFolder, "profile");
-      const bannerImageUrl = await uploadImageToBucket(profileData.bannerImage, profileFolder, "banner");
-
+  
+      // Concurrently upload images for optimization
+      const [profileImageUrl, bannerImageUrl] = await Promise.all([
+        uploadImageToBucket(profileData.profilePicture, profileFolder, "profile"),
+        uploadImageToBucket(profileData.bannerImage, profileFolder, "banner"),
+      ]);
+  
       const shortId = await generateShortId();
-
+  
       const payload = {
         display_name: profileData.displayName,
         username: profileData.username,
@@ -134,43 +139,49 @@ export default function CreateProfilePage() {
         ...(profileData.links.length > 0 && { links: profileData.links }),
         short_id: shortId,
       };
-
-      const { data: existingProfilesByWallet } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("wallet_address", walletAddress);
-
-      if (existingProfilesByWallet && existingProfilesByWallet.length > 0) {
+  
+      // Check for existing profiles by wallet address or username
+      const [existingProfilesByWallet, existingProfilesByUsername] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("id")
+          .eq("wallet_address", walletAddress),
+        supabase
+          .from("profiles")
+          .select("id")
+          .eq("account_identifier", accountIdentifier)
+          .eq("username", profileData.username),
+      ]);
+  
+      if (existingProfilesByWallet.data?.length) {
         throw new Error("A profile already exists for this wallet address.");
       }
-
-      const { data: existingProfilesByUsername } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("account_identifier", accountIdentifier)
-        .eq("username", profileData.username);
-
-      if (existingProfilesByUsername && existingProfilesByUsername.length > 0) {
+  
+      if (existingProfilesByUsername.data?.length) {
         throw new Error("A profile with the same username already exists under this account.");
       }
-
+  
+      // Insert the new profile
       const { error } = await supabase.from("profiles").insert(payload);
-
       if (error) throw new Error(error.message);
-
+  
+      // Refresh profiles after creation
       if (accountIdentifier) {
         await fetchProfiles(accountIdentifier);
       }
-
+  
       setAlertMessage("Profile created successfully!");
       setShowRedirect(true);
     } catch (error) {
       console.error("Profile creation failed:", error);
-      setAlertMessage(error instanceof Error ? error.message : "Profile creation failed.");
+      setAlertMessage(
+        error instanceof Error ? error.message : "An unexpected error occurred during profile creation."
+      );
     } finally {
       setLoading(false);
     }
   };
+  
 
   const alertModal = useMemo(() => {
     if (!alertMessage) return null;
