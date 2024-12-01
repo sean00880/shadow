@@ -53,7 +53,7 @@ export default function TopBar({
     <div className="topbar flex items-center justify-between px-4 py-2 shadow-lg border-b border-gray-700">
       {/* Left Spacer */}
       <div className="w-1/3"></div>
-
+  
       {/* Centered Logo */}
       <div className="flex-1 flex justify-center items-center">
         <Image
@@ -64,7 +64,7 @@ export default function TopBar({
           className="glitch-effect"
         />
       </div>
-
+  
       {/* Wallet/Profile Actions */}
       <div className="w-1/3 flex justify-end items-center space-x-4">
         {/* Theme Toggle */}
@@ -76,7 +76,7 @@ export default function TopBar({
         >
           {isDarkMode ? "☀️" : "🌙"}
         </button>
-
+  
         {walletAddress ? (
           <div
             className="relative"
@@ -92,7 +92,7 @@ export default function TopBar({
               height={40}
               className="rounded-full cursor-pointer"
             />
-
+  
             {/* Dropdown Menu */}
             {isMenuOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md z-10">
@@ -101,8 +101,7 @@ export default function TopBar({
                     <li
                       key={profile.walletAddress}
                       className={`px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer ${
-                        activeProfile?.walletAddress ===
-                        profile.walletAddress
+                        activeProfile?.walletAddress === profile.walletAddress
                           ? "font-bold"
                           : ""
                       }`}
@@ -123,9 +122,10 @@ export default function TopBar({
           </div>
         ) : (
           // Wallet Connectors Dropdown
-          <w3m-button/>
+          <w3m-button />
         )}
       </div>
     </div>
   );
+  
 }
