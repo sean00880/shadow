@@ -9,7 +9,7 @@ export const useUserProfile = () => {
   const [profile, setProfile] = useState(activeProfile);
 
   useEffect(() => {
-    if (!walletAddress || !accountIdentifier || profile) return; // Avoid redundant calls
+    if (!walletAddress || !accountIdentifier || profile) return; // Avoid unnecessary fetches
 
     const loadProfile = async () => {
       setLoading(true);
@@ -19,12 +19,13 @@ export const useUserProfile = () => {
         if (cachedProfiles) {
           const parsedProfiles = JSON.parse(cachedProfiles);
           if (isCacheValid(parsedProfiles.timestamp)) {
-            setProfile(parsedProfiles.data[0]);
+            setProfile(parsedProfiles.data[0]); // Use cached profile
             setLoading(false);
             return;
           }
         }
 
+        // Only fetch if cache is invalid or unavailable
         const fetchedProfiles = await fetchProfiles(accountIdentifier);
         if (fetchedProfiles.length > 0) {
           setProfile(fetchedProfiles[0]);

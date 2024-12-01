@@ -161,7 +161,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchProfiles = useCallback(async (identifier: string): Promise<Profile[]> => {
     if (!identifier) return [];
-  
+
     try {
       const cached = profileCache.current.get(identifier);
       if (cached && isCacheValid(cached.timestamp)) {
@@ -169,14 +169,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         dispatch({ type: "SET_ACTIVE_PROFILE", payload: cached.data[0] || null });
         return cached.data;
       }
-  
+
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("account_identifier", identifier);
-  
+
       if (error) throw error;
-  
+
       profileCache.current.set(identifier, { data, timestamp: Date.now() });
       dispatch({ type: "SET_PROFILES", payload: data });
       dispatch({ type: "SET_ACTIVE_PROFILE", payload: data[0] || null });
@@ -186,7 +186,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return [];
     }
   }, []);
-  
 
   const logoutProfile = useCallback(() => {
     dispatch({ type: "RESET_AUTH" });
