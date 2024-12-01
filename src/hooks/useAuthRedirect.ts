@@ -2,30 +2,31 @@
 
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { useAuthContext } from "../context/AuthContext";
 import { useUserProfile } from "./useUserProfile";
 
-export const useRedirects = () => {
+export const useAuthRedirect = () => {
+  const { walletAddress } = useAuthContext();
   const { profile, loading } = useUserProfile();
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    // Only apply redirection logic in `/auth` directory and subdirectories
-    if (!pathname.startsWith("/auth")) return;
+    const redirectLogic = () => {
+      if (loading) return; // Wait for profile loading to finish
 
-    const redirectLogic = async () => {
-      if (loading) return; // Wait for profile to finish loading
-
-      if (!profile) {
-        console.log("No profile found. Redirecting...");
+      if (!walletAddress) {
+        console.log("No wallet connected. Redirecting to /auth/connect...");
+        router.replace("/auth/connect");
+      } else if (!profile) {
+        console.log("No profile found. Redirecting to /auth/create-profile...");
         router.replace("/auth/create-profile");
-        return;
+      } else if (pathname.startsWith("/auth") && profile) {
+        console.log("Profile found. Redirecting to /auth/overview...");
+        router.replace("/auth/overview");
       }
-
-      console.log("Profile found. Redirecting to /auth/overview");
-      router.replace("/auth/overview");
     };
 
     redirectLogic();
-  }, [pathname, profile, loading, router]);
+  }, [walletAddress, profile, loading, pathname, router]);
 };

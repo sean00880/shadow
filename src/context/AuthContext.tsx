@@ -129,6 +129,11 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
   }
 }
 
+export const isCacheValid = (timestamp: number): boolean => {
+  return Date.now() - timestamp < 3600000; // 1 hour
+};
+
+
 // AuthProvider Component
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { disconnect: wagmiDisconnect } = useDisconnect();
@@ -151,8 +156,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     []
   );
 
-  const isCacheValid = (timestamp: number) => Date.now() - timestamp < 3600000; // 1 hour
-
+  
   const fetchProfiles = useCallback(async (identifier: string): Promise<Profile[]> => {
     const cached = profileCache.current.get(identifier);
     if (cached && isCacheValid(cached.timestamp)) {
