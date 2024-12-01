@@ -1,10 +1,11 @@
 "use client";
 
 import React from "react";
-import { useRedirects } from "../../hooks/useAuthRedirect";
+import { useAuthRedirect } from "../../hooks/useAuthRedirect";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
-  useRedirects(); // Redirection logic for `/auth`
+  useAuthRedirect(); // Centralized redirection logic
 
   return <>{children}</>;
 }
+//better
