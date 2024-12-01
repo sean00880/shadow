@@ -4,7 +4,6 @@ import React from "react";
 import { useAuthRedirect } from "../../hooks/useAuthRedirect";
 
 export default function AuthPage() {
-  useAuthRedirect(); // Handle redirects for `/auth`
 
   return (
     <div className="text-center text-white min-h-screen flex items-center justify-center">

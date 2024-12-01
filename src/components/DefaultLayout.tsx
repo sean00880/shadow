@@ -11,19 +11,18 @@ const DefaultLayout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const [isDarkMode, setIsDarkMode] = useState(true);
 
   const {
-    activeWallet,
+
     profiles,
     activeProfile,
-    setActiveWallet,
+
     connect,
     connectors,
     disconnect,
     walletAddress,
-    fetchProfiles,
-    accountIdentifier,
+
   } = useAuthContext();
 
-  const router = useRouter();
+
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const toggleTheme = () => setIsDarkMode(!isDarkMode);
@@ -35,41 +34,7 @@ const DefaultLayout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     );
   }, [isDarkMode]);
 
-  // Fetch profiles and handle wallet redirection dynamically
-  useEffect(() => {
-    const handleWalletAndProfile = async () => {
-      if (!walletAddress) {
-        router.replace("/auth/connect");
-        return;
-      }
 
-      // Fetch profiles if not already loaded
-      if (profiles.length === 0 && accountIdentifier) {
-        await fetchProfiles(accountIdentifier);
-      }
-
-      // Redirect based on profiles
-      const linkedProfile = profiles.find(
-        (profile) => profile.walletAddress === activeWallet
-      );
-      if (!linkedProfile) {
-        router.replace("/auth/create-profile");
-      } else if (activeWallet) {
-        setActiveWallet(activeWallet); // Ensure activeWallet is set
-        router.replace("/auth/overview");
-      }
-    };
-
-    handleWalletAndProfile();
-  }, [
-    walletAddress,
-    profiles,
-    activeWallet,
-    accountIdentifier,
-    fetchProfiles,
-    setActiveWallet,
-    router,
-  ]);
 
   return (
     <div className="flex flex-col min-h-screen">

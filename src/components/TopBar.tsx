@@ -8,7 +8,7 @@ import { useAuthContext, Profile } from "../context/AuthContext";
 interface TopBarProps {
   isDarkMode: boolean;
   toggleTheme: () => void;
-  connect: (connector: Connector) => Promise<void>;
+  connect: (options: { connector: Connector; chainId?: number }) => Promise<void>;
   connectors: readonly Connector[];
   disconnect: () => Promise<void>;
   walletAddress: string | null;
@@ -19,6 +19,8 @@ interface TopBarProps {
 export default function TopBar({
   isDarkMode,
   toggleTheme,
+  connect,
+  connectors,
   disconnect,
   walletAddress,
   profiles,
@@ -30,15 +32,9 @@ export default function TopBar({
   // Get switchProfile from AuthContext
   const { switchProfile } = useAuthContext();
 
-  // Compute profile image
   const profileImage =
     activeProfile?.profileImageUrl || "/images/default_logo.jpg";
 
-  // Handle profile menu hover
-  const handleProfileHover = () => setIsMenuOpen(true);
-  const handleProfileLeave = () => setIsMenuOpen(false);
-
-  // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -51,9 +47,8 @@ export default function TopBar({
 
   return (
     <div className="topbar flex items-center justify-between px-4 py-2 shadow-lg border-b border-gray-700">
-      {/* Left Spacer */}
       <div className="w-1/3"></div>
-  
+
       {/* Centered Logo */}
       <div className="flex-1 flex justify-center items-center">
         <Image
@@ -64,10 +59,9 @@ export default function TopBar({
           className="glitch-effect"
         />
       </div>
-  
+
       {/* Wallet/Profile Actions */}
       <div className="w-1/3 flex justify-end items-center space-x-4">
-        {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
           className={`p-2 rounded-full border transition ${
@@ -76,15 +70,14 @@ export default function TopBar({
         >
           {isDarkMode ? "☀️" : "🌙"}
         </button>
-  
+
         {walletAddress ? (
           <div
             className="relative"
-            onMouseEnter={handleProfileHover}
-            onMouseLeave={handleProfileLeave}
+            onMouseEnter={() => setIsMenuOpen(true)}
+            onMouseLeave={() => setIsMenuOpen(false)}
             ref={menuRef}
           >
-            {/* Profile Image */}
             <Image
               src={profileImage}
               alt="Profile Image"
@@ -92,8 +85,7 @@ export default function TopBar({
               height={40}
               className="rounded-full cursor-pointer"
             />
-  
-            {/* Dropdown Menu */}
+
             {isMenuOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md z-10">
                 <ul className="py-2">
@@ -121,11 +113,19 @@ export default function TopBar({
             )}
           </div>
         ) : (
-          // Wallet Connectors Dropdown
-          <w3m-button />
+          <div className="relative">
+            {connectors.map((connector) => (
+              <button
+                key={connector.id}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                onClick={() => connect({ connector })}
+              >
+                Connect {connector.name}
+              </button>
+            ))}
+          </div>
         )}
       </div>
     </div>
   );
-  
 }

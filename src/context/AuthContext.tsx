@@ -1,14 +1,6 @@
 "use client";
 
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  ReactNode,
-  useReducer,
-  useCallback,
-  useRef,
-} from "react";
+import React, { createContext, useState, useContext, useEffect, ReactNode, useRef } from "react";
 import { Connector, useConnect, useDisconnect } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { wagmiAdapter, projectId } from "../lib/config";
@@ -49,8 +41,9 @@ export interface Profile {
   links?: string[];
 }
 
-// Auth Context Types
+// AuthContext Type
 export interface AuthContextType {
+  username: string | null;
   walletAddress: string | null;
   accountIdentifier: string | null;
   blockchainWallet: string | null;
@@ -59,115 +52,65 @@ export interface AuthContextType {
   activeProfile: Profile | null;
   setActiveWallet: (walletAddress: string) => void;
   switchProfile: (walletAddress: string) => void;
-  connect: (connector: Connector) => Promise<void>;
+  connect: (options: { connector: Connector; chainId?: number }) => Promise<void>;
   disconnect: () => Promise<void>;
   connectors: readonly Connector[];
-  fetchProfiles: (accountIdentifier: string) => Promise<Profile[]>;
-  logoutProfile: () => void;
+  fetchProfiles: (accountIdentifier: string) => Promise<void>;
+  createProfile: (newProfileData: Profile) => Promise<void>;
 }
-
-interface AuthState {
-  profiles: Profile[];
-  activeProfile: Profile | null;
-  walletAddress: string | null;
-  accountIdentifier: string | null;
-  activeWallet: string | null;
-}
-
-interface AuthAction {
-  type:
-    | "SET_PROFILES"
-    | "SET_ACTIVE_PROFILE"
-    | "SET_WALLET_ADDRESS"
-    | "SET_ACCOUNT_IDENTIFIER"
-    | "SET_ACTIVE_WALLET"
-    | "RESET_AUTH";
-  payload?: Profile[] | Profile | string | null;
-}
-
-const initialState: AuthState = {
-  profiles: [],
-  activeProfile: null,
-  walletAddress: null,
-  accountIdentifier: null,
-  activeWallet: null,
-};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Local Storage Helper
-const storageHelper = {
-  get: (key: string) => {
-    const value = localStorage.getItem(key);
-    try {
-      return value ? JSON.parse(value) : null;
-    } catch {
-      console.warn(`Invalid JSON format for key: ${key}`);
-      return value; // Return raw value if not JSON
-    }
-  },
-  set: (key: string, value: unknown) => {
-    localStorage.setItem(key, JSON.stringify(value));
-  },
-  clear: (key: string) => {
-    localStorage.removeItem(key);
-  },
+type AuthProviderProps = {
+  children: ReactNode;
+  cookies?: { walletAddress: string | null; accountIdentifier: string | null };
 };
 
-// Reducer Function
-function authReducer(state: AuthState, action: AuthAction): AuthState {
-  switch (action.type) {
-    case "SET_PROFILES":
-      return { ...state, profiles: action.payload as Profile[] };
-    case "SET_ACTIVE_PROFILE":
-      return { ...state, activeProfile: action.payload as Profile };
-    case "SET_WALLET_ADDRESS":
-      return { ...state, walletAddress: action.payload as string };
-    case "SET_ACCOUNT_IDENTIFIER":
-      return { ...state, accountIdentifier: action.payload as string };
-    case "SET_ACTIVE_WALLET":
-      return { ...state, activeWallet: action.payload as string };
-    case "RESET_AUTH":
-      return initialState;
-    default:
-      return state;
+// Helper function for cookie validation
+const validateCookie = (key: string, value: string | null | undefined, prefix: string): string | null => {
+  if (value && value.startsWith(prefix)) {
+    return value;
   }
-}
-
-export const isCacheValid = (timestamp: number): boolean => {
-  return Date.now() - timestamp < 3600000; // 1 hour
+  console.warn(`Invalid cookie for key "${key}":`, value);
+  return null;
 };
 
-// AuthProvider Component
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
+export const AuthProvider = ({ children, cookies }: AuthProviderProps) => {
   const { disconnect: wagmiDisconnect } = useDisconnect();
   const { connect, connectors } = useConnect();
-  const { address, isConnected, caipAddress } = useAppKitAccount();
+  const { address, isConnected, caipAddress, status } = useAppKitAccount();
 
-  const [state, dispatch] = useReducer(authReducer, initialState);
-  const profileCache = useRef<Map<string, { data: Profile[]; timestamp: number }>>(new Map());
+  const [walletAddress, setWalletAddress] = useState<string | null>(
+    validateCookie("walletAddress", cookies?.walletAddress ?? null, "0x")
+  );
+  const [accountIdentifier, setAccountIdentifier] = useState<string | null>(
+    validateCookie("accountIdentifier", cookies?.accountIdentifier ?? null, "user-")
+  );
+  const [username, setUsername] = useState<string | null>(null);
+  const [blockchainWallet, setBlockchainWallet] = useState<string | null>(null);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [activeWallet, setActiveWallet] = useState<string | null>(null);
+  const [activeProfile, setActiveProfile] = useState<Profile | null>(null);
 
-  const handleConnect = async (connector: Connector) => {
-    try {
-      await connect({ connector });
-    } catch (error) {
-      console.error("Error connecting wallet:", error);
+  const profileCache = useRef<Map<string, Profile[]>>(new Map());
+
+  const generateAccountIdentifier = () => `user-${crypto.randomUUID()}`;
+
+  const switchProfile = (wallet: string) => {
+    const profile = profiles.find((p) => p.walletAddress === wallet);
+    if (!profile) {
+      console.error("Cannot switch to a non-existent profile:", wallet);
+      return;
     }
+    setActiveWallet(wallet);
+    setActiveProfile(profile);
   };
 
-  const generateAccountIdentifier = useCallback(() => {
-    return `user-${crypto.randomUUID()}`;
-  }, []);
-
-  const fetchProfiles = useCallback(async (identifier: string): Promise<Profile[]> => {
-    if (!identifier) return [];
-
+  const fetchProfiles = async (identifier: string) => {
     try {
-      const cached = profileCache.current.get(identifier);
-      if (cached && isCacheValid(cached.timestamp)) {
-        dispatch({ type: "SET_PROFILES", payload: cached.data });
-        dispatch({ type: "SET_ACTIVE_PROFILE", payload: cached.data[0] || null });
-        return cached.data;
+      if (profileCache.current.has(identifier)) {
+        setProfiles(profileCache.current.get(identifier)!);
+        return;
       }
 
       const { data, error } = await supabase
@@ -175,84 +118,134 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .select("*")
         .eq("account_identifier", identifier);
 
-      if (error) throw error;
+      if (error) throw new Error(error.message);
 
-      profileCache.current.set(identifier, { data, timestamp: Date.now() });
-      dispatch({ type: "SET_PROFILES", payload: data });
-      dispatch({ type: "SET_ACTIVE_PROFILE", payload: data[0] || null });
-      return data || [];
+      const formattedData = data?.map((profile) => ({
+        ...profile,
+        displayName: profile.display_name,
+        profileImageUrl: profile.profile_image_url,
+        bannerImageUrl: profile.banner_image_url,
+      })) || [];
+
+      profileCache.current.set(identifier, formattedData);
+      setProfiles(formattedData);
+      setUsername(formattedData[0]?.username || null);
     } catch (error) {
       console.error("Error fetching profiles:", error);
-      return [];
+      setProfiles([]);
+      setUsername(null);
     }
-  }, []);
+  };
 
-  const logoutProfile = useCallback(() => {
-    dispatch({ type: "RESET_AUTH" });
-    profileCache.current.clear();
-    ["walletAddress", "accountIdentifier", "profiles", "activeWallet", "activeProfile"].forEach(
-      storageHelper.clear
-    );
-    ["walletAddress", "accountIdentifier"].forEach((key) => Cookies.remove(key));
+  const createProfile = async (newProfileData: Profile) => {
+    try {
+      const existingProfile = profiles.find(
+        (profile) => profile.walletAddress === newProfileData.walletAddress
+      );
+
+      if (existingProfile) {
+        console.error("Profile already exists for this wallet address.");
+        return;
+      }
+
+      const { error } = await supabase.from("profiles").insert(newProfileData);
+
+      if (error) throw new Error(error.message);
+
+      await fetchProfiles(accountIdentifier!); // Refresh profiles
+    } catch (error) {
+      console.error("Error creating profile:", error);
+    }
+  };
+
+  const handleConnect = async (options: { connector: Connector; chainId?: number }) => {
+    try {
+      await connect(options);
+      console.log("Wallet connected successfully:", options.connector.name);
+    } catch (error) {
+      console.error("Error during wallet connection:", error);
+    }
+  };
+
+  const handleDisconnect = async () => {
+    console.log("Disconnecting wallet and clearing state...");
+    try {
+      await wagmiDisconnect();
+      setWalletAddress(null);
+      setAccountIdentifier(null);
+      setBlockchainWallet(null);
+      setActiveWallet(null);
+      setActiveProfile(null);
+      setProfiles([]);
+      profileCache.current.clear();
+      Cookies.remove("walletAddress");
+      Cookies.remove("accountIdentifier");
+      console.log("Successfully disconnected wallet and cleared state.");
+    } catch (error) {
+      console.error("Error during wallet disconnection:", error);
+    }
+  };
+
+  useEffect(() => {
+    const handleStorage = () => {
+      setWalletAddress(Cookies.get("walletAddress") || null);
+      setAccountIdentifier(Cookies.get("accountIdentifier") || null);
+    };
+
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
   }, []);
 
   useEffect(() => {
-    const cachedProfiles = storageHelper.get("profiles");
-    const cachedActiveProfile = storageHelper.get("activeProfile");
-    const cachedWalletAddress = storageHelper.get("walletAddress");
-    const cachedAccountIdentifier = storageHelper.get("accountIdentifier");
+    console.log("Wallet connection status changed:", { isConnected, address, caipAddress, status });
 
-    if (cachedProfiles) dispatch({ type: "SET_PROFILES", payload: cachedProfiles });
-    if (cachedActiveProfile) dispatch({ type: "SET_ACTIVE_PROFILE", payload: cachedActiveProfile });
-    if (cachedWalletAddress) dispatch({ type: "SET_WALLET_ADDRESS", payload: cachedWalletAddress });
-    if (cachedAccountIdentifier)
-      dispatch({ type: "SET_ACCOUNT_IDENTIFIER", payload: cachedAccountIdentifier });
-  }, []);
+    if (!isConnected || !address) {
+      console.log("No connected wallet found. Skipping wallet setup.");
+      return;
+    }
 
-  useEffect(() => {
+    if (status === "connecting" || status === "reconnecting") {
+      console.log("Wallet is connecting or reconnecting...");
+      return;
+    }
+
     if (isConnected && address) {
+      const chainId = caipAddress?.split(":")[1] || null;
       const userId = Cookies.get("accountIdentifier") || generateAccountIdentifier();
-      Cookies.set("accountIdentifier", userId, { path: "/", expires: 7 });
+
+      if (!Cookies.get("accountIdentifier")) {
+        Cookies.set("accountIdentifier", userId, { path: "/", expires: 7 });
+      }
+
       Cookies.set("walletAddress", address, { path: "/", expires: 7 });
 
-      dispatch({ type: "SET_ACCOUNT_IDENTIFIER", payload: userId });
-      dispatch({ type: "SET_WALLET_ADDRESS", payload: address });
+      setAccountIdentifier(userId);
+      setWalletAddress(address);
+      setBlockchainWallet(caipAddress || `${chainId}:${address}`);
+
       fetchProfiles(userId);
     }
-  }, [isConnected, address, generateAccountIdentifier, fetchProfiles]);
+  }, [isConnected, address, caipAddress, status]);
 
   return (
     <WagmiProvider config={wagmiAdapter.wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <AuthContext.Provider
           value={{
-            walletAddress: state.walletAddress,
-            accountIdentifier: state.accountIdentifier,
-            blockchainWallet: caipAddress || null,
-            profiles: state.profiles,
-            activeWallet: state.activeWallet,
-            activeProfile: state.activeProfile,
-            setActiveWallet: (wallet) =>
-              dispatch({ type: "SET_ACTIVE_WALLET", payload: wallet }),
-            switchProfile: (wallet) => {
-              const selectedProfile = state.profiles.find((p) => p.walletAddress === wallet);
-              if (!selectedProfile) {
-                console.error("Cannot switch to a non-existent profile:", wallet);
-                return;
-              }
-              dispatch({ type: "SET_ACTIVE_WALLET", payload: wallet });
-              dispatch({ type: "SET_ACTIVE_PROFILE", payload: selectedProfile });
-              storageHelper.set("activeWallet", wallet);
-              storageHelper.set("activeProfile", selectedProfile);
-            },
-            connect: handleConnect,
-            disconnect: async () => {
-              logoutProfile();
-              await wagmiDisconnect();
-            },
+            walletAddress,
+            accountIdentifier,
+            blockchainWallet,
+            profiles,
+            activeWallet,
+            activeProfile,
+            setActiveWallet,
+            switchProfile,
+            disconnect: handleDisconnect,
             connectors,
+            connect: handleConnect,
+            username,
             fetchProfiles,
-            logoutProfile,
+            createProfile,
           }}
         >
           {children}
@@ -262,7 +255,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// useAuthContext Hook
 export const useAuthContext = () => {
   const context = useContext(AuthContext);
   if (!context) {
