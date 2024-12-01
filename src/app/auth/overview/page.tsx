@@ -9,40 +9,53 @@ export default function ProfileOverviewPage() {
   const {
     activeProfile,
     activeWallet,
-    blockchainWallet, // Include blockchainWallet for additional context
+    blockchainWallet,
     disconnect,
     profiles,
     walletAddress,
-    switchProfile, // Use switchProfile directly
+    switchProfile,
   } = useAuthContext();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  // Redirect if no wallet is connected or no active profile is set
+  // Centralized redirect logic
   useEffect(() => {
     if (!activeWallet) {
       console.log("No active wallet, redirecting to connect page...");
-      router.push("/auth/connect");
+      router.replace("/auth/connect");
     } else if (!activeProfile) {
       console.log("No active profile, redirecting to create-profile page...");
-      router.push("/auth/create-profile");
+      router.replace("/auth/create-profile");
     }
   }, [activeWallet, activeProfile, router]);
 
   const handleLogout = async () => {
     setLoading(true);
-    await disconnect();
-    setLoading(false);
-    router.push("/auth/connect");
+    try {
+      await disconnect();
+      router.replace("/auth/connect");
+    } catch (error) {
+      console.error("Error during logout:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSwitchProfile = (walletAddress: string) => {
-    console.log("Switching profile to wallet:", walletAddress);
-    switchProfile(walletAddress); // Directly call switchProfile
+    try {
+      console.log("Switching profile to wallet:", walletAddress);
+      switchProfile(walletAddress);
+    } catch (error) {
+      console.error("Error switching profile:", error);
+    }
   };
 
   if (!activeProfile || !activeWallet) {
-    return <div className="text-center text-white">Loading...</div>;
+    return (
+      <div className="text-center text-white min-h-screen flex items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
   }
 
   return (
@@ -98,7 +111,7 @@ export default function ProfileOverviewPage() {
             <strong>Blockchain Wallet:</strong> {blockchainWallet}
           </p>
           <p>
-            <strong>Blockchain Wallet:</strong> {walletAddress}
+            <strong>Wallet Address:</strong> {walletAddress}
           </p>
         </div>
 

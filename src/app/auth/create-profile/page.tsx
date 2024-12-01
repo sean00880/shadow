@@ -38,6 +38,7 @@ export default function CreateProfilePage() {
     username?: string;
     about?: string;
   };
+
   const [errors, setErrors] = useState<ErrorState>({});
   const [loading, setLoading] = useState(false);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
@@ -134,7 +135,6 @@ export default function CreateProfilePage() {
         short_id: shortId,
       };
 
-      // API call validations
       const { data: existingProfilesByWallet } = await supabase
         .from("profiles")
         .select("id")
@@ -171,7 +171,6 @@ export default function CreateProfilePage() {
       setLoading(false);
     }
   };
-
 
   const alertModal = useMemo(() => {
     if (!alertMessage) return null;
