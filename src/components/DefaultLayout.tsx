@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
@@ -11,37 +11,68 @@ const DefaultLayout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const [isDarkMode, setIsDarkMode] = useState(true);
 
   const {
-
+    activeWallet,
     profiles,
     activeProfile,
-
+    setActiveWallet,
     connect,
     connectors,
     disconnect,
     walletAddress,
-
+    fetchProfiles,
+    accountIdentifier,
   } = useAuthContext();
 
-
+  const router = useRouter();
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const toggleTheme = () => setIsDarkMode(!isDarkMode);
 
-  useEffect(() => {
-    document.documentElement.setAttribute(
-      "data-theme",
-      isDarkMode ? "dark" : "light"
+  // Pre-compute route logic based on the current wallet and profiles
+  const redirectRoute = useMemo(() => {
+    if (!walletAddress) {
+      return "/auth/connect";
+    }
+
+    if (profiles.length === 0 && accountIdentifier) {
+      fetchProfiles(); // Trigger fetch if profiles are missing
+    }
+
+    const linkedProfile = profiles.find(
+      (profile) => profile.walletAddress === activeWallet
     );
-  }, [isDarkMode]);
 
+    if (!linkedProfile) {
+      return "/auth/create-profile";
+    }
 
+    if (activeWallet && linkedProfile) {
+      setActiveWallet(activeWallet); // Ensure activeWallet is set
+      return "/auth/overview";
+    }
+
+    return null; // No redirection needed
+  }, [
+    walletAddress,
+    profiles,
+    activeWallet,
+    accountIdentifier,
+    fetchProfiles,
+    setActiveWallet,
+  ]);
+
+  // Perform redirection only if a route is computed
+  if (redirectRoute) {
+    router.push(redirectRoute);
+    return null; // Prevent rendering the rest of the layout during redirect
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
       <TopBar
         isDarkMode={isDarkMode}
         toggleTheme={toggleTheme}
-        connect={connect}
+        connect={(connector) => connect({ connector })} 
         connectors={connectors}
         disconnect={disconnect}
         walletAddress={walletAddress}

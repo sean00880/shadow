@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useState, useContext, useEffect, ReactNode, useRef } from "react";
+import React, { createContext, useCallback, useState, useContext, useEffect, ReactNode, useRef } from "react";
 import { Connector, useConnect, useDisconnect } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { wagmiAdapter, projectId } from "../lib/config";
@@ -10,6 +10,7 @@ import { mainnet, base, bsc } from "@reown/appkit/networks";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { supabase } from "../utils/supaBaseClient";
 import Cookies from "js-cookie";
+
 
 export const appKit = createAppKit({
   adapters: [wagmiAdapter],
@@ -55,7 +56,7 @@ export interface AuthContextType {
   connect: (options: { connector: Connector; chainId?: number }) => Promise<void>;
   disconnect: () => Promise<void>;
   connectors: readonly Connector[];
-  fetchProfiles: (accountIdentifier: string) => Promise<void>;
+  fetchProfiles: () => Promise<void>;
   createProfile: (newProfileData: Profile) => Promise<void>;
 }
 
@@ -66,7 +67,6 @@ type AuthProviderProps = {
   cookies?: { walletAddress: string | null; accountIdentifier: string | null };
 };
 
-// Helper function for cookie validation
 const validateCookie = (key: string, value: string | null | undefined, prefix: string): string | null => {
   if (value && value.startsWith(prefix)) {
     return value;
@@ -106,36 +106,31 @@ export const AuthProvider = ({ children, cookies }: AuthProviderProps) => {
     setActiveProfile(profile);
   };
 
-  const fetchProfiles = async (identifier: string) => {
-    try {
-      if (profileCache.current.has(identifier)) {
-        setProfiles(profileCache.current.get(identifier)!);
-        return;
-      }
+  const fetchProfiles = useCallback(async () => {
+    if (!isConnected || !walletAddress) return;
 
-      const { data, error } = await supabase
+    try {
+      const { data: existingProfiles, error } = await supabase
         .from("profiles")
         .select("*")
-        .eq("account_identifier", identifier);
+        .eq("wallet_address", walletAddress);
 
-      if (error) throw new Error(error.message);
+      if (error) throw new Error(`Error fetching profiles: ${error.message}`);
 
-      const formattedData = data?.map((profile) => ({
-        ...profile,
-        displayName: profile.display_name,
-        profileImageUrl: profile.profile_image_url,
-        bannerImageUrl: profile.banner_image_url,
-      })) || [];
-
-      profileCache.current.set(identifier, formattedData);
-      setProfiles(formattedData);
-      setUsername(formattedData[0]?.username || null);
+      if (existingProfiles?.length) {
+        setProfiles(existingProfiles);
+        setActiveProfile(existingProfiles[0]);
+        setActiveWallet(walletAddress);
+        setAccountIdentifier(existingProfiles[0].accountIdentifier);
+      } else {
+        setProfiles([]);
+        setActiveProfile(null);
+        setAccountIdentifier(`user-${crypto.randomUUID()}`);
+      }
     } catch (error) {
       console.error("Error fetching profiles:", error);
-      setProfiles([]);
-      setUsername(null);
     }
-  };
+  }, [isConnected, walletAddress]);
 
   const createProfile = async (newProfileData: Profile) => {
     try {
@@ -152,7 +147,7 @@ export const AuthProvider = ({ children, cookies }: AuthProviderProps) => {
 
       if (error) throw new Error(error.message);
 
-      await fetchProfiles(accountIdentifier!); // Refresh profiles
+      await fetchProfiles(); // Refresh profiles
     } catch (error) {
       console.error("Error creating profile:", error);
     }
@@ -187,28 +182,7 @@ export const AuthProvider = ({ children, cookies }: AuthProviderProps) => {
   };
 
   useEffect(() => {
-    const handleStorage = () => {
-      setWalletAddress(Cookies.get("walletAddress") || null);
-      setAccountIdentifier(Cookies.get("accountIdentifier") || null);
-    };
-
-    window.addEventListener("storage", handleStorage);
-    return () => window.removeEventListener("storage", handleStorage);
-  }, []);
-
-  useEffect(() => {
     console.log("Wallet connection status changed:", { isConnected, address, caipAddress, status });
-
-    if (!isConnected || !address) {
-      console.log("No connected wallet found. Skipping wallet setup.");
-      return;
-    }
-
-    if (status === "connecting" || status === "reconnecting") {
-      console.log("Wallet is connecting or reconnecting...");
-      return;
-    }
-
     if (isConnected && address) {
       const chainId = caipAddress?.split(":")[1] || null;
       const userId = Cookies.get("accountIdentifier") || generateAccountIdentifier();
@@ -223,9 +197,9 @@ export const AuthProvider = ({ children, cookies }: AuthProviderProps) => {
       setWalletAddress(address);
       setBlockchainWallet(caipAddress || `${chainId}:${address}`);
 
-      fetchProfiles(userId);
+      fetchProfiles();
     }
-  }, [isConnected, address, caipAddress, status]);
+  }, [isConnected, address, caipAddress, status, fetchProfiles]);
 
   return (
     <WagmiProvider config={wagmiAdapter.wagmiConfig}>

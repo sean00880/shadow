@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuthContext } from "../../../context/AuthContext";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -18,11 +18,16 @@ export default function ProfileOverviewPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  // Centralized redirect logic using immediate checks
-  
-
-  // Redirect early if conditions are not met
-  
+  // Centralized redirect logic
+  useEffect(() => {
+    if (!activeWallet) {
+      console.log("No active wallet, redirecting to connect page...");
+      router.replace("/auth/connect");
+    } else if (!activeProfile) {
+      console.log("No active profile, redirecting to create-profile page...");
+      router.replace("/auth/create-profile");
+    }
+  }, [activeWallet, activeProfile, router]);
 
   const handleLogout = async () => {
     setLoading(true);
@@ -45,13 +50,20 @@ export default function ProfileOverviewPage() {
     }
   };
 
-  // Safe rendering of the profile information
+  if (!activeProfile || !activeWallet) {
+    return (
+      <div className="text-center text-white min-h-screen flex items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-dark text-white flex flex-col items-center justify-center p-6">
       <div className="w-full md:w-2/3 bg-gray-800 p-6 rounded-lg shadow-lg">
         {/* Banner Image */}
         <div className="text-center">
-          {activeProfile?.bannerImageUrl ? (
+          {activeProfile.bannerImageUrl ? (
             <Image
               src={activeProfile.bannerImageUrl}
               alt="Banner"
@@ -66,7 +78,7 @@ export default function ProfileOverviewPage() {
 
         {/* Profile Image */}
         <div className="text-center mt-4">
-          {activeProfile?.profileImageUrl ? (
+          {activeProfile.profileImageUrl ? (
             <Image
               src={activeProfile.profileImageUrl}
               alt="Profile"
@@ -80,33 +92,26 @@ export default function ProfileOverviewPage() {
         </div>
 
         {/* Profile Details */}
-        <h3 className="text-2xl font-bold mt-4">
-          {activeProfile?.displayName || "No display name"}
-        </h3>
-        <p className="text-sm text-gray-400">
-          @{activeProfile?.username || "No username"}
-        </p>
-        <p className="mt-2">
-          {activeProfile?.about || "No additional information available."}
-        </p>
+        <h3 className="text-2xl font-bold mt-4">{activeProfile.displayName}</h3>
+        <p className="text-sm text-gray-400">@{activeProfile.username}</p>
+        <p className="mt-2">{activeProfile.about}</p>
 
         {/* Additional Profile Information */}
         <div className="mt-4">
           <p>
-            <strong>Membership:</strong>{" "}
-            {activeProfile?.membershipTier || "N/A"}
+            <strong>Membership:</strong> {activeProfile.membershipTier}
           </p>
           <p>
-            <strong>Role:</strong> {activeProfile?.role || "N/A"}
+            <strong>Role:</strong> {activeProfile.role}
           </p>
           <p>
-            <strong>Profile Type:</strong> {activeProfile?.profileType || "N/A"}
+            <strong>Profile Type:</strong> {activeProfile.profileType}
           </p>
           <p>
-            <strong>Blockchain Wallet:</strong> {blockchainWallet || "N/A"}
+            <strong>Blockchain Wallet:</strong> {blockchainWallet}
           </p>
           <p>
-            <strong>Wallet Address:</strong> {walletAddress || "N/A"}
+            <strong>Wallet Address:</strong> {walletAddress}
           </p>
         </div>
 
@@ -116,7 +121,7 @@ export default function ProfileOverviewPage() {
           <select
             className="block w-full mt-2 p-2 bg-gray-700 text-white rounded-md"
             onChange={(e) => handleSwitchProfile(e.target.value)}
-            value={activeWallet || ""}
+            value={activeWallet}
           >
             {profiles.map((profile) => (
               <option key={profile.walletAddress} value={profile.walletAddress}>
