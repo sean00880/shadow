@@ -17,7 +17,7 @@ export default function ConnectPage() {
 
   useEffect(() => {
     if (accountIdentifier && !profiles.length) {
-      fetchProfiles(accountIdentifier);
+      fetchProfiles();
     }
   }, [accountIdentifier, profiles.length, fetchProfiles]);
   

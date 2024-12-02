@@ -50,7 +50,11 @@ export default function TopBar({
   }, []);
 
   return (
-    <div className="topbar flex items-center justify-between px-4 py-2 shadow-lg border-b border-gray-700">
+    <div
+      className={` flex items-center justify-between px-4 py-2 shadow-lg border-b border-gray-700 ${
+        isDarkMode ? "bg-[#090909] text-white" : "bg-white text-black"
+      }`}
+    >
       {/* Left Spacer */}
       <div className="w-1/3"></div>
 
@@ -84,7 +88,6 @@ export default function TopBar({
             onMouseLeave={handleProfileLeave}
             ref={menuRef}
           >
-            <w3m-button />
             {/* Profile Image */}
             <Image
               src={profileImage}
@@ -96,17 +99,21 @@ export default function TopBar({
 
             {/* Dropdown Menu */}
             {isMenuOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md z-10">
+              <div className={`absolute right-0 mt-2 w-48 shadow-lg rounded-md z-10  ${
+            isDarkMode ? "bg-[#090909] text-white" : "bg-white text-black"
+          }`}>
                 <ul className="py-2">
-                  {profiles.map((profile) => (
+                  {profiles.map((profile, index) => (
                     <li
-                      key={profile.walletAddress}
+                      key={profile.walletAddress || `profile-${index}`} // Fallback for missing walletAddress
                       className={`px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer ${
-                        activeProfile?.walletAddress === profile.walletAddress ? "font-bold" : ""
+                        activeProfile?.walletAddress === profile.walletAddress
+                          ? "font-bold"
+                          : ""
                       }`}
                       onClick={() => switchProfile(profile.walletAddress)}
                     >
-                      {profile.displayName || profile.username}
+                      {profile.displayName || profile.username || "Unnamed"}
                     </li>
                   ))}
                   <li
