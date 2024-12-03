@@ -43,7 +43,7 @@ const Comment: React.FC<CommentProps> = ({ comment }) => {
       if (userReaction === "dislike") setDislikeCount(dislikeCount - 1);
       setUserReaction("like");
     }
-    await updateReaction("like");
+    await updateReaction("likes", likeCount + (userReaction === "like" ? -1 : 1));
   };
 
   const handleDislike = async () => {
@@ -55,30 +55,29 @@ const Comment: React.FC<CommentProps> = ({ comment }) => {
       if (userReaction === "like") setLikeCount(likeCount - 1);
       setUserReaction("dislike");
     }
-    await updateReaction("dislike");
+    await updateReaction("dislikes", dislikeCount + (userReaction === "dislike" ? -1 : 1));
   };
 
   const handleBoost = async () => {
     setBoostCount(boostCount + 1);
-    await updateReaction("boost");
+    await updateReaction("boosts", boostCount + 1);
   };
 
   const handleReshare = async () => {
     setReshareCount(reshareCount + 1);
-    await updateReaction("reshare");
+    await updateReaction("reshares", reshareCount + 1);
   };
 
-  const updateReaction = async (type: string) => {
-    const updatedFields: Record<string, number> = {
-      like: likeCount,
-      dislike: dislikeCount,
-      boost: boostCount,
-      reshare: reshareCount,
-    };
-    await supabase
-      .from("replies")
-      .update({ [type]: updatedFields[type] })
-      .eq("id", comment.id);
+  const updateReaction = async (field: string, value: number) => {
+    try {
+      const { error } = await supabase
+        .from("replies")
+        .update({ [field]: value })
+        .eq("id", comment.id);
+      if (error) throw error;
+    } catch (error) {
+      console.error(`Error updating ${field}:`, error);
+    }
   };
 
   return (

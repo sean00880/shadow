@@ -41,69 +41,71 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
       alert("Cannot create an empty post.");
       return;
     }
-  
+
     if (!accountIdentifier) {
       alert("You need to log in to create a post.");
       return;
     }
-  
+
     setUploading(true);
-  
+
     try {
-        const uploadedMediaUrls: string[] = [];
-        for (const file of mediaFiles) {
-          const fileName = `${Date.now()}_${file.name}`;
-          
-          // Upload file to Supabase storage
-          const { error: uploadError } = await supabase.storage
-            .from("post-media")
-            .upload(fileName, file);
-      
-          if (uploadError) throw uploadError;
-      
-          // Get the public URL of the uploaded file
-          const { data: publicUrlData } = supabase.storage
-            .from("post-media")
-            .getPublicUrl(fileName);
-      
-          if (publicUrlData?.publicUrl) {
-            uploadedMediaUrls.push(publicUrlData.publicUrl);
-          }
+      const uploadedMediaUrls: string[] = [];
+
+      // Upload each media file to Supabase storage
+      for (const file of mediaFiles) {
+        const fileName = `${Date.now()}_${file.name}`; // Ensure unique file names
+        const { error: uploadError } = await supabase.storage
+          .from("post-images")
+          .upload(fileName, file);
+
+        if (uploadError) {
+          throw new Error(`Failed to upload media: ${file.name}`);
         }
-      
-        // Insert post data into the database
-        const { error } = await supabase.from("posts").insert({
-          profile_id: accountIdentifier,
-          content: content.trim(),
-          media: uploadedMediaUrls,
-          timestamp: new Date().toISOString(),
-          likes: 0,
-          dislikes: 0,
-          boosts: 0,
-          reshares: 0,
-          comments_count: 0,
-        });
-      
-        if (error) throw error;
-      
-        // Clear form and refresh posts
-        setContent("");
-        setMediaFiles([]);
-        onPostCreated();
-      } catch (error) {
-        console.error("Error creating post:", error);
-        alert("Error creating post. Please try again.");
-      } finally {
-        setUploading(false);
+
+        // Get the public URL for the uploaded file
+        const { data: publicUrlData } = supabase.storage
+          .from("post-images")
+          .getPublicUrl(fileName);
+
+        if (publicUrlData?.publicUrl) {
+          uploadedMediaUrls.push(publicUrlData.publicUrl);
+        }
       }
+
+      // Insert post data into the database
+      const { error } = await supabase.from("posts").insert({
+        profile_id: accountIdentifier,
+        content: content.trim(),
+        media: uploadedMediaUrls,
+        timestamp: new Date().toISOString(),
+        likes: 0,
+        dislikes: 0,
+        boosts: 0,
+        reshares: 0,
+        comments_count: 0,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      // Clear form and notify parent component
+      setContent("");
+      setMediaFiles([]);
+      onPostCreated();
+    } catch (error) {
+      console.error("Error creating post:", error);
+      alert("Error creating post. Please try again.");
+    } finally {
+      setUploading(false);
+    }
   };
-  
 
   return (
     <div className="create-post p-4 border-b bg-white dark:bg-gray-900">
       <div className="flex items-start">
         <div className="flex-shrink-0">
-          
           <Image
             src="/default-avatar.png"
             alt="User avatar"
