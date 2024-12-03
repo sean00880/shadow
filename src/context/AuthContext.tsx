@@ -68,7 +68,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [accountIdentifier, setAccountIdentifier] = useState<string | null>(() =>
     isBrowser ? localStorage.getItem("accountIdentifier") : null
   );
-  const [blockchainWallet, setBlockchainWallet] = useState<string | null>(null);
+  const [blockchainWallet, setBlockchainWallet] = useState<string | null>(() =>
+    isBrowser ? localStorage.getItem("blockchainWallet") : null
+  );
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
   const [profiles, setProfiles] = useState<Profile[]>(() =>
     isBrowser ? JSON.parse(localStorage.getItem("profiles") || "[]") : []
@@ -104,13 +106,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         } else {
           setProfiles([]);
           setActiveProfile(null);
-          const generatedId = `user-${crypto.randomUUID()}`;
-          setAccountIdentifier(generatedId);
-
-          if (isBrowser) {
-            localStorage.setItem("accountIdentifier", generatedId);
-            Cookies.set("accountIdentifier", generatedId, { expires: 7 });
-          }
         }
       } catch (error) {
         console.error("Error fetching profiles:", error);
@@ -126,22 +121,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       if (isBrowser) {
         localStorage.setItem("walletAddress", address);
+        localStorage.setItem("blockchainWallet", caipAddress || "");
       }
       fetchProfiles(address);
-    } else {
-      setWalletAddress(null);
-      setBlockchainWallet(null);
-      setProfiles([]);
-      setActiveProfile(null);
-      setAccountIdentifier(null);
-
-      if (isBrowser) {
-        localStorage.removeItem("walletAddress");
-        localStorage.removeItem("profiles");
-        localStorage.removeItem("activeProfile");
-        localStorage.removeItem("accountIdentifier");
-        Cookies.remove("accountIdentifier");
-      }
+    } else if (isBrowser && localStorage.getItem("walletAddress")) {
+      const storedWallet = localStorage.getItem("walletAddress");
+      setWalletAddress(storedWallet);
+      setBlockchainWallet(localStorage.getItem("blockchainWallet") || null);
+      fetchProfiles(storedWallet);
     }
   }, [isConnected, address, caipAddress, fetchProfiles, isBrowser]);
 
