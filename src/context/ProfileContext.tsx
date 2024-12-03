@@ -26,7 +26,6 @@ export interface Profile {
   accountIdentifier: string;
   blockchainWallet: string;
   email?: string;
-  password?: string;
   shortId?: string;
   linked?: string[];
   links?: string[];
@@ -35,7 +34,6 @@ export interface Profile {
 interface ProfileContextType {
   profiles: Profile[];
   activeProfile: Profile | null;
-  accountIdentifier: string | null; // Reflected from AuthContext
   isLoadingProfile: boolean;
   fetchProfiles: () => Promise<void>;
   switchProfile: (profileId: string) => void;
@@ -47,35 +45,27 @@ const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 export const ProfileProvider = ({ children }: { children: ReactNode }) => {
   const {
     walletAddress,
-    isConnected,
     accountIdentifier,
-    setAccountIdentifier, // Ensure this is added to AuthContext
+    setAccountIdentifier,
+    isConnected,
   } = useAuthContext();
 
-  const [profiles, setProfiles] = useState<Profile[]>(() =>
-    typeof window !== "undefined" && walletAddress
-      ? JSON.parse(localStorage.getItem(`profiles_${walletAddress}`) || "[]")
-      : []
-  );
-  const [activeProfile, setActiveProfile] = useState<Profile | null>(() =>
-    typeof window !== "undefined"
-      ? JSON.parse(localStorage.getItem("activeProfile") || "null")
-      : null
-  );
+  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [activeProfile, setActiveProfile] = useState<Profile | null>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
 
+  // Fetch profiles linked to the wallet
   const fetchProfiles = useCallback(async () => {
     if (!walletAddress) {
+      console.log("No wallet connected. Clearing profiles...");
       setProfiles([]);
       setActiveProfile(null);
-      setAccountIdentifier(null); // Clear accountIdentifier if wallet is disconnected
-      localStorage.removeItem("activeProfile");
+      setAccountIdentifier(null);
       Cookies.remove("accountIdentifier");
       return;
     }
 
     setIsLoadingProfile(true);
-
     try {
       const { data, error } = await supabase
         .from("profiles")
@@ -85,24 +75,26 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
       if (error) throw new Error(error.message);
 
       if (data?.length) {
+        console.log("Profiles fetched successfully:", data);
         setProfiles(data);
-        setActiveProfile(data[0]);
-        setAccountIdentifier(data[0].accountIdentifier); // Use the value from the profile
+        setActiveProfile(data[0]); // Default to the first profile
+        setAccountIdentifier(data[0].accountIdentifier);
 
-        // Cache data in localStorage and cookies
+        // Cache profiles and active profile in localStorage and Cookies
         localStorage.setItem(`profiles_${walletAddress}`, JSON.stringify(data));
         localStorage.setItem("activeProfile", JSON.stringify(data[0]));
         Cookies.set("accountIdentifier", data[0].accountIdentifier, { expires: 7 });
       } else {
-        // Generate accountIdentifier if no profile exists
-        if (!accountIdentifier) {
-          const generatedAccountId = `user-${crypto.randomUUID()}`;
-          setAccountIdentifier(generatedAccountId); // Use AuthContext's logic
-          Cookies.set("accountIdentifier", generatedAccountId, { expires: 7 });
-        }
-
+        console.log("No profiles found for the connected wallet.");
         setProfiles([]);
         setActiveProfile(null);
+
+        // Generate a new accountIdentifier if no profiles exist
+        if (!accountIdentifier) {
+          const generatedAccountId = `user-${crypto.randomUUID()}`;
+          setAccountIdentifier(generatedAccountId);
+          Cookies.set("accountIdentifier", generatedAccountId, { expires: 7 });
+        }
       }
     } catch (error) {
       console.error("Error fetching profiles:", error);
@@ -111,6 +103,31 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [walletAddress, accountIdentifier, setAccountIdentifier]);
 
+  // Handle profile switching
+  const switchProfile = (profileId: string) => {
+    const selectedProfile = profiles.find((profile) => profile.id === profileId);
+    if (selectedProfile) {
+      setActiveProfile(selectedProfile);
+      setAccountIdentifier(selectedProfile.accountIdentifier);
+      localStorage.setItem("activeProfile", JSON.stringify(selectedProfile));
+      Cookies.set("accountIdentifier", selectedProfile.accountIdentifier, { expires: 7 });
+      console.log("Switched to profile:", selectedProfile);
+    } else {
+      console.error("Profile with the given ID not found:", profileId);
+    }
+  };
+
+  // Clear profile state (e.g., on logout)
+  const clearProfileState = () => {
+    setProfiles([]);
+    setActiveProfile(null);
+    setAccountIdentifier(null);
+    localStorage.removeItem("activeProfile");
+    Cookies.remove("accountIdentifier");
+    console.log("Profile state cleared.");
+  };
+
+  // Fetch profiles when the wallet is connected
   useEffect(() => {
     if (isConnected) {
       fetchProfiles();
@@ -122,25 +139,10 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
       value={{
         profiles,
         activeProfile,
-        accountIdentifier, // Expose accountIdentifier here
         isLoadingProfile,
         fetchProfiles,
-        switchProfile: (profileId: string) => {
-          const selectedProfile = profiles.find((profile) => profile.id === profileId);
-          if (selectedProfile) {
-            setActiveProfile(selectedProfile);
-            setAccountIdentifier(selectedProfile.accountIdentifier); // Reflect accountIdentifier
-            localStorage.setItem("activeProfile", JSON.stringify(selectedProfile));
-            Cookies.set("accountIdentifier", selectedProfile.accountIdentifier, { expires: 7 });
-          }
-        },
-        clearProfileState: () => {
-          setProfiles([]);
-          setActiveProfile(null);
-          setAccountIdentifier(null);
-          localStorage.removeItem("activeProfile");
-          Cookies.remove("accountIdentifier");
-        },
+        switchProfile,
+        clearProfileState,
       }}
     >
       {children}

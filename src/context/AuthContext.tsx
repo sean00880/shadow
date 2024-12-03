@@ -5,6 +5,7 @@ import { Connector, useConnect, useDisconnect } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
 import { createAppKit } from "@reown/appkit";
+import { wagmiAdapter, projectId } from "../lib/config";
 import { mainnet, sepolia, base, bsc } from "@reown/appkit/networks";
 import { useAppKitAccount } from "@reown/appkit/react";
 import Cookies from "js-cookie";
@@ -14,9 +15,16 @@ import {
   cookieStorage,
   createStorage,
 } from "wagmi";
-import { wagmiAdapter, projectId } from "../lib/config";
 
-// Function to create Wagmi config
+// Initialize AppKit
+export const appKit = createAppKit({
+  adapters: [wagmiAdapter],
+  projectId,
+  networks: [mainnet, base, bsc],
+  defaultNetwork: mainnet,
+});
+
+
 export function wagmiConfig() {
   return createConfig({
     chains: [mainnet, sepolia],
@@ -31,25 +39,18 @@ export function wagmiConfig() {
   });
 }
 
-export const appKit = createAppKit({
-  adapters: [wagmiAdapter],
-  projectId,
-  networks: [mainnet, base, bsc],
-  defaultNetwork: mainnet,
-});
-
 const queryClient = new QueryClient();
 
 export interface AuthContextType {
   walletAddress: string | null;
   accountIdentifier: string | null;
-  blockchainWallet: string | null;
-  isConnecting: boolean;
+  blockchainWallet: string | null; // Added back
+  setAccountIdentifier: (accountIdentifier: string | null) => void;
   isConnected: boolean;
+  isConnecting: boolean;
   connect: (options: { connector: Connector; chainId?: number }) => Promise<void>;
   disconnect: () => Promise<void>;
   connectors: readonly Connector[];
-  setAccountIdentifier: (accountIdentifier: string | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -59,57 +60,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { disconnect: wagmiDisconnect } = useDisconnect();
   const { address, isConnected, caipAddress } = useAppKitAccount();
 
-  const [isConnecting, setIsConnecting] = useState(false);
   const [walletAddress, setWalletAddress] = useState<string | null>(
     () => Cookies.get("walletAddress") || null
   );
   const [accountIdentifier, setAccountIdentifier] = useState<string | null>(
     () => Cookies.get("accountIdentifier") || null
   );
-  const [blockchainWallet, setBlockchainWallet] = useState<string | null>(null);
+  const [blockchainWallet, setBlockchainWallet] = useState<string | null>(null); // Added back
+  const [isConnecting, setIsConnecting] = useState(false);
 
-  // Reconnect wallet if connection state exists in localStorage
+  // Sync accountIdentifier and blockchainWallet with wallet connection
   useEffect(() => {
-    const reconnect = async () => {
-      const state = localStorage.getItem("walletConnectState") || "";
-      console.log("Reconnect state from localStorage:", state);
-      if (!isConnected && state === "true") {
-        const readyConnector = connectors.find((connector) => connector.ready);
-        if (readyConnector) {
-          try {
-            console.log("Attempting to reconnect using:", readyConnector.name);
-            await connect({ connector: readyConnector });
-            console.log("Reconnected successfully with:", readyConnector.name);
-          } catch (error) {
-            console.error("Reconnection failed:", error);
-          }
-        } else {
-          console.log("No ready connector available for reconnection.");
-        }
-      }
-    };
+    if (isConnected && caipAddress) {
+      setAccountIdentifier(caipAddress);
+      Cookies.set("accountIdentifier", caipAddress, { expires: 7 });
 
-    reconnect();
-  }, [isConnected, connect, connectors]);
-
-  // Save isConnected state to localStorage
-  useEffect(() => {
-    console.log("Connection state updated. isConnected:", isConnected);
-    if (walletAddress && isConnected) {
-      console.log("Saving walletConnectState as true in localStorage.");
-      localStorage.setItem("walletConnectState", "true");
-    } else {
-      console.log("Removing walletConnectState from localStorage.");
-      localStorage.removeItem("walletConnectState");
+      // Extract the chain ID from caipAddress and set blockchainWallet
+      const chainId = caipAddress.split(":")[1];
+      setBlockchainWallet(`${chainId}:${address}`);
     }
-  }, [walletAddress, isConnected]);
+  }, [isConnected, caipAddress, address]);
+
+  // Save walletAddress to Cookies on successful connection
+  useEffect(() => {
+    if (isConnected && address) {
+      setWalletAddress(address);
+      Cookies.set("walletAddress", address, { expires: 7 });
+    } else {
+      setWalletAddress(null);
+      Cookies.remove("walletAddress");
+    }
+  }, [isConnected, address]);
 
   const handleConnect = async (options: { connector: Connector; chainId?: number }) => {
     setIsConnecting(true);
     try {
-      console.log("Connecting wallet...");
       await connect(options);
-      console.log("Wallet connected successfully:", options.connector.name);
     } catch (error) {
       console.error("Error during wallet connection:", error);
     } finally {
@@ -118,57 +104,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const handleDisconnect = async () => {
-    console.log("Disconnecting wallet...");
     try {
       await wagmiDisconnect();
       setWalletAddress(null);
       setAccountIdentifier(null);
-      setBlockchainWallet(null);
+      setBlockchainWallet(null); // Clear blockchainWallet on disconnect
       Cookies.remove("walletAddress");
       Cookies.remove("accountIdentifier");
-      localStorage.removeItem("walletConnectState");
-      console.log("Wallet disconnected successfully.");
     } catch (error) {
       console.error("Error during wallet disconnection:", error);
     }
   };
 
-  useEffect(() => {
-    if (isConnected && address) {
-      setWalletAddress(address);
-      Cookies.set("walletAddress", address, { expires: 7 });
-
-      if (!accountIdentifier) {
-        const generatedAccountId = `user-${crypto.randomUUID()}`;
-        setAccountIdentifier(generatedAccountId);
-        Cookies.set("accountIdentifier", generatedAccountId, { expires: 7 });
-      }
-
-      const chainId = caipAddress?.split(":")[1] || null;
-      setBlockchainWallet(`${chainId}:${address}`);
-      console.log("Wallet details updated:", {
-        walletAddress: address,
-        accountIdentifier,
-        blockchainWallet: `${chainId}:${address}`,
-      });
-    }
-  }, [isConnected, address, caipAddress, accountIdentifier]);
-
-  const [config2] = useState(() => wagmiConfig());
   return (
-    <WagmiProvider config={config2}>
+    <WagmiProvider config={wagmiAdapter.wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <AuthContext.Provider
           value={{
             walletAddress,
             accountIdentifier,
-            blockchainWallet,
+            blockchainWallet, // Included in the context
+            setAccountIdentifier,
             isConnected,
+            isConnecting,
+            connect: handleConnect,
             disconnect: handleDisconnect,
             connectors,
-            connect: handleConnect,
-            isConnecting,
-            setAccountIdentifier,
           }}
         >
           {children}

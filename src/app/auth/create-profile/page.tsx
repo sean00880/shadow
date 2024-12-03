@@ -17,7 +17,7 @@ const MemoizedAlertModal = memo(AlertModal);
 
 export default function CreateProfilePage() {
   const { walletAddress, accountIdentifier, blockchainWallet } = useAuthContext();
-  const {  fetchProfiles } = useProfileContext();
+  const { profiles, fetchProfiles } = useProfileContext();
   const router = useRouter();
 
   const [profileData, setProfileData] = useState({
@@ -30,7 +30,6 @@ export default function CreateProfilePage() {
     role: "Normie",
     membershipTier: "basic",
     email: "",
-    password: "",
     linked: [],
     links: [],
   });
@@ -46,6 +45,7 @@ export default function CreateProfilePage() {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [showRedirect, setShowRedirect] = useState(false);
 
+  // Validate individual fields
   const validateField = (field: string, value: string) => {
     if (field === "displayName" && (value.length < 3 || value.length > 50)) {
       return "Display Name must be 3–50 characters long.";
@@ -59,6 +59,7 @@ export default function CreateProfilePage() {
     return "";
   };
 
+  // Handle form field changes
   const handleChange = (field: keyof typeof profileData, value: string | File | null) => {
     setProfileData((prev) => ({
       ...prev,
@@ -73,11 +74,13 @@ export default function CreateProfilePage() {
     }
   };
 
+  // Check if form is valid
   const isFormValid = useMemo(
     () => !Object.values(errors).some((error) => error) && profileData.displayName && profileData.username,
     [errors, profileData.displayName, profileData.username]
   );
 
+  // Upload image to bucket
   const uploadImageToBucket = async (file: File | null, folder: string, filePrefix: string) => {
     if (!file) return null;
     try {
@@ -99,6 +102,7 @@ export default function CreateProfilePage() {
     }
   };
 
+  // Submit profile creation
   const handleSubmitProfile = async () => {
     if (!walletAddress || !isFormValid || !accountIdentifier) {
       const errors = [];
@@ -136,31 +140,20 @@ export default function CreateProfilePage() {
         role: profileData.role,
         membership_tier: profileData.membershipTier,
         ...(profileData.email && { email: profileData.email }),
-        ...(profileData.password && { password: profileData.password }),
         ...(profileData.linked.length > 0 && { linked: profileData.linked }),
         ...(profileData.links.length > 0 && { links: profileData.links }),
         short_id: shortId,
       };
 
-      // Check for existing profiles by wallet address or username
-      const [existingProfilesByWallet, existingProfilesByUsername] = await Promise.all([
-        supabase
-          .from("profiles")
-          .select("id")
-          .eq("wallet_address", walletAddress),
-        supabase
-          .from("profiles")
-          .select("id")
-          .eq("account_identifier", accountIdentifier)
-          .eq("username", profileData.username),
-      ]);
+      // Check for existing profiles by wallet address
+      const existingProfile = profiles.find(
+        (profile) =>
+          profile.walletAddress === walletAddress &&
+          profile.accountIdentifier === accountIdentifier
+      );
 
-      if (existingProfilesByWallet.data?.length) {
+      if (existingProfile) {
         throw new Error("A profile already exists for this wallet address.");
-      }
-
-      if (existingProfilesByUsername.data?.length) {
-        throw new Error("A profile with the same username already exists under this account.");
       }
 
       // Insert the new profile
@@ -168,9 +161,7 @@ export default function CreateProfilePage() {
       if (error) throw new Error(error.message);
 
       // Refresh profiles after creation
-      if (accountIdentifier) {
-        await fetchProfiles();
-      }
+      await fetchProfiles();
 
       setAlertMessage("Profile created successfully!");
       setShowRedirect(true);
