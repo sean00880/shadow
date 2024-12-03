@@ -11,7 +11,6 @@ import Cookies from "js-cookie";
 import { wagmiAdapter, projectId } from "../lib/config";
 import { mainnet, base, bsc } from "@reown/appkit/networks";
 
-// Initialize AppKit
 export const appKit = createAppKit({
   adapters: [wagmiAdapter],
   projectId,
@@ -36,7 +35,6 @@ interface AuthContextType {
   walletAddress: string | null;
   accountIdentifier: string | null;
   blockchainWallet: string | null;
-  isConnecting: boolean;
   profiles: Profile[];
   activeProfile: Profile | null;
   isConnected: boolean;
@@ -54,6 +52,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 type AuthProviderProps = {
   children: ReactNode;
 };
+
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const { connect, connectors } = useConnect();
   const { disconnect: wagmiDisconnect } = useDisconnect();
@@ -70,7 +69,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [blockchainWallet, setBlockchainWallet] = useState<string | null>(() =>
     isBrowser ? localStorage.getItem("blockchainWallet") : null
   );
-  const [isConnecting, setIsConnecting] = useState<boolean>(false);
   const [profiles, setProfiles] = useState<Profile[]>(() =>
     isBrowser ? JSON.parse(localStorage.getItem("profiles") || "[]") : []
   );
@@ -103,10 +101,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             Cookies.set("accountIdentifier", defaultProfile.accountIdentifier, { expires: 7 });
           }
         } else {
-          setProfiles([]);
-          setActiveProfile(null);
-
-          // Generate fallback accountIdentifier
           const generatedId = `user-${crypto.randomUUID()}`;
           setAccountIdentifier(generatedId);
 
@@ -122,50 +116,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     [walletAddress, isBrowser]
   );
 
-  // Reconnect wallet if previously connected
-  useEffect(() => {
-    if (!isConnected && walletAddress) {
-      const reconnect = async () => {
-        try {
-          console.log("Attempting wallet reconnection...");
-          await connect({ connector: connectors[0] });
-        } catch (error) {
-          console.error("Reconnection failed:", error);
-        }
-      };
-
-      reconnect();
-    }
-  }, [isConnected, walletAddress, connect, connectors]);
-
-  // Update walletAddress when connected
   useEffect(() => {
     if (isConnected && address) {
-      if (walletAddress !== address) {
-        setWalletAddress(address);
-        localStorage.setItem("walletAddress", address);
-      }
-    }
-  }, [isConnected, address, walletAddress]);
+      setWalletAddress(address);
+      setBlockchainWallet(caipAddress || null);
 
-  // Update blockchainWallet
-  useEffect(() => {
-    if (isConnected && caipAddress) {
-      if (blockchainWallet !== caipAddress) {
-        setBlockchainWallet(caipAddress || null);
+      if (isBrowser) {
+        localStorage.setItem("walletAddress", address);
         localStorage.setItem("blockchainWallet", caipAddress || "");
       }
-    }
-  }, [isConnected, caipAddress, blockchainWallet]);
 
-  // Fetch profiles when wallet is connected
-  useEffect(() => {
-    if (isConnected && address && !profiles.length) {
-      fetchProfiles(address).catch((error) =>
-        console.error("Error fetching profiles:", error)
-      );
+      fetchProfiles(address);
     }
-  }, [isConnected, address, profiles.length, fetchProfiles]);
+  }, [isConnected, address, caipAddress, fetchProfiles, isBrowser]);
 
   const switchProfile = (profileId: string) => {
     const selectedProfile = profiles.find((profile) => profile.id === profileId);
@@ -202,13 +165,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const handleConnect = async (connector: Connector): Promise<void> => {
-    setIsConnecting(true);
     try {
       await connect({ connector });
     } catch (error) {
       console.error("Connection failed:", error);
-    } finally {
-      setIsConnecting(false);
     }
   };
 
@@ -220,7 +180,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             walletAddress,
             accountIdentifier,
             blockchainWallet,
-            isConnecting,
             profiles,
             activeProfile,
             isConnected,
@@ -240,4 +199,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       </QueryClientProvider>
     </WagmiProvider>
   );
+};
+
+export const useAuthContext = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuthContext must be used within an AuthProvider");
+  }
+  return context;
 };
