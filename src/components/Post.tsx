@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation"; // For dynamic URL navigation
 import { supabase } from "../utils/supaBaseClient";
 import Comment from "./Comment";
-import { useAuthContext } from "../context/AuthContext";
+import { useProfileContext } from "../context/ProfileContext";
 
 
 interface Profile {
@@ -60,7 +60,7 @@ const Post: React.FC<PostProps> = ({ post, isDarkMode }) => {
   const [userReaction, setUserReaction] = useState<null | "like" | "dislike">(null);
   const [isCommentsVisible, setIsCommentsVisible] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const { accountIdentifier, activeProfile } = useAuthContext();
+  const { accountIdentifier, activeProfile } = useProfileContext();
   const [currentImageIndex, setCurrentImageIndex] = useState<number | null>(null); // Modal state for image
   const router = useRouter();
 

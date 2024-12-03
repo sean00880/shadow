@@ -35,6 +35,7 @@ export interface Profile {
 interface ProfileContextType {
   profiles: Profile[];
   activeProfile: Profile | null;
+  accountIdentifier: string | null; // Reflected from AuthContext
   isLoadingProfile: boolean;
   fetchProfiles: () => Promise<void>;
   switchProfile: (profileId: string) => void;
@@ -44,7 +45,13 @@ interface ProfileContextType {
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 
 export const ProfileProvider = ({ children }: { children: ReactNode }) => {
-  const { walletAddress, isConnected } = useAuthContext();
+  const {
+    walletAddress,
+    isConnected,
+    accountIdentifier,
+    setAccountIdentifier, // Ensure this is added to AuthContext
+  } = useAuthContext();
+
   const [profiles, setProfiles] = useState<Profile[]>(() =>
     typeof window !== "undefined" && walletAddress
       ? JSON.parse(localStorage.getItem(`profiles_${walletAddress}`) || "[]")
@@ -61,7 +68,9 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
     if (!walletAddress) {
       setProfiles([]);
       setActiveProfile(null);
+      setAccountIdentifier(null); // Clear accountIdentifier if wallet is disconnected
       localStorage.removeItem("activeProfile");
+      Cookies.remove("accountIdentifier");
       return;
     }
 
@@ -78,9 +87,20 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
       if (data?.length) {
         setProfiles(data);
         setActiveProfile(data[0]);
+        setAccountIdentifier(data[0].accountIdentifier); // Use the value from the profile
+
+        // Cache data in localStorage and cookies
         localStorage.setItem(`profiles_${walletAddress}`, JSON.stringify(data));
         localStorage.setItem("activeProfile", JSON.stringify(data[0]));
+        Cookies.set("accountIdentifier", data[0].accountIdentifier, { expires: 7 });
       } else {
+        // Generate accountIdentifier if no profile exists
+        if (!accountIdentifier) {
+          const generatedAccountId = `user-${crypto.randomUUID()}`;
+          setAccountIdentifier(generatedAccountId); // Use AuthContext's logic
+          Cookies.set("accountIdentifier", generatedAccountId, { expires: 7 });
+        }
+
         setProfiles([]);
         setActiveProfile(null);
       }
@@ -89,7 +109,7 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setIsLoadingProfile(false);
     }
-  }, [walletAddress]);
+  }, [walletAddress, accountIdentifier, setAccountIdentifier]);
 
   useEffect(() => {
     if (isConnected) {
@@ -102,19 +122,24 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
       value={{
         profiles,
         activeProfile,
+        accountIdentifier, // Expose accountIdentifier here
         isLoadingProfile,
         fetchProfiles,
         switchProfile: (profileId: string) => {
           const selectedProfile = profiles.find((profile) => profile.id === profileId);
           if (selectedProfile) {
             setActiveProfile(selectedProfile);
+            setAccountIdentifier(selectedProfile.accountIdentifier); // Reflect accountIdentifier
             localStorage.setItem("activeProfile", JSON.stringify(selectedProfile));
+            Cookies.set("accountIdentifier", selectedProfile.accountIdentifier, { expires: 7 });
           }
         },
         clearProfileState: () => {
           setProfiles([]);
           setActiveProfile(null);
+          setAccountIdentifier(null);
           localStorage.removeItem("activeProfile");
+          Cookies.remove("accountIdentifier");
         },
       }}
     >

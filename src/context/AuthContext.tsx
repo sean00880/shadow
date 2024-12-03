@@ -5,16 +5,31 @@ import { Connector, useConnect, useDisconnect } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
 import { createAppKit } from "@reown/appkit";
-import { mainnet, base, bsc } from "@reown/appkit/networks";
+import { mainnet, sepolia, base, bsc } from "@reown/appkit/networks";
 import { useAppKitAccount } from "@reown/appkit/react";
 import Cookies from "js-cookie";
+import {
+  createConfig,
+  http,
+  cookieStorage,
+  createStorage,
+} from "wagmi";
 import { wagmiAdapter, projectId } from "../lib/config";
 
-// Utility function to safely get cookie values
-const getCookieValue = (key: string): string | null => {
-  const value = Cookies.get(key);
-  return value !== undefined ? value : null;
-};
+// Function to create Wagmi config
+export function wagmiConfig() {
+  return createConfig({
+    chains: [mainnet, sepolia],
+    ssr: true,
+    storage: createStorage({
+      storage: cookieStorage,
+    }),
+    transports: {
+      [mainnet.id]: http(),
+      [sepolia.id]: http(),
+    },
+  });
+}
 
 export const appKit = createAppKit({
   adapters: [wagmiAdapter],
@@ -30,10 +45,11 @@ export interface AuthContextType {
   accountIdentifier: string | null;
   blockchainWallet: string | null;
   isConnecting: boolean;
-  isConnected: boolean; // Track connection status
+  isConnected: boolean;
   connect: (options: { connector: Connector; chainId?: number }) => Promise<void>;
   disconnect: () => Promise<void>;
   connectors: readonly Connector[];
+  setAccountIdentifier: (accountIdentifier: string | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -44,15 +60,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { address, isConnected, caipAddress } = useAppKitAccount();
 
   const [isConnecting, setIsConnecting] = useState(false);
-  const [walletAddress, setWalletAddress] = useState<string | null>(() =>
-    typeof window !== "undefined" ? getCookieValue("walletAddress") : null
+  const [walletAddress, setWalletAddress] = useState<string | null>(
+    () => Cookies.get("walletAddress") || null
   );
-  const [accountIdentifier, setAccountIdentifier] = useState<string | null>(() =>
-    typeof window !== "undefined" ? getCookieValue("accountIdentifier") : null
+  const [accountIdentifier, setAccountIdentifier] = useState<string | null>(
+    () => Cookies.get("accountIdentifier") || null
   );
   const [blockchainWallet, setBlockchainWallet] = useState<string | null>(null);
 
-  // Handle wallet connection
+  // Set and restore connection state from localStorage
+  useEffect(() => {
+    const state = localStorage.getItem("walletConnectState") || "";
+    if (!isConnected && state === "true") {
+      const connector = connectors[0];
+      connect({ connector });
+    }
+  }, [isConnected, connect, connectors]);
+
+  useEffect(() => {
+    localStorage.setItem("walletConnectState", isConnected.toString());
+  }, [isConnected]);
+
   const handleConnect = async (options: { connector: Connector; chainId?: number }) => {
     setIsConnecting(true);
     try {
@@ -65,7 +93,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Handle wallet disconnection
   const handleDisconnect = async () => {
     console.log("Disconnecting wallet...");
     try {
@@ -75,12 +102,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setBlockchainWallet(null);
       Cookies.remove("walletAddress");
       Cookies.remove("accountIdentifier");
+      localStorage.removeItem("walletConnectState");
     } catch (error) {
       console.error("Error during wallet disconnection:", error);
     }
   };
 
-  // Update state and cookies when wallet connects
   useEffect(() => {
     if (isConnected && address) {
       setWalletAddress(address);
@@ -97,20 +124,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [isConnected, address, caipAddress, accountIdentifier]);
 
-  // Restore cached wallet state on mount
-  useEffect(() => {
-    if (!walletAddress) {
-      const cachedWalletAddress = getCookieValue("walletAddress");
-      if (cachedWalletAddress) setWalletAddress(cachedWalletAddress);
-    }
-    if (!accountIdentifier) {
-      const cachedAccountIdentifier = getCookieValue("accountIdentifier");
-      if (cachedAccountIdentifier) setAccountIdentifier(cachedAccountIdentifier);
-    }
-  }, []);
-
+  const [config2] = useState(() => wagmiConfig());
   return (
-    <WagmiProvider config={wagmiAdapter.wagmiConfig}>
+    <WagmiProvider config={config2}>
       <QueryClientProvider client={queryClient}>
         <AuthContext.Provider
           value={{
@@ -122,6 +138,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             connectors,
             connect: handleConnect,
             isConnecting,
+            setAccountIdentifier,
           }}
         >
           {children}
