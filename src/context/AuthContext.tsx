@@ -38,6 +38,7 @@ interface AuthContextType {
   profiles: Profile[];
   activeProfile: Profile | null;
   isConnected: boolean;
+  isSwitchingProfile: boolean; // Add a loading state for switching
   setActiveProfile: (profile: Profile | null) => void;
   switchProfile: (profileId: string) => void;
   fetchProfiles: (wallet?: string | null) => Promise<void>;
@@ -75,6 +76,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [activeProfile, setActiveProfile] = useState<Profile | null>(() =>
     isBrowser ? JSON.parse(localStorage.getItem("activeProfile") || "null") : null
   );
+  const [isSwitchingProfile, setIsSwitchingProfile] = useState<boolean>(false); // Track switching state
 
   const fetchProfiles = useCallback(
     async (wallet: string | null = walletAddress) => {
@@ -101,6 +103,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             Cookies.set("accountIdentifier", defaultProfile.accountIdentifier, { expires: 7 });
           }
         } else {
+          setProfiles([]);
+          setActiveProfile(null);
+
           const generatedId = `user-${crypto.randomUUID()}`;
           setAccountIdentifier(generatedId);
 
@@ -108,8 +113,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             localStorage.setItem("accountIdentifier", generatedId);
             Cookies.set("accountIdentifier", generatedId, { expires: 7 });
           }
-          setProfiles([]);
-          setActiveProfile(null);
         }
       } catch (error) {
         console.error("Error fetching profiles:", error);
@@ -119,39 +122,39 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   );
 
   useEffect(() => {
-    const updateOnWalletChange = async () => {
-      if (isConnected && address) {
-        if (walletAddress !== address) {
-          setWalletAddress(address);
-          setBlockchainWallet(caipAddress || null);
-
-          if (isBrowser) {
-            localStorage.setItem("walletAddress", address);
-            localStorage.setItem("blockchainWallet", caipAddress || "");
-          }
-
-          // Fetch profiles for the new wallet
-          await fetchProfiles(address);
-        }
-      }
-    };
-
-    updateOnWalletChange();
-  }, [isConnected, address, caipAddress, walletAddress, fetchProfiles, isBrowser]);
-
-  const switchProfile = (profileId: string) => {
-    const selectedProfile = profiles.find((profile) => profile.id === profileId);
-    if (selectedProfile) {
-      setActiveProfile(selectedProfile);
-      setAccountIdentifier(selectedProfile.accountIdentifier);
+    if (isConnected && address) {
+      setWalletAddress(address);
+      setBlockchainWallet(caipAddress || null);
 
       if (isBrowser) {
-        localStorage.setItem("activeProfile", JSON.stringify(selectedProfile));
-        localStorage.setItem("accountIdentifier", selectedProfile.accountIdentifier);
-        Cookies.set("accountIdentifier", selectedProfile.accountIdentifier, { expires: 7 });
+        localStorage.setItem("walletAddress", address);
+        localStorage.setItem("blockchainWallet", caipAddress || "");
       }
-    } else {
-      console.error("Profile with ID not found:", profileId);
+
+      fetchProfiles(address);
+    }
+  }, [isConnected, address, caipAddress, fetchProfiles, isBrowser]);
+
+  const switchProfile = async (profileId: string) => {
+    setIsSwitchingProfile(true);
+    try {
+      const selectedProfile = profiles.find((profile) => profile.id === profileId);
+      if (selectedProfile) {
+        setActiveProfile(selectedProfile);
+        setAccountIdentifier(selectedProfile.accountIdentifier);
+
+        if (isBrowser) {
+          localStorage.setItem("activeProfile", JSON.stringify(selectedProfile));
+          localStorage.setItem("accountIdentifier", selectedProfile.accountIdentifier);
+          Cookies.set("accountIdentifier", selectedProfile.accountIdentifier, { expires: 7 });
+        }
+      } else {
+        console.error("Profile with ID not found:", profileId);
+      }
+    } catch (error) {
+      console.error("Error switching profiles:", error);
+    } finally {
+      setIsSwitchingProfile(false);
     }
   };
 
@@ -173,14 +176,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const handleConnect = async (connector: Connector): Promise<void> => {
-    try {
-      await connect({ connector });
-    } catch (error) {
-      console.error("Connection failed:", error);
-    }
-  };
-
   return (
     <WagmiProvider config={wagmiAdapter.wagmiConfig}>
       <QueryClientProvider client={queryClient}>
@@ -192,14 +187,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             profiles,
             activeProfile,
             isConnected,
+            isSwitchingProfile,
             setActiveProfile,
             switchProfile,
             logout,
             fetchProfiles,
-            connect: handleConnect,
-            disconnect: async () => {
-              await wagmiDisconnect();
-            },
+            connect: async (connector: Connector) => await connect({ connector }),
+            disconnect: async () => await wagmiDisconnect(),
             connectors,
           }}
         >
