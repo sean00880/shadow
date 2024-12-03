@@ -122,13 +122,16 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
 
   // Clear profile state (e.g., on wallet disconnect)
   const clearProfileState = () => {
-    setProfiles([]);
-    setActiveProfile(null);
-    setAccountIdentifier(null);
-    localStorage.removeItem("activeProfile");
-    Cookies.remove("accountIdentifier");
-    console.log("Profile state cleared.");
+    if (profiles.length > 0 || activeProfile) {
+      setProfiles([]);
+      setActiveProfile(null);
+      setAccountIdentifier(null);
+      localStorage.removeItem("activeProfile");
+      Cookies.remove("accountIdentifier");
+      console.log("Profile state cleared.");
+    }
   };
+  
 
   // Fetch profiles when the wallet is connected
   useEffect(() => {
