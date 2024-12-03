@@ -10,6 +10,7 @@ import { createAppKit } from "@reown/appkit";
 import { supabase } from "../utils/supaBaseClient";
 import { mainnet, base, bsc } from "@reown/appkit/networks";
 import Cookies from "js-cookie";
+import { useCallback } from "react";
 
 // Initialize AppKit
 export const appKit = createAppKit({
@@ -82,41 +83,46 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   );
 
   // Fetch profiles from Supabase
-  const fetchProfiles = async (wallet: string | null = walletAddress) => {
-    if (!wallet) return;
+  const fetchProfiles = useCallback(
+    async (wallet: string | null = walletAddress) => {
+      if (!wallet) return;
   
-    try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("wallet_address", wallet);
+      try {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("wallet_address", wallet);
   
-      if (error) throw new Error(error.message);
+        if (error) throw new Error(error.message);
   
-      if (data?.length) {
-        setProfiles(data);
-        const defaultProfile = data[0];
-        setActiveProfile(defaultProfile);
-        setAccountIdentifier(defaultProfile.accountIdentifier);
+        if (data?.length) {
+          setProfiles(data);
+          const defaultProfile = data[0];
+          setActiveProfile(defaultProfile);
+          setAccountIdentifier(defaultProfile.accountIdentifier);
   
-        // Sync with localStorage
-        localStorage.setItem("profiles", JSON.stringify(data));
-        localStorage.setItem("activeProfile", JSON.stringify(defaultProfile));
-        localStorage.setItem("accountIdentifier", defaultProfile.accountIdentifier);
-        Cookies.set("accountIdentifier", defaultProfile.accountIdentifier, { expires: 7 });
-      } else {
-        setProfiles([]);
-        setActiveProfile(null);
-        // Generate a fallback accountIdentifier if none exists
-        const generatedId = `user-${crypto.randomUUID()}`;
-        setAccountIdentifier(generatedId);
-        Cookies.set("accountIdentifier", generatedId, { expires: 7 });
-        localStorage.setItem("accountIdentifier", generatedId);
+          // Sync with localStorage
+          localStorage.setItem("profiles", JSON.stringify(data));
+          localStorage.setItem("activeProfile", JSON.stringify(defaultProfile));
+          localStorage.setItem("accountIdentifier", defaultProfile.accountIdentifier);
+          Cookies.set("accountIdentifier", defaultProfile.accountIdentifier, { expires: 7 });
+        } else {
+          setProfiles([]);
+          setActiveProfile(null);
+  
+          // Generate a fallback accountIdentifier if none exists
+          const generatedId = `user-${crypto.randomUUID()}`;
+          setAccountIdentifier(generatedId);
+          Cookies.set("accountIdentifier", generatedId, { expires: 7 });
+          localStorage.setItem("accountIdentifier", generatedId);
+        }
+      } catch (error) {
+        console.error("Error fetching profiles:", error);
       }
-    } catch (error) {
-      console.error("Error fetching profiles:", error);
-    }
-  };
+    },
+    [walletAddress, setProfiles, setActiveProfile, setAccountIdentifier]
+  );
+  
   
 
   // Handle wallet and profile state updates
@@ -132,7 +138,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setProfiles([]);
       setActiveProfile(null);
       setAccountIdentifier(null);
-
+  
       // Clear localStorage and cookies
       localStorage.removeItem("walletAddress");
       localStorage.removeItem("profiles");
@@ -141,6 +147,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       Cookies.remove("accountIdentifier");
     }
   }, [isConnected, address, caipAddress, fetchProfiles]);
+  
 
   // Switch active profile
   const switchProfile = (profileId: string) => {
