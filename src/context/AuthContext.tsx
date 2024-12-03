@@ -44,7 +44,7 @@ interface AuthContextType {
   isConnected: boolean;
   setActiveProfile: (profile: Profile | null) => void;
   switchProfile: (profileId: string) => void;
-  fetchProfiles: (wallet: string | null) => Promise<void>; // Added fetchProfiles
+  fetchProfiles: (wallet?: string | null) => Promise<void>;// Added fetchProfiles
   logout: () => void;
   connect: (connector: Connector) => Promise<void>;
   disconnect: () => Promise<void>;
@@ -122,9 +122,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     },
     [walletAddress, setProfiles, setActiveProfile, setAccountIdentifier]
   );
-  
-  
-  
 
   // Handle wallet and profile state updates
   useEffect(() => {
