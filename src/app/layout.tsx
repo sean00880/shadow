@@ -10,6 +10,7 @@ import DefaultLayout from "../components/DefaultLayout";
 import DocumentationLayout from "../components/DocumentationLayout";
 import DocumentationLayout2 from "../components/DocumentationLayout2";
 import { AuthProvider } from "../context/AuthContext";
+import { ProfileProvider } from "../context/ProfileContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
 import { config } from "../lib/config";
@@ -48,7 +49,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <Provider value={client}>
+          
           <AuthProvider>
+          <ProfileProvider>
             <html lang="en">
               <head>
                 <meta charSet="UTF-8" />
@@ -69,7 +72,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
                 )}
               </body>
             </html>
+            </ProfileProvider>
           </AuthProvider>
+         
         </Provider>
       </QueryClientProvider>
     </WagmiProvider>

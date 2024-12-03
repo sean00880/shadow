@@ -2,43 +2,21 @@
 
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { Connector } from "wagmi";
-import { useAuthContext, Profile } from "../context/AuthContext";
+import { useProfileContext } from "../context/ProfileContext";
+import { useAuthContext } from "../context/AuthContext";
 
-interface TopBarProps {
-  isDarkMode: boolean;
-  toggleTheme: () => void;
-  connect: (connector: Connector) => Promise<void>;
-  connectors: readonly Connector[];
-  disconnect: () => Promise<void>;
-  walletAddress: string | null;
-  profiles: Profile[];
-  activeProfile: Profile | null;
-}
-
-export default function TopBar({
-  isDarkMode,
-  toggleTheme,
-  disconnect,
-  walletAddress,
-  profiles,
-  activeProfile,
-}: TopBarProps) {
+export default function TopBar({ isDarkMode, toggleTheme }: { isDarkMode: boolean; toggleTheme: () => void }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Get switchProfile from AuthContext
-  const { switchProfile } = useAuthContext();
+  const { walletAddress, disconnect } = useAuthContext();
+  const { profiles, activeProfile, switchProfile, clearProfileState } = useProfileContext();
 
-  // Compute profile image
-  const profileImage =
-    activeProfile?.profileImageUrl || "/images/default_logo.jpg";
+  const profileImage = activeProfile?.profileImageUrl || "/images/default_logo.jpg";
 
-  // Handle profile menu hover
   const handleProfileHover = () => setIsMenuOpen(true);
   const handleProfileLeave = () => setIsMenuOpen(false);
 
-  // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -50,75 +28,38 @@ export default function TopBar({
   }, []);
 
   return (
-    <div
-      className={` flex items-center justify-between px-4 py-2 shadow-lg border-b border-gray-700 ${
-        isDarkMode ? "bg-[#090909] text-white" : "bg-white text-black"
-      }`}
-    >
-      {/* Left Spacer */}
+    <div className="topbar flex items-center justify-between px-4 py-2 shadow-lg border-b border-gray-700">
       <div className="w-1/3"></div>
-
-      {/* Centered Logo */}
       <div className="flex-1 flex justify-center items-center">
-        <Image
-          src={isDarkMode ? "/images/LOGODARK.png" : "/images/LogoLIGHT.png"}
-          alt="Logo"
-          width={240}
-          height={40}
-          className="glitch-effect"
-        />
+        <Image src={isDarkMode ? "/images/LOGODARK.png" : "/images/LogoLIGHT.png"} alt="Logo" width={240} height={40} />
       </div>
-
-      {/* Wallet/Profile Actions */}
       <div className="w-1/3 flex justify-end items-center space-x-4">
-        {/* Theme Toggle */}
-        <button
-          onClick={toggleTheme}
-          className={`p-2 rounded-full border transition ${
-            isDarkMode ? "bg-[#090909] text-white" : "bg-white text-black"
-          }`}
-        >
+        <button onClick={toggleTheme} className="p-2 rounded-full border">
           {isDarkMode ? "☀️" : "🌙"}
         </button>
-
-        {walletAddress ? (
-          <div
-            className="relative"
-            onMouseEnter={handleProfileHover}
-            onMouseLeave={handleProfileLeave}
-            ref={menuRef}
-          >
-            {/* Profile Image */}
-            <Image
-              src={profileImage}
-              alt="Profile"
-              width={40}
-              height={40}
-              className="rounded-full cursor-pointer"
-            />
-
-            {/* Dropdown Menu */}
+        {walletAddress && activeProfile ? (
+          <div ref={menuRef} onMouseEnter={handleProfileHover} onMouseLeave={handleProfileLeave}>
+            <Image src={profileImage} alt="Profile Image" width={40} height={40} className="rounded-full" />
             {isMenuOpen && (
-              <div className={`absolute right-0 mt-2 w-48 shadow-lg rounded-md z-10  ${
-            isDarkMode ? "bg-[#090909] text-white" : "bg-white text-black"
-          }`}>
+              <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md">
                 <ul className="py-2">
-                  {profiles.map((profile, index) => (
+                  {profiles.map((profile) => (
                     <li
-                      key={profile.walletAddress || `profile-${index}`} // Fallback for missing walletAddress
+                      key={profile.id}
                       className={`px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer ${
-                        activeProfile?.walletAddress === profile.walletAddress
-                          ? "font-bold"
-                          : ""
+                        activeProfile.id === profile.id ? "font-bold" : ""
                       }`}
-                      onClick={() => switchProfile(profile.walletAddress)}
+                      onClick={() => switchProfile(profile.id)}
                     >
-                      {profile.displayName || profile.username || "Unnamed"}
+                      {profile.displayName || profile.username}
                     </li>
                   ))}
                   <li
                     className="px-4 py-2 text-sm text-red-500 hover:bg-gray-100 cursor-pointer"
-                    onClick={disconnect}
+                    onClick={() => {
+                      disconnect();
+                      clearProfileState();
+                    }}
                   >
                     Logout
                   </li>
@@ -127,8 +68,10 @@ export default function TopBar({
             )}
           </div>
         ) : (
-          // Wallet Connectors
-          <w3m-button />
+          <>
+         
+          <w3m-button/>
+          </>
         )}
       </div>
     </div>

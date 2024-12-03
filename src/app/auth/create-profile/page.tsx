@@ -6,6 +6,7 @@ import ProfilePreview from "../../../components/ProfilePreview";
 import AlertModal from "../../../components/AlertModal";
 import { supabase } from "../../../utils/supaBaseClient";
 import { useAuthContext } from "../../../context/AuthContext";
+import { useProfileContext } from "../../../context/ProfileContext";
 import { useRouter } from "next/navigation";
 import { generateShortId } from "../../../utils/idGenerator";
 
@@ -15,7 +16,8 @@ const MemoizedProfilePreview = memo(ProfilePreview);
 const MemoizedAlertModal = memo(AlertModal);
 
 export default function CreateProfilePage() {
-  const { walletAddress, accountIdentifier, blockchainWallet, fetchProfiles } = useAuthContext();
+  const { walletAddress, accountIdentifier, blockchainWallet } = useAuthContext();
+  const {  fetchProfiles } = useProfileContext();
   const router = useRouter();
 
   const [profileData, setProfileData] = useState({
@@ -167,7 +169,7 @@ export default function CreateProfilePage() {
 
       // Refresh profiles after creation
       if (accountIdentifier) {
-        await fetchProfiles(accountIdentifier);
+        await fetchProfiles();
       }
 
       setAlertMessage("Profile created successfully!");
