@@ -36,7 +36,6 @@ interface AuthContextType {
   walletAddress: string | null;
   accountIdentifier: string | null;
   blockchainWallet: string | null;
-  isConnecting: boolean;
   profiles: Profile[];
   activeProfile: Profile | null;
   isConnected: boolean;
@@ -44,7 +43,6 @@ interface AuthContextType {
   switchProfile: (profileId: string) => void;
   fetchProfiles: (wallet?: string | null) => Promise<void>;
   logout: () => void;
-  connect: (connector: Connector) => Promise<void>;
   disconnect: () => Promise<void>;
   connectors: readonly Connector[];
 }
@@ -71,7 +69,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [blockchainWallet, setBlockchainWallet] = useState<string | null>(() =>
     isBrowser ? localStorage.getItem("blockchainWallet") : null
   );
-  const [isConnecting, setIsConnecting] = useState<boolean>(false);
+
   const [profiles, setProfiles] = useState<Profile[]>(() =>
     isBrowser ? JSON.parse(localStorage.getItem("profiles") || "[]") : []
   );
@@ -182,16 +180,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const handleConnect = async (connector: Connector): Promise<void> => {
-    setIsConnecting(true);
-    try {
-      await connect({ connector });
-    } catch (error) {
-      console.error("Connection failed:", error);
-    } finally {
-      setIsConnecting(false);
-    }
-  };
+  
 
   return (
     <WagmiProvider config={wagmiAdapter.wagmiConfig}>
@@ -201,7 +190,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             walletAddress,
             accountIdentifier,
             blockchainWallet,
-            isConnecting,
             profiles,
             activeProfile,
             isConnected,
@@ -209,7 +197,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             switchProfile,
             logout,
             fetchProfiles,
-            connect: handleConnect,
             disconnect: async () => {
               await wagmiDisconnect();
             },
