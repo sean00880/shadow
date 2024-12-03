@@ -58,7 +58,12 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
   // Fetch profiles linked to the wallet
   const fetchProfiles = useCallback(async () => {
     if (!walletAddress) {
-      console.log("No wallet connected. Skipping fetchProfiles...");
+      console.log("No wallet connected. Clearing profiles...");
+      setProfiles([]);
+      setActiveProfile(null);
+      setAccountIdentifier(null);
+      Cookies.remove("accountIdentifier");
+      localStorage.removeItem("activeProfile");
       return;
     }
 
@@ -102,25 +107,22 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
   }, [walletAddress, accountIdentifier, setAccountIdentifier]);
 
   // Handle profile switching
-  const switchProfile = useCallback(
-    (profileId: string) => {
-      const selectedProfile = profiles.find((profile) => profile.id === profileId);
-      if (selectedProfile) {
-        setActiveProfile(selectedProfile);
-        setAccountIdentifier(selectedProfile.accountIdentifier);
-        localStorage.setItem("activeProfile", JSON.stringify(selectedProfile));
-        Cookies.set("accountIdentifier", selectedProfile.accountIdentifier, { expires: 7 });
-        console.log("Switched to profile:", selectedProfile);
-      } else {
-        console.error("Profile with the given ID not found:", profileId);
-      }
-    },
-    [profiles, setAccountIdentifier]
-  );
+  const switchProfile = (profileId: string) => {
+    const selectedProfile = profiles.find((profile) => profile.id === profileId);
+    if (selectedProfile) {
+      setActiveProfile(selectedProfile);
+      setAccountIdentifier(selectedProfile.accountIdentifier);
+      localStorage.setItem("activeProfile", JSON.stringify(selectedProfile));
+      Cookies.set("accountIdentifier", selectedProfile.accountIdentifier, { expires: 7 });
+      console.log("Switched to profile:", selectedProfile);
+    } else {
+      console.error("Profile with the given ID not found:", profileId);
+    }
+  };
 
   // Clear profile state (e.g., on wallet disconnect)
-  const clearProfileState = useCallback(() => {
-    if (!isConnected) {
+  const clearProfileState = () => {
+    if (profiles.length > 0 || activeProfile) {
       setProfiles([]);
       setActiveProfile(null);
       setAccountIdentifier(null);
@@ -128,16 +130,17 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
       Cookies.remove("accountIdentifier");
       console.log("Profile state cleared.");
     }
-  }, [isConnected, setAccountIdentifier]);
+  };
+  
 
   // Fetch profiles when the wallet is connected
   useEffect(() => {
-    if (isConnected && walletAddress) {
+    if (isConnected) {
       fetchProfiles();
     } else {
       clearProfileState();
     }
-  }, [isConnected, walletAddress, fetchProfiles, clearProfileState]);
+  }, [isConnected, walletAddress, fetchProfiles]);
 
   return (
     <ProfileContext.Provider
