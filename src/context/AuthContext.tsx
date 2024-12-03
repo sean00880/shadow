@@ -122,19 +122,35 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   );
 
   useEffect(() => {
-    if (isConnected && address) {
-      setWalletAddress(address);
-      setBlockchainWallet(caipAddress || null);
-
-      if (isBrowser) {
-        localStorage.setItem("walletAddress", address);
-        localStorage.setItem("blockchainWallet", caipAddress || "");
+    const reconnectWallet = async () => {
+      try {
+        const cachedWalletAddress = localStorage.getItem("walletAddress");
+        if (!cachedWalletAddress) return;
+  
+        console.log("Attempting to reconnect wallet...");
+        await connect({ connector: connectors[0] });
+  
+        if (isConnected && address) {
+          setWalletAddress(address);
+          setBlockchainWallet(caipAddress || null);
+  
+          if (isBrowser) {
+            localStorage.setItem("walletAddress", address);
+            localStorage.setItem("blockchainWallet", caipAddress || "");
+          }
+  
+          await fetchProfiles(address);
+        }
+      } catch (error) {
+        console.error("Reconnection failed:", error);
       }
-
-      fetchProfiles(address);
+    };
+  
+    if (!isConnected) {
+      reconnectWallet();
     }
-  }, [isConnected, address, caipAddress, fetchProfiles, isBrowser]);
-
+  }, [isConnected, connect, connectors, address, caipAddress, fetchProfiles, isBrowser]);
+  
   const switchProfile = async (profileId: string) => {
     setIsSwitchingProfile(true);
     try {
