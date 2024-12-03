@@ -82,21 +82,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const fetchProfiles = useCallback(
     async (wallet: string | null = walletAddress) => {
       if (!wallet) return;
-
+  
       try {
         const { data, error } = await supabase
           .from("profiles")
           .select("*")
           .eq("wallet_address", wallet);
-
+  
         if (error) throw new Error(error.message);
-
+  
         if (data?.length) {
           setProfiles(data);
           const defaultProfile = data[0];
           setActiveProfile(defaultProfile);
           setAccountIdentifier(defaultProfile.accountIdentifier);
-
+  
           if (isBrowser) {
             localStorage.setItem("profiles", JSON.stringify(data));
             localStorage.setItem("activeProfile", JSON.stringify(defaultProfile));
@@ -104,25 +104,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             Cookies.set("accountIdentifier", defaultProfile.accountIdentifier, { expires: 7 });
           }
         } else {
+          setProfiles([]);
+          setActiveProfile(null);
+  
+          // Generate fallback accountIdentifier
           const generatedId = `user-${crypto.randomUUID()}`;
-          const newProfile: Profile = {
-            id: generatedId,
-            displayName: "New User",
-            username: `user_${generatedId.substring(0, 8)}`,
-            about: "",
-            profileImageUrl: null,
-            bannerImageUrl: null,
-            walletAddress: wallet,
-            accountIdentifier: generatedId,
-          };
-
-          setProfiles([newProfile]);
-          setActiveProfile(newProfile);
           setAccountIdentifier(generatedId);
-
+  
           if (isBrowser) {
-            localStorage.setItem("profiles", JSON.stringify([newProfile]));
-            localStorage.setItem("activeProfile", JSON.stringify(newProfile));
             localStorage.setItem("accountIdentifier", generatedId);
             Cookies.set("accountIdentifier", generatedId, { expires: 7 });
           }
@@ -133,32 +122,28 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     },
     [walletAddress, isBrowser]
   );
+  
 
-  useEffect(() => {
-    const autoReconnect = async () => {
-      if (isBrowser && localStorage.getItem("walletAddress") && !isConnected) {
-        const storedWallet = localStorage.getItem("walletAddress");
-        setWalletAddress(storedWallet);
-        setBlockchainWallet(localStorage.getItem("blockchainWallet") || null);
-        await fetchProfiles(storedWallet);
-      }
-    };
-
-    autoReconnect();
-  }, [isConnected, fetchProfiles, isBrowser]);
 
   useEffect(() => {
     if (isConnected && address) {
+      // Update wallet and blockchain states
       setWalletAddress(address);
       setBlockchainWallet(caipAddress || null);
-
+  
       if (isBrowser) {
+        // Save wallet and blockchain states in localStorage
         localStorage.setItem("walletAddress", address);
         localStorage.setItem("blockchainWallet", caipAddress || "");
       }
-      fetchProfiles(address);
+  
+      // Fetch profiles if not already fetched
+      if (!profiles.length) {
+        fetchProfiles(address);
+      }
     }
-  }, [isConnected, address, caipAddress, fetchProfiles, isBrowser]);
+  }, [isConnected, address, caipAddress, fetchProfiles, profiles.length, isBrowser]);
+  
 
   const switchProfile = (profileId: string) => {
     const selectedProfile = profiles.find((profile) => profile.id === profileId);
