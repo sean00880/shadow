@@ -3,8 +3,9 @@
 import { motion } from "framer-motion";
 import { ClipLoader } from "react-spinners"; // Example spinner
 import { useAuthContext } from "../../../context/AuthContext";
+
 export default function ConnectPage() {
-  const { walletAddress, blockchainWallet, isConnecting, profiles, activeProfile, switchProfile  } = useAuthContext(); // Authentication-related data
+  const { walletAddress, blockchainWallet, profiles, activeProfile, switchProfile } = useAuthContext(); // Authentication-related data
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
@@ -16,25 +17,23 @@ export default function ConnectPage() {
       >
         Connect Your Wallet
       </motion.h2>
-      
 
-      {/* Spinner or Connect Button */}
-      {isConnecting ? (
-        
-        <div className="mt-8">
-          <ClipLoader color="#4A90E2" loading={isConnecting} size={50} />
-          <p className="mt-4 text-sm text-gray-500">Connecting your wallet...</p>
-          <w3m-button/>
+      {/* Conditional rendering based on the connection state */}
+      {!walletAddress ? (
+        // Show connect button if wallet is not connected
+        <div className="mt-8 flex flex-col space-y-4">
+          <w3m-button />
+          <p className="mt-4 text-sm text-gray-500">Please connect your wallet.</p>
         </div>
       ) : activeProfile ? (
-        
+        // Show active profile and profiles list if connected and active profile exists
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
           className="mt-8 bg-gray-100 p-4 rounded-md shadow-lg w-full max-w-md"
         >
-           <w3m-button/>
+          <w3m-button />
           <h3 className="text-lg font-medium">Wallet Connected</h3>
           <p className="text-sm">Wallet Address: {walletAddress}</p>
           <p className="text-sm">Blockchain Wallet: {blockchainWallet}</p>
@@ -42,7 +41,6 @@ export default function ConnectPage() {
           {/* Profiles Section */}
           {profiles.length > 0 ? (
             <div className="mt-4">
-             
               <h4 className="text-md font-medium">Linked Profiles:</h4>
               <ul className="mt-2 space-y-2">
                 {profiles.map((profile) => (
@@ -72,9 +70,10 @@ export default function ConnectPage() {
           )}
         </motion.div>
       ) : (
-        // Show connect button if not connected
-        <div className="mt-8 flex flex-col space-y-4">
-          <w3m-button />
+        // Show a spinner while fetching active profile or data
+        <div className="mt-8">
+          <ClipLoader color="#4A90E2" size={50} />
+          <p className="mt-4 text-sm text-gray-500">Fetching profile information...</p>
         </div>
       )}
     </div>
