@@ -131,11 +131,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const handleDisconnect = async () => {
     try {
       await wagmiDisconnect();
-      setWalletAddress(null);
-      setAccountIdentifier(null);
-      setBlockchainWallet(null); // Clear blockchainWallet on disconnect
-      Cookies.remove("walletAddress");
-      Cookies.remove("accountIdentifier");
+      updateWalletData(); // Ensure wallet data is reset on disconnect
     } catch (error) {
       console.error("Error during wallet disconnection:", error);
     }
