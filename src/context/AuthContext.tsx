@@ -82,23 +82,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   );
 
   // Fetch profiles from Supabase
-  const fetchProfiles = async (wallet: string | null) => {
+  const fetchProfiles = async (wallet: string | null = walletAddress) => {
     if (!wallet) return;
-
+  
     try {
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("wallet_address", wallet);
-
+  
       if (error) throw new Error(error.message);
-
+  
       if (data?.length) {
         setProfiles(data);
         const defaultProfile = data[0];
         setActiveProfile(defaultProfile);
         setAccountIdentifier(defaultProfile.accountIdentifier);
-
+  
         // Sync with localStorage
         localStorage.setItem("profiles", JSON.stringify(data));
         localStorage.setItem("activeProfile", JSON.stringify(defaultProfile));
@@ -117,6 +117,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       console.error("Error fetching profiles:", error);
     }
   };
+  
 
   // Handle wallet and profile state updates
   useEffect(() => {
@@ -139,7 +140,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       localStorage.removeItem("accountIdentifier");
       Cookies.remove("accountIdentifier");
     }
-  }, [isConnected, address, caipAddress]);
+  }, [isConnected, address, caipAddress, fetchProfiles]);
 
   // Switch active profile
   const switchProfile = (profileId: string) => {
