@@ -9,6 +9,8 @@ import { wagmiAdapter, projectId } from "../lib/config";
 import { mainnet, sepolia, base, bsc } from "@reown/appkit/networks";
 import { useAppKitAccount } from "@reown/appkit/react";
 import Cookies from "js-cookie";
+import { useCallback } from "react";
+
 import {
   createConfig,
   http,
@@ -91,6 +93,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       Cookies.remove("walletAddress");
     }
   }, [isConnected, address]);
+
+   // Memoized function to update wallet data
+   const updateWalletData = useCallback(() => {
+    if (isConnected && caipAddress) {
+      const chainId = caipAddress.split(":")[1];
+      setWalletAddress(address ?? null);
+      setAccountIdentifier(caipAddress);
+      setBlockchainWallet(`${chainId}:${address ?? ""}`);
+      Cookies.set("walletAddress", address ?? "", { expires: 7 });
+      Cookies.set("accountIdentifier", caipAddress, { expires: 7 });
+    } else {
+      setWalletAddress(null);
+      setAccountIdentifier(null);
+      setBlockchainWallet(null);
+      Cookies.remove("walletAddress");
+      Cookies.remove("accountIdentifier");
+    }
+  }, [isConnected, caipAddress, address]);
+
+  // Update wallet data when connection or address changes
+  useEffect(() => {
+    updateWalletData();
+  }, [updateWalletData]);
 
   const handleConnect = async (options: { connector: Connector; chainId?: number }) => {
     setIsConnecting(true);

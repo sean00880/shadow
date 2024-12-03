@@ -35,7 +35,7 @@ interface ProfileContextType {
   profiles: Profile[];
   activeProfile: Profile | null;
   isLoadingProfile: boolean;
-  accountIdentifier: string | null; // Included accountIdentifier for consistency
+  accountIdentifier: string | null; // Consistent with AuthContext
   fetchProfiles: () => Promise<void>;
   switchProfile: (profileId: string) => void;
   clearProfileState: () => void;
@@ -63,6 +63,7 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
       setActiveProfile(null);
       setAccountIdentifier(null);
       Cookies.remove("accountIdentifier");
+      localStorage.removeItem("activeProfile");
       return;
     }
 
@@ -78,13 +79,14 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
       if (data?.length) {
         console.log("Profiles fetched successfully:", data);
         setProfiles(data);
-        setActiveProfile(data[0]); // Default to the first profile
-        setAccountIdentifier(data[0].accountIdentifier);
+        const defaultProfile = data[0];
+        setActiveProfile(defaultProfile);
+        setAccountIdentifier(defaultProfile.accountIdentifier);
 
         // Cache profiles and active profile in localStorage and Cookies
         localStorage.setItem(`profiles_${walletAddress}`, JSON.stringify(data));
-        localStorage.setItem("activeProfile", JSON.stringify(data[0]));
-        Cookies.set("accountIdentifier", data[0].accountIdentifier, { expires: 7 });
+        localStorage.setItem("activeProfile", JSON.stringify(defaultProfile));
+        Cookies.set("accountIdentifier", defaultProfile.accountIdentifier, { expires: 7 });
       } else {
         console.log("No profiles found for the connected wallet.");
         setProfiles([]);
@@ -118,7 +120,7 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Clear profile state (e.g., on logout)
+  // Clear profile state (e.g., on wallet disconnect)
   const clearProfileState = () => {
     setProfiles([]);
     setActiveProfile(null);
@@ -132,8 +134,10 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (isConnected) {
       fetchProfiles();
+    } else {
+      clearProfileState();
     }
-  }, [isConnected, fetchProfiles]);
+  }, [isConnected, walletAddress, fetchProfiles]);
 
   return (
     <ProfileContext.Provider
@@ -144,7 +148,7 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
         fetchProfiles,
         switchProfile,
         clearProfileState,
-        accountIdentifier
+        accountIdentifier,
       }}
     >
       {children}
