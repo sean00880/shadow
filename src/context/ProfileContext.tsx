@@ -1,13 +1,6 @@
 "use client";
 
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
+import React, { createContext, useCallback, useContext, useState, useEffect, ReactNode } from "react";
 import { supabase } from "../utils/supaBaseClient";
 import Cookies from "js-cookie";
 import { useAuthContext } from "./AuthContext";
@@ -35,7 +28,7 @@ interface ProfileContextType {
   profiles: Profile[];
   activeProfile: Profile | null;
   isLoadingProfile: boolean;
-  accountIdentifier: string | null; // Consistent with AuthContext
+  accountIdentifier: string | null;
   fetchProfiles: () => Promise<void>;
   switchProfile: (profileId: string) => void;
   clearProfileState: () => void;
@@ -44,29 +37,24 @@ interface ProfileContextType {
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 
 export const ProfileProvider = ({ children }: { children: ReactNode }) => {
-  const {
-    walletAddress,
-    accountIdentifier,
-    setAccountIdentifier,
-    isConnected,
-  } = useAuthContext();
-
+  const { walletAddress, accountIdentifier, setAccountIdentifier, isConnected } = useAuthContext();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [activeProfile, setActiveProfile] = useState<Profile | null>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
 
-  // Prevent unnecessary clearing and fetching by introducing a debounce mechanism
+  // Debounce wallet updates to prevent unnecessary fetches
   const [debouncedWalletAddress, setDebouncedWalletAddress] = useState(walletAddress);
 
   useEffect(() => {
-    const handler = setTimeout(() => setDebouncedWalletAddress(walletAddress), 300);
-    return () => clearTimeout(handler);
+    const timer = setTimeout(() => setDebouncedWalletAddress(walletAddress), 250); // 250ms debounce
+    return () => clearTimeout(timer);
   }, [walletAddress]);
 
-  // Fetch profiles linked to the wallet
   const fetchProfiles = useCallback(async () => {
     if (!debouncedWalletAddress) {
       console.log("No wallet connected. Skipping profile fetching...");
+      setProfiles([]);
+      setActiveProfile(null);
       return;
     }
 
@@ -87,7 +75,7 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
         setActiveProfile(defaultProfile);
         setAccountIdentifier(defaultProfile.accountIdentifier);
 
-        // Cache profiles and active profile in localStorage and Cookies
+        // Cache profiles
         localStorage.setItem(`profiles_${debouncedWalletAddress}`, JSON.stringify(data));
         localStorage.setItem("activeProfile", JSON.stringify(defaultProfile));
         Cookies.set("accountIdentifier", defaultProfile.accountIdentifier, { expires: 7 });
@@ -96,7 +84,7 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
         setProfiles([]);
         setActiveProfile(null);
 
-        // Generate and set a new accountIdentifier if no profiles exist
+        // Generate a fallback accountIdentifier if none exists
         if (!accountIdentifier) {
           const generatedAccountId = `user-${crypto.randomUUID()}`;
           setAccountIdentifier(generatedAccountId);
@@ -110,7 +98,6 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [debouncedWalletAddress, accountIdentifier, setAccountIdentifier]);
 
-  // Handle profile switching
   const switchProfile = useCallback(
     (profileId: string) => {
       const selectedProfile = profiles.find((profile) => profile.id === profileId);
@@ -127,7 +114,6 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
     [profiles, setAccountIdentifier]
   );
 
-  // Clear profile state (e.g., on wallet disconnect)
   const clearProfileState = useCallback(() => {
     setProfiles([]);
     setActiveProfile(null);
@@ -137,11 +123,10 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
     console.log("Profile state cleared.");
   }, [setAccountIdentifier]);
 
-  // Fetch profiles when the wallet is connected or clear them on disconnect
   useEffect(() => {
     if (isConnected && debouncedWalletAddress) {
       fetchProfiles();
-    } else if (!isConnected) {
+    } else {
       clearProfileState();
     }
   }, [isConnected, debouncedWalletAddress, fetchProfiles, clearProfileState]);
