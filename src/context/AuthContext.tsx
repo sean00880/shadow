@@ -124,6 +124,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   );
   
   
+  
 
   // Handle wallet and profile state updates
   useEffect(() => {
