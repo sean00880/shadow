@@ -36,6 +36,7 @@ interface AuthContextType {
   walletAddress: string | null;
   accountIdentifier: string | null;
   blockchainWallet: string | null;
+  isConnecting: boolean;
   profiles: Profile[];
   activeProfile: Profile | null;
   isConnected: boolean;
@@ -43,6 +44,7 @@ interface AuthContextType {
   switchProfile: (profileId: string) => void;
   fetchProfiles: (wallet?: string | null) => Promise<void>;
   logout: () => void;
+  connect: (connector: Connector) => Promise<void>;
   disconnect: () => Promise<void>;
   connectors: readonly Connector[];
 }
@@ -52,7 +54,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 type AuthProviderProps = {
   children: ReactNode;
 };
-
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const { connect, connectors } = useConnect();
   const { disconnect: wagmiDisconnect } = useDisconnect();
@@ -69,7 +70,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [blockchainWallet, setBlockchainWallet] = useState<string | null>(() =>
     isBrowser ? localStorage.getItem("blockchainWallet") : null
   );
-
+  const [isConnecting, setIsConnecting] = useState<boolean>(false);
   const [profiles, setProfiles] = useState<Profile[]>(() =>
     isBrowser ? JSON.parse(localStorage.getItem("profiles") || "[]") : []
   );
@@ -80,21 +81,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const fetchProfiles = useCallback(
     async (wallet: string | null = walletAddress) => {
       if (!wallet) return;
-  
+
       try {
         const { data, error } = await supabase
           .from("profiles")
           .select("*")
           .eq("wallet_address", wallet);
-  
+
         if (error) throw new Error(error.message);
-  
+
         if (data?.length) {
           setProfiles(data);
           const defaultProfile = data[0];
           setActiveProfile(defaultProfile);
           setAccountIdentifier(defaultProfile.accountIdentifier);
-  
+
           if (isBrowser) {
             localStorage.setItem("profiles", JSON.stringify(data));
             localStorage.setItem("activeProfile", JSON.stringify(defaultProfile));
@@ -104,11 +105,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         } else {
           setProfiles([]);
           setActiveProfile(null);
-  
+
           // Generate fallback accountIdentifier
           const generatedId = `user-${crypto.randomUUID()}`;
           setAccountIdentifier(generatedId);
-  
+
           if (isBrowser) {
             localStorage.setItem("accountIdentifier", generatedId);
             Cookies.set("accountIdentifier", generatedId, { expires: 7 });
@@ -120,74 +121,52 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     },
     [walletAddress, isBrowser]
   );
-  
+
+  // Reconnect wallet if previously connected
   useEffect(() => {
-    // Monitor connection status and update walletAddress and blockchainWallet
+    if (!isConnected && walletAddress) {
+      const reconnect = async () => {
+        try {
+          console.log("Attempting wallet reconnection...");
+          await connect({ connector: connectors[0] });
+        } catch (error) {
+          console.error("Reconnection failed:", error);
+        }
+      };
+
+      reconnect();
+    }
+  }, [isConnected, walletAddress, connect, connectors]);
+
+  // Update walletAddress when connected
+  useEffect(() => {
     if (isConnected && address) {
       if (walletAddress !== address) {
         setWalletAddress(address);
-        if (isBrowser) localStorage.setItem("walletAddress", address);
+        localStorage.setItem("walletAddress", address);
       }
-  
+    }
+  }, [isConnected, address, walletAddress]);
+
+  // Update blockchainWallet
+  useEffect(() => {
+    if (isConnected && caipAddress) {
       if (blockchainWallet !== caipAddress) {
         setBlockchainWallet(caipAddress || null);
-        if (isBrowser) localStorage.setItem("blockchainWallet", caipAddress || "");
-      }
-    } else if (!isConnected) {
-      // Clear local states if disconnected
-      setWalletAddress(null);
-      setBlockchainWallet(null);
-      setActiveProfile(null);
-      setProfiles([]);
-      setAccountIdentifier(null);
-      if (isBrowser) {
-        localStorage.removeItem("walletAddress");
-        localStorage.removeItem("blockchainWallet");
-        localStorage.removeItem("profiles");
-        localStorage.removeItem("activeProfile");
-        localStorage.removeItem("accountIdentifier");
-        Cookies.remove("accountIdentifier");
+        localStorage.setItem("blockchainWallet", caipAddress || "");
       }
     }
-  }, [isConnected, address, caipAddress, walletAddress, blockchainWallet, isBrowser]);
-  
+  }, [isConnected, caipAddress, blockchainWallet]);
+
+  // Fetch profiles when wallet is connected
   useEffect(() => {
-    // Fetch profiles when wallet is connected and address changes
     if (isConnected && address && !profiles.length) {
-      const fetchUserProfiles = async () => {
-        try {
-          await fetchProfiles(address);
-        } catch (error) {
-          console.error("Error fetching profiles:", error);
-          // Add retry logic or fallback if necessary
-        }
-      };
-  
-      fetchUserProfiles();
+      fetchProfiles(address).catch((error) =>
+        console.error("Error fetching profiles:", error)
+      );
     }
   }, [isConnected, address, profiles.length, fetchProfiles]);
-  
-  useEffect(() => {
-    // Update localStorage when activeProfile changes
-    if (activeProfile) {
-      if (isBrowser) {
-        localStorage.setItem("activeProfile", JSON.stringify(activeProfile));
-        localStorage.setItem("accountIdentifier", activeProfile.accountIdentifier);
-        Cookies.set("accountIdentifier", activeProfile.accountIdentifier, { expires: 7 });
-      }
-    }
-  }, [activeProfile, isBrowser]);
-  
-  useEffect(() => {
-    // Ensure profiles are updated in localStorage whenever profiles state changes
-    if (profiles.length > 0) {
-      if (isBrowser) {
-        localStorage.setItem("profiles", JSON.stringify(profiles));
-      }
-    }
-  }, [profiles, isBrowser]);
-  
-  
+
   const switchProfile = (profileId: string) => {
     const selectedProfile = profiles.find((profile) => profile.id === profileId);
     if (selectedProfile) {
@@ -222,7 +201,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  
+  const handleConnect = async (connector: Connector): Promise<void> => {
+    setIsConnecting(true);
+    try {
+      await connect({ connector });
+    } catch (error) {
+      console.error("Connection failed:", error);
+    } finally {
+      setIsConnecting(false);
+    }
+  };
 
   return (
     <WagmiProvider config={wagmiAdapter.wagmiConfig}>
@@ -232,6 +220,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             walletAddress,
             accountIdentifier,
             blockchainWallet,
+            isConnecting,
             profiles,
             activeProfile,
             isConnected,
@@ -239,6 +228,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             switchProfile,
             logout,
             fetchProfiles,
+            connect: handleConnect,
             disconnect: async () => {
               await wagmiDisconnect();
             },
@@ -250,12 +240,4 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       </QueryClientProvider>
     </WagmiProvider>
   );
-};
-
-export const useAuthContext = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuthContext must be used within an AuthProvider");
-  }
-  return context;
 };
