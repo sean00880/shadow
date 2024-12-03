@@ -36,13 +36,14 @@ interface Profile {
 interface AuthContextType {
   walletAddress: string | null;
   accountIdentifier: string | null;
-  blockchainWallet: string | null; // Added blockchainWallet (CAIP address)
-  isConnecting: boolean; // Added isConnecting
+  blockchainWallet: string | null; // CAIP address
+  isConnecting: boolean; // Wallet connection state
   profiles: Profile[];
   activeProfile: Profile | null;
   isConnected: boolean;
   setActiveProfile: (profile: Profile | null) => void;
   switchProfile: (profileId: string) => void;
+  fetchProfiles: (wallet: string | null) => Promise<void>; // Added fetchProfiles
   logout: () => void;
   connect: (connector: Connector) => Promise<void>;
   disconnect: () => Promise<void>;
@@ -201,6 +202,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             setActiveProfile,
             switchProfile,
             logout,
+            fetchProfiles,
             connect: handleConnect,
             disconnect: async () => {
               await wagmiDisconnect();
