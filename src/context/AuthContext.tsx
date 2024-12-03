@@ -72,15 +72,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const reconnect = async () => {
       const state = localStorage.getItem("walletConnectState") || "";
+      console.log("Reconnect state from localStorage:", state);
       if (!isConnected && state === "true") {
         const readyConnector = connectors.find((connector) => connector.ready);
         if (readyConnector) {
           try {
+            console.log("Attempting to reconnect using:", readyConnector.name);
             await connect({ connector: readyConnector });
             console.log("Reconnected successfully with:", readyConnector.name);
           } catch (error) {
             console.error("Reconnection failed:", error);
           }
+        } else {
+          console.log("No ready connector available for reconnection.");
         }
       }
     };
@@ -90,9 +94,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Save isConnected state to localStorage
   useEffect(() => {
+    console.log("Connection state updated. isConnected:", isConnected);
     if (walletAddress && isConnected) {
+      console.log("Saving walletConnectState as true in localStorage.");
       localStorage.setItem("walletConnectState", "true");
     } else {
+      console.log("Removing walletConnectState from localStorage.");
       localStorage.removeItem("walletConnectState");
     }
   }, [walletAddress, isConnected]);
@@ -100,6 +107,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const handleConnect = async (options: { connector: Connector; chainId?: number }) => {
     setIsConnecting(true);
     try {
+      console.log("Connecting wallet...");
       await connect(options);
       console.log("Wallet connected successfully:", options.connector.name);
     } catch (error) {
@@ -119,6 +127,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       Cookies.remove("walletAddress");
       Cookies.remove("accountIdentifier");
       localStorage.removeItem("walletConnectState");
+      console.log("Wallet disconnected successfully.");
     } catch (error) {
       console.error("Error during wallet disconnection:", error);
     }
@@ -137,6 +146,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       const chainId = caipAddress?.split(":")[1] || null;
       setBlockchainWallet(`${chainId}:${address}`);
+      console.log("Wallet details updated:", {
+        walletAddress: address,
+        accountIdentifier,
+        blockchainWallet: `${chainId}:${address}`,
+      });
     }
   }, [isConnected, address, caipAddress, accountIdentifier]);
 
