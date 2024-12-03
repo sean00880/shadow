@@ -108,6 +108,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             localStorage.setItem("accountIdentifier", generatedId);
             Cookies.set("accountIdentifier", generatedId, { expires: 7 });
           }
+          setProfiles([]);
+          setActiveProfile(null);
         }
       } catch (error) {
         console.error("Error fetching profiles:", error);
@@ -117,18 +119,25 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   );
 
   useEffect(() => {
-    if (isConnected && address) {
-      setWalletAddress(address);
-      setBlockchainWallet(caipAddress || null);
+    const updateOnWalletChange = async () => {
+      if (isConnected && address) {
+        if (walletAddress !== address) {
+          setWalletAddress(address);
+          setBlockchainWallet(caipAddress || null);
 
-      if (isBrowser) {
-        localStorage.setItem("walletAddress", address);
-        localStorage.setItem("blockchainWallet", caipAddress || "");
+          if (isBrowser) {
+            localStorage.setItem("walletAddress", address);
+            localStorage.setItem("blockchainWallet", caipAddress || "");
+          }
+
+          // Fetch profiles for the new wallet
+          await fetchProfiles(address);
+        }
       }
+    };
 
-      fetchProfiles(address);
-    }
-  }, [isConnected, address, caipAddress, fetchProfiles, isBrowser]);
+    updateOnWalletChange();
+  }, [isConnected, address, caipAddress, walletAddress, fetchProfiles, isBrowser]);
 
   const switchProfile = (profileId: string) => {
     const selectedProfile = profiles.find((profile) => profile.id === profileId);
