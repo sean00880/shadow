@@ -9,6 +9,7 @@ import { wagmiAdapter, projectId } from "../lib/config";
 import { mainnet, sepolia, base, bsc } from "@reown/appkit/networks";
 import { useAppKitAccount } from "@reown/appkit/react";
 import Cookies from "js-cookie";
+import { supabase } from "../utils/supaBaseClient";
 
 import {
   createConfig,
@@ -60,35 +61,58 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { disconnect: wagmiDisconnect } = useDisconnect();
   const { address, isConnected, caipAddress } = useAppKitAccount();
 
-  const [walletAddress, setWalletAddress] = useState<string | null>(() =>
-    typeof window !== "undefined" ? localStorage.getItem("walletAddress") || null : null
+  const [walletAddress, setWalletAddress] = useState<string | null>(
+    () => Cookies.get("walletAddress") || null
   );
-  const [accountIdentifier, setAccountIdentifier] = useState<string | null>(() =>
-    typeof window !== "undefined" ? localStorage.getItem("accountIdentifier") || null : null
+  const [accountIdentifier, setAccountIdentifier] = useState<string | null>(
+    () => Cookies.get("accountIdentifier") || null
   );
   const [blockchainWallet, setBlockchainWallet] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
 
-  // Memoized function to update wallet data
-  const updateWalletData = useCallback(async () => {
-    if (isConnected && caipAddress && walletAddress !== address) {
-      const chainId = caipAddress.split(":")[1];
-      setWalletAddress(address ?? null);
-      localStorage.setItem("walletAddress", address ?? "");
+  // Function to fetch or generate accountIdentifier
+  const fetchOrGenerateAccountIdentifier = useCallback(async (walletAddress: string | null) => {
+    if (!walletAddress) return null;
 
-      // Generate or fetch accountIdentifier
-      if (!accountIdentifier) {
-        const generatedAccountId = `user-${crypto.randomUUID()}`;
-        setAccountIdentifier(generatedAccountId);
-        localStorage.setItem("accountIdentifier", generatedAccountId);
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("accountIdentifier")
+        .eq("wallet_address", walletAddress)
+        .single();
+
+      if (error) {
+        console.error("Error fetching accountIdentifier:", error.message);
       }
 
-      setAccountIdentifier(caipAddress);
-      localStorage.setItem("accountIdentifier", caipAddress);
+      if (data?.accountIdentifier) {
+        return data.accountIdentifier;
+      } else {
+        // Generate a new accountIdentifier if it doesn't exist in the database
+        const newAccountIdentifier = `user-${crypto.randomUUID()}`;
+        return newAccountIdentifier;
+      }
+    } catch (error) {
+      console.error("Error generating accountIdentifier:", error);
+      return null;
+    }
+  }, []);
 
-      setBlockchainWallet(`${chainId}:${address ?? ""}`);
-      Cookies.set("walletAddress", address ?? "", { expires: 7 });
-      Cookies.set("accountIdentifier", caipAddress, { expires: 7 });
+  // Memoized function to update wallet and account data
+  const updateWalletData = useCallback(async () => {
+    if (isConnected && address) {
+      const chainId = caipAddress?.split(":")[1] || "1";
+      setWalletAddress(address);
+      Cookies.set("walletAddress", address, { expires: 7 });
+
+      const fetchedAccountIdentifier = await fetchOrGenerateAccountIdentifier(address);
+      if (fetchedAccountIdentifier) {
+        setAccountIdentifier(fetchedAccountIdentifier);
+        Cookies.set("accountIdentifier", fetchedAccountIdentifier, { expires: 7 });
+        localStorage.setItem("accountIdentifier", fetchedAccountIdentifier);
+      }
+
+      setBlockchainWallet(`${chainId}:${address}`);
     } else {
       // Clear wallet-related data when disconnected
       setWalletAddress(null);
@@ -99,9 +123,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       Cookies.remove("walletAddress");
       Cookies.remove("accountIdentifier");
     }
-  }, [isConnected, caipAddress, address, walletAddress, accountIdentifier]);
+  }, [isConnected, address, caipAddress, fetchOrGenerateAccountIdentifier]);
 
-  // Synchronize wallet data on connection state changes
+  // Synchronize wallet and account data on connection state changes
   useEffect(() => {
     updateWalletData();
   }, [updateWalletData]);
@@ -120,7 +144,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const handleDisconnect = async () => {
     try {
       await wagmiDisconnect();
-      await updateWalletData(); // Reset wallet data
+      await updateWalletData(); // Ensure wallet data is reset on disconnect
     } catch (error) {
       console.error("Error during wallet disconnection:", error);
     }
