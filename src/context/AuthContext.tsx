@@ -68,18 +68,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
   const [blockchainWallet, setBlockchainWallet] = useState<string | null>(null);
 
-  // Set and restore connection state from localStorage
+  // Reconnect wallet if connection state exists in localStorage
   useEffect(() => {
-    const state = localStorage.getItem("walletConnectState") || "";
-    if (!isConnected && state === "true") {
-      const connector = connectors[0];
-      connect({ connector });
-    }
+    const reconnect = async () => {
+      const state = localStorage.getItem("walletConnectState") || "";
+      if (!isConnected && state === "true") {
+        const readyConnector = connectors.find((connector) => connector.ready);
+        if (readyConnector) {
+          try {
+            await connect({ connector: readyConnector });
+            console.log("Reconnected successfully with:", readyConnector.name);
+          } catch (error) {
+            console.error("Reconnection failed:", error);
+          }
+        }
+      }
+    };
+
+    reconnect();
   }, [isConnected, connect, connectors]);
 
+  // Save isConnected state to localStorage
   useEffect(() => {
-    localStorage.setItem("walletConnectState", isConnected.toString());
-  }, [isConnected]);
+    if (walletAddress && isConnected) {
+      localStorage.setItem("walletConnectState", "true");
+    } else {
+      localStorage.removeItem("walletConnectState");
+    }
+  }, [walletAddress, isConnected]);
 
   const handleConnect = async (options: { connector: Connector; chainId?: number }) => {
     setIsConnecting(true);
