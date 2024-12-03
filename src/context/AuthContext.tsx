@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useState, useContext, useEffect, ReactNode, useCallback } from "react";
-import { Connector, useConnect, useDisconnect, useAccount } from "wagmi";
+import { Connector, useConnect, useDisconnect } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
 import { useAppKitAccount } from "@reown/appkit/react";
@@ -58,8 +58,7 @@ type AuthProviderProps = {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const { connect, connectors } = useConnect();
   const { disconnect: wagmiDisconnect } = useDisconnect();
-  const { isConnected, address, connector: activeConnector } = useAccount();
-  const { caipAddress } = useAppKitAccount();
+  const { address, isConnected, caipAddress } = useAppKitAccount();
 
   const isBrowser = typeof window !== "undefined";
 
@@ -105,8 +104,28 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             Cookies.set("accountIdentifier", defaultProfile.accountIdentifier, { expires: 7 });
           }
         } else {
-          setProfiles([]);
-          setActiveProfile(null);
+          const generatedId = `user-${crypto.randomUUID()}`;
+          const newProfile: Profile = {
+            id: generatedId,
+            displayName: "New User",
+            username: `user_${generatedId.substring(0, 8)}`,
+            about: "",
+            profileImageUrl: null,
+            bannerImageUrl: null,
+            walletAddress: wallet,
+            accountIdentifier: generatedId,
+          };
+
+          setProfiles([newProfile]);
+          setActiveProfile(newProfile);
+          setAccountIdentifier(generatedId);
+
+          if (isBrowser) {
+            localStorage.setItem("profiles", JSON.stringify([newProfile]));
+            localStorage.setItem("activeProfile", JSON.stringify(newProfile));
+            localStorage.setItem("accountIdentifier", generatedId);
+            Cookies.set("accountIdentifier", generatedId, { expires: 7 });
+          }
         }
       } catch (error) {
         console.error("Error fetching profiles:", error);
@@ -114,6 +133,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     },
     [walletAddress, isBrowser]
   );
+
+  useEffect(() => {
+    const autoReconnect = async () => {
+      if (isBrowser && localStorage.getItem("walletAddress") && !isConnected) {
+        const storedWallet = localStorage.getItem("walletAddress");
+        setWalletAddress(storedWallet);
+        setBlockchainWallet(localStorage.getItem("blockchainWallet") || null);
+        await fetchProfiles(storedWallet);
+      }
+    };
+
+    autoReconnect();
+  }, [isConnected, fetchProfiles, isBrowser]);
 
   useEffect(() => {
     if (isConnected && address) {
@@ -125,30 +157,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         localStorage.setItem("blockchainWallet", caipAddress || "");
       }
       fetchProfiles(address);
-    } else if (isBrowser && localStorage.getItem("walletAddress")) {
-      const storedWallet = localStorage.getItem("walletAddress");
-      setWalletAddress(storedWallet);
-      setBlockchainWallet(localStorage.getItem("blockchainWallet") || null);
-      fetchProfiles(storedWallet);
     }
   }, [isConnected, address, caipAddress, fetchProfiles, isBrowser]);
-
-  useEffect(() => {
-    const reconnectWallet = async () => {
-      if (!isConnected && walletAddress && activeConnector) {
-        try {
-          // Automatically reconnect the wallet on page reload if there is a saved address
-          await connect({ connector: activeConnector });
-        } catch (error) {
-          console.error("Automatic wallet reconnection failed:", error);
-        }
-      }
-    };
-  
-    reconnectWallet();
-  }, [isConnected, walletAddress, activeConnector, connect]);
-  
-  
 
   const switchProfile = (profileId: string) => {
     const selectedProfile = profiles.find((profile) => profile.id === profileId);
