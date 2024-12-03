@@ -60,7 +60,7 @@ const Post: React.FC<PostProps> = ({ post, isDarkMode }) => {
   const [userReaction, setUserReaction] = useState<null | "like" | "dislike">(null);
   const [isCommentsVisible, setIsCommentsVisible] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const { accountIdentifier, activeProfile } = useProfileContext();
+  //const { accountIdentifier, activeProfile } = useProfileContext();
   const [currentImageIndex, setCurrentImageIndex] = useState<number | null>(null); // Modal state for image
   const router = useRouter();
 

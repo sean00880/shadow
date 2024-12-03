@@ -35,6 +35,7 @@ interface ProfileContextType {
   profiles: Profile[];
   activeProfile: Profile | null;
   isLoadingProfile: boolean;
+  accountIdentifier: string | null; // Included accountIdentifier for consistency
   fetchProfiles: () => Promise<void>;
   switchProfile: (profileId: string) => void;
   clearProfileState: () => void;
@@ -143,6 +144,7 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
         fetchProfiles,
         switchProfile,
         clearProfileState,
+        accountIdentifier
       }}
     >
       {children}
