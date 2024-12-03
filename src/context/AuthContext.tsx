@@ -60,19 +60,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const { disconnect: wagmiDisconnect } = useDisconnect();
   const { address, isConnected, caipAddress } = useAppKitAccount();
 
+  const isBrowser = typeof window !== "undefined";
+
   const [walletAddress, setWalletAddress] = useState<string | null>(() =>
-    localStorage.getItem("walletAddress")
+    isBrowser ? localStorage.getItem("walletAddress") : null
   );
   const [accountIdentifier, setAccountIdentifier] = useState<string | null>(() =>
-    localStorage.getItem("accountIdentifier")
+    isBrowser ? localStorage.getItem("accountIdentifier") : null
   );
   const [blockchainWallet, setBlockchainWallet] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
   const [profiles, setProfiles] = useState<Profile[]>(() =>
-    JSON.parse(localStorage.getItem("profiles") || "[]")
+    isBrowser ? JSON.parse(localStorage.getItem("profiles") || "[]") : []
   );
   const [activeProfile, setActiveProfile] = useState<Profile | null>(() =>
-    JSON.parse(localStorage.getItem("activeProfile") || "null")
+    isBrowser ? JSON.parse(localStorage.getItem("activeProfile") || "null") : null
   );
 
   const fetchProfiles = useCallback(
@@ -93,30 +95,38 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           setActiveProfile(defaultProfile);
           setAccountIdentifier(defaultProfile.accountIdentifier);
 
-          localStorage.setItem("profiles", JSON.stringify(data));
-          localStorage.setItem("activeProfile", JSON.stringify(defaultProfile));
-          localStorage.setItem("accountIdentifier", defaultProfile.accountIdentifier);
-          Cookies.set("accountIdentifier", defaultProfile.accountIdentifier, { expires: 7 });
+          if (isBrowser) {
+            localStorage.setItem("profiles", JSON.stringify(data));
+            localStorage.setItem("activeProfile", JSON.stringify(defaultProfile));
+            localStorage.setItem("accountIdentifier", defaultProfile.accountIdentifier);
+            Cookies.set("accountIdentifier", defaultProfile.accountIdentifier, { expires: 7 });
+          }
         } else {
           setProfiles([]);
           setActiveProfile(null);
           const generatedId = `user-${crypto.randomUUID()}`;
           setAccountIdentifier(generatedId);
-          localStorage.setItem("accountIdentifier", generatedId);
-          Cookies.set("accountIdentifier", generatedId, { expires: 7 });
+
+          if (isBrowser) {
+            localStorage.setItem("accountIdentifier", generatedId);
+            Cookies.set("accountIdentifier", generatedId, { expires: 7 });
+          }
         }
       } catch (error) {
         console.error("Error fetching profiles:", error);
       }
     },
-    [walletAddress]
+    [walletAddress, isBrowser]
   );
 
   useEffect(() => {
     if (isConnected && address) {
       setWalletAddress(address);
       setBlockchainWallet(caipAddress || null);
-      localStorage.setItem("walletAddress", address);
+
+      if (isBrowser) {
+        localStorage.setItem("walletAddress", address);
+      }
       fetchProfiles(address);
     } else {
       setWalletAddress(null);
@@ -125,13 +135,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setActiveProfile(null);
       setAccountIdentifier(null);
 
-      localStorage.removeItem("walletAddress");
-      localStorage.removeItem("profiles");
-      localStorage.removeItem("activeProfile");
-      localStorage.removeItem("accountIdentifier");
-      Cookies.remove("accountIdentifier");
+      if (isBrowser) {
+        localStorage.removeItem("walletAddress");
+        localStorage.removeItem("profiles");
+        localStorage.removeItem("activeProfile");
+        localStorage.removeItem("accountIdentifier");
+        Cookies.remove("accountIdentifier");
+      }
     }
-  }, [isConnected, address, caipAddress, fetchProfiles]);
+  }, [isConnected, address, caipAddress, fetchProfiles, isBrowser]);
 
   const switchProfile = (profileId: string) => {
     const selectedProfile = profiles.find((profile) => profile.id === profileId);
@@ -139,9 +151,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setActiveProfile(selectedProfile);
       setAccountIdentifier(selectedProfile.accountIdentifier);
 
-      localStorage.setItem("activeProfile", JSON.stringify(selectedProfile));
-      localStorage.setItem("accountIdentifier", selectedProfile.accountIdentifier);
-      Cookies.set("accountIdentifier", selectedProfile.accountIdentifier, { expires: 7 });
+      if (isBrowser) {
+        localStorage.setItem("activeProfile", JSON.stringify(selectedProfile));
+        localStorage.setItem("accountIdentifier", selectedProfile.accountIdentifier);
+        Cookies.set("accountIdentifier", selectedProfile.accountIdentifier, { expires: 7 });
+      }
     } else {
       console.error("Profile with ID not found:", profileId);
     }
@@ -156,8 +170,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setActiveProfile(null);
       setAccountIdentifier(null);
 
-      localStorage.clear();
-      Cookies.remove("accountIdentifier");
+      if (isBrowser) {
+        localStorage.clear();
+        Cookies.remove("accountIdentifier");
+      }
     } catch (error) {
       console.error("Error during logout:", error);
     }
