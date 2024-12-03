@@ -122,28 +122,71 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   );
   
   useEffect(() => {
-    console.log("isConnected:", isConnected, "address:", address, "profiles.length:", profiles.length);
-  }, [isConnected, address, profiles.length]);
-  
-  useEffect(() => {
+    // Monitor connection status and update walletAddress and blockchainWallet
     if (isConnected && address) {
-      setWalletAddress(address);
-      if (isBrowser) localStorage.setItem("walletAddress", address);
+      if (walletAddress !== address) {
+        setWalletAddress(address);
+        if (isBrowser) localStorage.setItem("walletAddress", address);
+      }
+  
+      if (blockchainWallet !== caipAddress) {
+        setBlockchainWallet(caipAddress || null);
+        if (isBrowser) localStorage.setItem("blockchainWallet", caipAddress || "");
+      }
+    } else if (!isConnected) {
+      // Clear local states if disconnected
+      setWalletAddress(null);
+      setBlockchainWallet(null);
+      setActiveProfile(null);
+      setProfiles([]);
+      setAccountIdentifier(null);
+      if (isBrowser) {
+        localStorage.removeItem("walletAddress");
+        localStorage.removeItem("blockchainWallet");
+        localStorage.removeItem("profiles");
+        localStorage.removeItem("activeProfile");
+        localStorage.removeItem("accountIdentifier");
+        Cookies.remove("accountIdentifier");
+      }
     }
-  }, [isConnected, address, isBrowser]);
+  }, [isConnected, address, caipAddress, walletAddress, blockchainWallet, isBrowser]);
   
   useEffect(() => {
-    if (isConnected && caipAddress) {
-      setBlockchainWallet(caipAddress);
-      if (isBrowser) localStorage.setItem("blockchainWallet", caipAddress);
-    }
-  }, [isConnected, caipAddress, isBrowser]);
-  
-  useEffect(() => {
+    // Fetch profiles when wallet is connected and address changes
     if (isConnected && address && !profiles.length) {
-      fetchProfiles(address);
+      const fetchUserProfiles = async () => {
+        try {
+          await fetchProfiles(address);
+        } catch (error) {
+          console.error("Error fetching profiles:", error);
+          // Add retry logic or fallback if necessary
+        }
+      };
+  
+      fetchUserProfiles();
     }
   }, [isConnected, address, profiles.length, fetchProfiles]);
+  
+  useEffect(() => {
+    // Update localStorage when activeProfile changes
+    if (activeProfile) {
+      if (isBrowser) {
+        localStorage.setItem("activeProfile", JSON.stringify(activeProfile));
+        localStorage.setItem("accountIdentifier", activeProfile.accountIdentifier);
+        Cookies.set("accountIdentifier", activeProfile.accountIdentifier, { expires: 7 });
+      }
+    }
+  }, [activeProfile, isBrowser]);
+  
+  useEffect(() => {
+    // Ensure profiles are updated in localStorage whenever profiles state changes
+    if (profiles.length > 0) {
+      if (isBrowser) {
+        localStorage.setItem("profiles", JSON.stringify(profiles));
+      }
+    }
+  }, [profiles, isBrowser]);
+  
   
   const switchProfile = (profileId: string) => {
     const selectedProfile = profiles.find((profile) => profile.id === profileId);
