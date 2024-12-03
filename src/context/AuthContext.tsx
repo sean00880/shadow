@@ -123,28 +123,31 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     [walletAddress, isBrowser]
   );
   
-
-
   useEffect(() => {
+    // Only proceed if AppKit indicates a valid connection
     if (isConnected && address) {
-      // Update wallet and blockchain states
-      setWalletAddress(address);
-      setBlockchainWallet(caipAddress || null);
-  
-      if (isBrowser) {
-        // Save wallet and blockchain states in localStorage
-        localStorage.setItem("walletAddress", address);
-        localStorage.setItem("blockchainWallet", caipAddress || "");
+      // Update wallet and blockchain states only if they are not already set
+      if (walletAddress !== address) {
+        setWalletAddress(address);
+        if (isBrowser) {
+          localStorage.setItem("walletAddress", address);
+        }
       }
   
-      // Fetch profiles if not already fetched
+      if (blockchainWallet !== caipAddress) {
+        setBlockchainWallet(caipAddress || null);
+        if (isBrowser) {
+          localStorage.setItem("blockchainWallet", caipAddress || "");
+        }
+      }
+  
+      // Fetch profiles only once to avoid redundant API calls
       if (!profiles.length) {
         fetchProfiles(address);
       }
     }
-  }, [isConnected, address, caipAddress, fetchProfiles, profiles.length, isBrowser]);
+  }, [isConnected, address, caipAddress, walletAddress, blockchainWallet, profiles.length, fetchProfiles, isBrowser]);
   
-
   const switchProfile = (profileId: string) => {
     const selectedProfile = profiles.find((profile) => profile.id === profileId);
     if (selectedProfile) {
