@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useState, useContext, useEffect, ReactNode, useCallback } from "react";
-import { Connector, useConnect, useDisconnect } from "wagmi";
+import { Connector, useConnect, useDisconnect, useAccount } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
 import { useAppKitAccount } from "@reown/appkit/react";
@@ -58,7 +58,8 @@ type AuthProviderProps = {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const { connect, connectors } = useConnect();
   const { disconnect: wagmiDisconnect } = useDisconnect();
-  const { address, isConnected, caipAddress } = useAppKitAccount();
+  const { isConnected, address, connector: activeConnector } = useAccount();
+  const { caipAddress } = useAppKitAccount();
 
   const isBrowser = typeof window !== "undefined";
 
@@ -131,6 +132,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       fetchProfiles(storedWallet);
     }
   }, [isConnected, address, caipAddress, fetchProfiles, isBrowser]);
+
+  useEffect(() => {
+    const reconnectWallet = async () => {
+      if (!isConnected && walletAddress && activeConnector) {
+        try {
+          // Automatically reconnect the wallet on page reload if there is a saved address
+          await connect({ connector: activeConnector });
+        } catch (error) {
+          console.error("Automatic wallet reconnection failed:", error);
+        }
+      }
+    };
+  
+    reconnectWallet();
+  }, [isConnected, walletAddress, activeConnector, connect]);
+  
+  
 
   const switchProfile = (profileId: string) => {
     const selectedProfile = profiles.find((profile) => profile.id === profileId);
