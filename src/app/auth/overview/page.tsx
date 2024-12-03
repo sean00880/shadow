@@ -3,11 +3,10 @@
 import { motion } from "framer-motion";
 import { ClipLoader } from "react-spinners";
 import { useAuthContext } from "../../../context/AuthContext";
-import { useProfileContext } from "../../../context/ProfileContext";
 
 export default function ConnectPage() {
-  const { walletAddress, blockchainWallet, isConnecting } = useAuthContext();
-  const { profiles, activeProfile, switchProfile, isLoadingProfile } = useProfileContext();
+  const { walletAddress, blockchainWallet, isConnecting, profiles, activeProfile, switchProfile } = useAuthContext();
+
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
@@ -20,7 +19,7 @@ export default function ConnectPage() {
         Connect Your Wallet
       </motion.h2>
 
-      {isConnecting || isLoadingProfile ? (
+      {isConnecting ? (
         <div className="mt-8">
           <ClipLoader color="#4A90E2" loading size={50} />
           <p className="mt-4 text-sm text-gray-500">

@@ -4,15 +4,13 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 import { useAuthContext } from "../context/AuthContext";
-import { useProfileContext } from "../context/ProfileContext";
 import { useRouter } from "next/navigation";
 
 const DefaultLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
 
-  const { walletAddress } = useAuthContext();
-  const { activeProfile } = useProfileContext();
+  const { walletAddress, activeProfile } = useAuthContext();
   const router = useRouter();
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);

@@ -1,22 +1,15 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from "react";
+import React, { createContext, useState, useContext, useEffect, ReactNode } from "react";
 import { Connector, useConnect, useDisconnect } from "wagmi";
+import { wagmiAdapter, projectId } from "../lib/config";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
-import { createAppKit } from "@reown/appkit";
-import { wagmiAdapter, projectId } from "../lib/config";
-import { mainnet, sepolia, base, bsc } from "@reown/appkit/networks";
 import { useAppKitAccount } from "@reown/appkit/react";
-import Cookies from "js-cookie";
+import { createAppKit } from "@reown/appkit";
 import { supabase } from "../utils/supaBaseClient";
-
-import {
-  createConfig,
-  http,
-  cookieStorage,
-  createStorage,
-} from "wagmi";
+import { mainnet, base, bsc } from "@reown/appkit/networks";
+import Cookies from "js-cookie";
 
 // Initialize AppKit
 export const appKit = createAppKit({
@@ -26,127 +19,170 @@ export const appKit = createAppKit({
   defaultNetwork: mainnet,
 });
 
-export function wagmiConfig() {
-  return createConfig({
-    chains: [mainnet, sepolia],
-    ssr: true,
-    storage: createStorage({
-      storage: cookieStorage,
-    }),
-    transports: {
-      [mainnet.id]: http(),
-      [sepolia.id]: http(),
-    },
-  });
-}
-
+// Create a QueryClient instance
 const queryClient = new QueryClient();
 
-export interface AuthContextType {
+interface Profile {
+  id: string;
+  displayName: string;
+  username: string;
+  about: string;
+  profileImageUrl: string | null;
+  bannerImageUrl: string | null;
+  walletAddress: string;
+  accountIdentifier: string;
+}
+
+interface AuthContextType {
   walletAddress: string | null;
   accountIdentifier: string | null;
-  blockchainWallet: string | null;
-  setAccountIdentifier: (accountIdentifier: string | null) => void;
+  blockchainWallet: string | null; // Added blockchainWallet (CAIP address)
+  isConnecting: boolean; // Added isConnecting
+  profiles: Profile[];
+  activeProfile: Profile | null;
   isConnected: boolean;
-  isConnecting: boolean;
-  connect: (options: { connector: Connector; chainId?: number }) => Promise<void>;
+  setActiveProfile: (profile: Profile | null) => void;
+  switchProfile: (profileId: string) => void;
+  logout: () => void;
+  connect: (connector: Connector) => Promise<void>;
   disconnect: () => Promise<void>;
   connectors: readonly Connector[];
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
+type AuthProviderProps = {
+  children: ReactNode;
+};
+
+export const AuthProvider = ({ children }: AuthProviderProps) => {
   const { connect, connectors } = useConnect();
   const { disconnect: wagmiDisconnect } = useDisconnect();
   const { address, isConnected, caipAddress } = useAppKitAccount();
 
-  const [walletAddress, setWalletAddress] = useState<string | null>(
-    () => Cookies.get("walletAddress") || null
+  // States
+  const [walletAddress, setWalletAddress] = useState<string | null>(() =>
+    typeof window !== "undefined" ? localStorage.getItem("walletAddress") : null
   );
-  const [accountIdentifier, setAccountIdentifier] = useState<string | null>(
-    () => Cookies.get("accountIdentifier") || null
+  const [accountIdentifier, setAccountIdentifier] = useState<string | null>(() =>
+    typeof window !== "undefined" ? localStorage.getItem("accountIdentifier") : null
   );
-  const [blockchainWallet, setBlockchainWallet] = useState<string | null>(null);
-  const [isConnecting, setIsConnecting] = useState(false);
+  const [blockchainWallet, setBlockchainWallet] = useState<string | null>(null); // Added blockchainWallet
+  const [isConnecting, setIsConnecting] = useState<boolean>(false); // Added isConnecting
+  const [profiles, setProfiles] = useState<Profile[]>(() =>
+    typeof window !== "undefined"
+      ? JSON.parse(localStorage.getItem("profiles") || "[]")
+      : []
+  );
+  const [activeProfile, setActiveProfile] = useState<Profile | null>(() =>
+    typeof window !== "undefined"
+      ? JSON.parse(localStorage.getItem("activeProfile") || "null")
+      : null
+  );
 
-  // Function to fetch or generate accountIdentifier
-  const fetchOrGenerateAccountIdentifier = useCallback(async (walletAddress: string | null) => {
-    if (!walletAddress) return null;
+  // Fetch profiles from Supabase
+  const fetchProfiles = async (wallet: string | null) => {
+    if (!wallet) return;
 
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("accountIdentifier")
-        .eq("wallet_address", walletAddress)
-        .single();
+        .select("*")
+        .eq("wallet_address", wallet);
 
-      if (error) {
-        console.error("Error fetching accountIdentifier:", error.message);
-      }
+      if (error) throw new Error(error.message);
 
-      if (data?.accountIdentifier) {
-        return data.accountIdentifier;
+      if (data?.length) {
+        setProfiles(data);
+        const defaultProfile = data[0];
+        setActiveProfile(defaultProfile);
+        setAccountIdentifier(defaultProfile.accountIdentifier);
+
+        // Sync with localStorage
+        localStorage.setItem("profiles", JSON.stringify(data));
+        localStorage.setItem("activeProfile", JSON.stringify(defaultProfile));
+        localStorage.setItem("accountIdentifier", defaultProfile.accountIdentifier);
+        Cookies.set("accountIdentifier", defaultProfile.accountIdentifier, { expires: 7 });
       } else {
-        // Generate a new accountIdentifier if it doesn't exist in the database
-        const newAccountIdentifier = `user-${crypto.randomUUID()}`;
-        return newAccountIdentifier;
+        setProfiles([]);
+        setActiveProfile(null);
+        // Generate a fallback accountIdentifier if none exists
+        const generatedId = `user-${crypto.randomUUID()}`;
+        setAccountIdentifier(generatedId);
+        Cookies.set("accountIdentifier", generatedId, { expires: 7 });
+        localStorage.setItem("accountIdentifier", generatedId);
       }
     } catch (error) {
-      console.error("Error generating accountIdentifier:", error);
-      return null;
-    }
-  }, []);
-
-  // Memoized function to update wallet and account data
-  const updateWalletData = useCallback(async () => {
-    if (isConnected && address) {
-      const chainId = caipAddress?.split(":")[1] || "1";
-      setWalletAddress(address);
-      Cookies.set("walletAddress", address, { expires: 7 });
-
-      const fetchedAccountIdentifier = await fetchOrGenerateAccountIdentifier(address);
-      if (fetchedAccountIdentifier) {
-        setAccountIdentifier(fetchedAccountIdentifier);
-        Cookies.set("accountIdentifier", fetchedAccountIdentifier, { expires: 7 });
-        localStorage.setItem("accountIdentifier", fetchedAccountIdentifier);
-      }
-
-      setBlockchainWallet(`${chainId}:${address}`);
-    } else {
-      // Clear wallet-related data when disconnected
-      setWalletAddress(null);
-      setAccountIdentifier(null);
-      setBlockchainWallet(null);
-      localStorage.removeItem("walletAddress");
-      localStorage.removeItem("accountIdentifier");
-      Cookies.remove("walletAddress");
-      Cookies.remove("accountIdentifier");
-    }
-  }, [isConnected, address, caipAddress, fetchOrGenerateAccountIdentifier]);
-
-  // Synchronize wallet and account data on connection state changes
-  useEffect(() => {
-    updateWalletData();
-  }, [updateWalletData]);
-
-  const handleConnect = async (options: { connector: Connector; chainId?: number }) => {
-    setIsConnecting(true);
-    try {
-      await connect(options);
-    } catch (error) {
-      console.error("Error during wallet connection:", error);
-    } finally {
-      setIsConnecting(false);
+      console.error("Error fetching profiles:", error);
     }
   };
 
-  const handleDisconnect = async () => {
+  // Handle wallet and profile state updates
+  useEffect(() => {
+    if (isConnected && address) {
+      setWalletAddress(address);
+      setBlockchainWallet(caipAddress || null); // Update CAIP address
+      localStorage.setItem("walletAddress", address);
+      fetchProfiles(address);
+    } else {
+      setWalletAddress(null);
+      setBlockchainWallet(null);
+      setProfiles([]);
+      setActiveProfile(null);
+      setAccountIdentifier(null);
+
+      // Clear localStorage and cookies
+      localStorage.removeItem("walletAddress");
+      localStorage.removeItem("profiles");
+      localStorage.removeItem("activeProfile");
+      localStorage.removeItem("accountIdentifier");
+      Cookies.remove("accountIdentifier");
+    }
+  }, [isConnected, address, caipAddress]);
+
+  // Switch active profile
+  const switchProfile = (profileId: string) => {
+    const selectedProfile = profiles.find((profile) => profile.id === profileId);
+    if (selectedProfile) {
+      setActiveProfile(selectedProfile);
+      setAccountIdentifier(selectedProfile.accountIdentifier);
+
+      // Sync with localStorage
+      localStorage.setItem("activeProfile", JSON.stringify(selectedProfile));
+      localStorage.setItem("accountIdentifier", selectedProfile.accountIdentifier);
+      Cookies.set("accountIdentifier", selectedProfile.accountIdentifier, { expires: 7 });
+    } else {
+      console.error("Profile with ID not found:", profileId);
+    }
+  };
+
+  // Logout functionality
+  const logout = async () => {
+    setWalletAddress(null);
+    setBlockchainWallet(null); // Clear blockchainWallet
+    setProfiles([]);
+    setActiveProfile(null);
+    setAccountIdentifier(null);
+
+    // Clear localStorage
+    localStorage.clear();
+    Cookies.remove("accountIdentifier");
+
     try {
       await wagmiDisconnect();
-      await updateWalletData(); // Ensure wallet data is reset on disconnect
     } catch (error) {
-      console.error("Error during wallet disconnection:", error);
+      console.error("Wallet disconnect error:", error);
+    }
+  };
+
+  const handleConnect = async (connector: Connector): Promise<void> => {
+    setIsConnecting(true);
+    try {
+      await connect({ connector });
+    } catch (error) {
+      console.error("Connection failed:", error);
+    } finally {
+      setIsConnecting(false); // Ensure isConnecting resets
     }
   };
 
@@ -158,11 +194,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             walletAddress,
             accountIdentifier,
             blockchainWallet,
-            setAccountIdentifier,
-            isConnected,
             isConnecting,
+            profiles,
+            activeProfile,
+            isConnected,
+            setActiveProfile,
+            switchProfile,
+            logout,
             connect: handleConnect,
-            disconnect: handleDisconnect,
+            disconnect: async () => {
+              await wagmiDisconnect();
+            },
             connectors,
           }}
         >

@@ -3,11 +3,8 @@
 import { motion } from "framer-motion";
 import { ClipLoader } from "react-spinners"; // Example spinner
 import { useAuthContext } from "../../../context/AuthContext";
-import { useProfileContext } from "../../../context/ProfileContext";
-
 export default function ConnectPage() {
-  const { walletAddress, blockchainWallet, isConnecting } = useAuthContext(); // Authentication-related data
-  const { profiles, activeProfile, switchProfile } = useProfileContext(); // Profile-related data
+  const { walletAddress, blockchainWallet, isConnecting, profiles, activeProfile, switchProfile  } = useAuthContext(); // Authentication-related data
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">

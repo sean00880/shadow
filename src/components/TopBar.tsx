@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { useProfileContext } from "../context/ProfileContext";
 import { useAuthContext } from "../context/AuthContext";
 
 export default function TopBar({ isDarkMode, toggleTheme }: { isDarkMode: boolean; toggleTheme: () => void }) {
@@ -10,7 +9,7 @@ export default function TopBar({ isDarkMode, toggleTheme }: { isDarkMode: boolea
   const menuRef = useRef<HTMLDivElement>(null);
 
   const { walletAddress, disconnect } = useAuthContext();
-  const { profiles, activeProfile, switchProfile, clearProfileState } = useProfileContext();
+  const { profiles, activeProfile, switchProfile } = useAuthContext();
 
   const profileImage = activeProfile?.profileImageUrl || "/images/default_logo.jpg";
 
@@ -58,7 +57,7 @@ export default function TopBar({ isDarkMode, toggleTheme }: { isDarkMode: boolea
                     className="px-4 py-2 text-sm text-red-500 hover:bg-gray-100 cursor-pointer"
                     onClick={() => {
                       disconnect();
-                      clearProfileState();
+                     
                     }}
                   >
                     Logout

@@ -7,7 +7,7 @@ import TrendingBar from "../../components/TrendingBar";
 import GetLinked from "../../components/GetLinked";
 import CreatePost from "../../components/CreatePost";
 import { supabase } from "../../utils/supaBaseClient";
-import { useProfileContext } from "../../context/ProfileContext";
+import { useAuthContext } from "../../context/AuthContext";
 
 interface PostData {
   id: string;
@@ -23,7 +23,7 @@ interface PostData {
 }
 
 export default function FeedPage() {
-  const { activeProfile } = useProfileContext();
+  const { activeProfile } = useAuthContext();
   const [posts, setPosts] = useState<PostData[]>([]);
   const [loading, setLoading] = useState(true);
 
