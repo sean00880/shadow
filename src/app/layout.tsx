@@ -45,7 +45,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
   const isBlogPage = pathname.startsWith("/blog");
 
   return (
-    <WagmiProvider config={config}>
+    <WagmiProvider config={config} reconnectOnMount={false}>
       <QueryClientProvider client={queryClient}>
         <Provider value={client}>   
           <AuthProvider >
