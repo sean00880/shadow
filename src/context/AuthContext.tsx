@@ -177,7 +177,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   return (
-    <WagmiProvider config={wagmiAdapter.wagmiConfig} reconnectOnMount={false}>
+    <WagmiProvider config={wagmiAdapter.wagmiConfig} reconnectOnMount={true}>
       <QueryClientProvider client={queryClient}>
         <AuthContext.Provider
           value={{
