@@ -13,7 +13,7 @@ interface PostData {
   id: string;
   profile_id: string;
   content: string;
-  media: string[];
+  media_links: string[]; // Aligned with Post and CreatePost logic
   timestamp: string;
   likes: number;
   dislikes: number;
@@ -28,40 +28,32 @@ export default function FeedPage() {
   const [loading, setLoading] = useState(true);
 
   const fetchPosts = useCallback(async () => {
-    if (!activeProfile?.id) {
-      setPosts([]);
-      setLoading(false);
-      return;
-    }
-  
     try {
       const { data, error } = await supabase
         .from("posts")
         .select(
-          "*, profile:profiles(id, display_name, username, profile_image, membership_tier)"
+          "id, profile_id, content, media_links, timestamp, likes, dislikes, boosts, reshares, comments_count, profile:profiles(id, display_name, username, profile_image, membership_tier)"
         )
         .is("parent_id", null) // Fetch only top-level posts
         .order("timestamp", { ascending: false });
-  
+
       if (error) throw error;
-  
+
       setPosts(data || []);
     } catch (error) {
-      console.error("Error fetching posts:", error.message);
+      console.error("Error fetching posts:", (error as Error).message);
       setPosts([]);
     } finally {
       setLoading(false);
     }
-  }, [activeProfile?.id]);
-  
-  
+  }, []);
 
   useEffect(() => {
     fetchPosts();
   }, [fetchPosts]);
 
   const handlePostCreated = async () => {
-    fetchPosts(); // Refetch posts after creating a new one
+    await fetchPosts(); // Refetch posts after creating a new one
   };
 
   return (
@@ -84,7 +76,9 @@ export default function FeedPage() {
             {loading ? (
               <div className="text-center text-gray-400">Loading posts...</div>
             ) : posts.length > 0 ? (
-              posts.map((post) => <Post key={post.id} post={post} isDarkMode={true} />)
+              posts.map((post) => (
+                <Post key={post.id} post={post} isDarkMode={true} />
+              ))
             ) : (
               <div className="text-center text-gray-400">No posts available.</div>
             )}
