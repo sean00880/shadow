@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { supabase } from "../../../../../utils/supaBaseClient";
 import Comment from "../../../../../components/Comment";
@@ -27,7 +26,6 @@ interface CommentProps {
 }
 
 const MediaPage = ({ params }: { params: { id: string; index: string } }) => {
-  const router = useRouter();
   const { id, index } = params;
   const [post, setPost] = useState<PostMediaProps | null>(null);
   const [currentMedia, setCurrentMedia] = useState<{ id: string; postId: string; url: string } | null>(
