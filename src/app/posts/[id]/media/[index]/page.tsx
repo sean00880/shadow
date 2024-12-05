@@ -5,8 +5,10 @@ import Image from "next/image";
 import { supabase } from "../../../../../utils/supaBaseClient";
 import Comment from "../../../../../components/Comment";
 
+type Params = Promise<{ id: string; index: string }>;
+
 interface MediaPageProps {
-  params: { id: string; index: string }; // Ensure params includes id and index as strings
+  params: Params; // Params are now asynchronous
 }
 
 interface PostMediaProps {
@@ -28,12 +30,12 @@ interface CommentProps {
   membership_tier: string;
 }
 
-const MediaPage = ({ params }: MediaPageProps) => {
-  const { id, index } = params;
+const MediaPage = async ({ params }: MediaPageProps) => {
+  const resolvedParams = await params;
+  const { id, index } = resolvedParams;
+
   const [post, setPost] = useState<PostMediaProps | null>(null);
-  const [currentMedia, setCurrentMedia] = useState<{ id: string; postId: string; url: string } | null>(
-    null
-  );
+  const [currentMedia, setCurrentMedia] = useState<{ id: string; postId: string; url: string } | null>(null);
   const [comments, setComments] = useState<CommentProps[]>([]);
   const [loading, setLoading] = useState(true);
 
