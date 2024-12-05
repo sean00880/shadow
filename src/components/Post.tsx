@@ -99,12 +99,16 @@ const Post: React.FC<PostProps> = ({ post, isDarkMode }) => {
         .select("*, profile:profiles(id, display_name, username, profile_image, membership_tier)")
         .eq("parent_id", post.id)
         .order("timestamp", { ascending: true });
-
+  
       if (error) throw error;
-
+  
       setComments(data || []);
-    } catch (error) {
-      console.error("Error fetching replies:", error.message);
+    } catch (err) {
+      if (err instanceof Error) {
+        console.error("Error fetching replies:", err.message);
+      } else {
+        console.error("Unexpected error fetching replies:", err);
+      }
     }
   };
 
@@ -162,12 +166,12 @@ const Post: React.FC<PostProps> = ({ post, isDarkMode }) => {
       alert("Reply content cannot be empty.");
       return;
     }
-
+  
     if (!accountIdentifier) {
       alert("You need to log in to reply.");
       return;
     }
-
+  
     try {
       const { error } = await supabase.from("posts").insert({
         profile_id: accountIdentifier,
@@ -181,15 +185,20 @@ const Post: React.FC<PostProps> = ({ post, isDarkMode }) => {
         reshares: 0,
         comments_count: 0,
       });
-
+  
       if (error) throw error;
-
+  
       setReplyContent("");
       closeReplyModal();
       fetchReplies();
-    } catch (error) {
-      console.error("Error submitting reply:", error.message);
-      alert("Failed to submit reply. Please try again.");
+    } catch (err) {
+      if (err instanceof Error) {
+        console.error("Error submitting reply:", err.message);
+        alert("Failed to submit reply. Please try again.");
+      } else {
+        console.error("Unexpected error submitting reply:", err);
+        alert("An unexpected error occurred. Please try again.");
+      }
     }
   };
 
