@@ -33,21 +33,28 @@ export default function FeedPage() {
       setLoading(false);
       return;
     }
-
-    const { data, error } = await supabase
-      .from("posts")
-      .select("*")
-      .eq("profile_id", activeProfile.id)
-      .order("timestamp", { ascending: false });
-
-    if (error) {
+  
+    try {
+      const { data, error } = await supabase
+        .from("posts")
+        .select(
+          "*, profile:profiles(id, display_name, username, profile_image, membership_tier)"
+        )
+        .is("parent_id", null) // Fetch only top-level posts
+        .order("timestamp", { ascending: false });
+  
+      if (error) throw error;
+  
+      setPosts(data || []);
+    } catch (error) {
       console.error("Error fetching posts:", error.message);
       setPosts([]);
-    } else {
-      setPosts(data || []);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, [activeProfile?.id]);
+  
+  
 
   useEffect(() => {
     fetchPosts();

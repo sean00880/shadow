@@ -7,9 +7,10 @@ import { useAuthContext } from "../context/AuthContext";
 
 interface CreatePostProps {
   onPostCreated: () => void; // Callback to refresh the post list after creating a new post
+  parentId?: string | null; // Optional parent ID for replies
 }
 
-const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
+const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated, parentId = null }) => {
   const { accountIdentifier } = useAuthContext();
   const [content, setContent] = useState("");
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
@@ -23,7 +24,9 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
     if (!e.target.files) return;
 
     const filesArray = Array.from(e.target.files);
-    const validFiles = filesArray.filter((file) => file.type.startsWith("image/") || file.type.startsWith("video/"));
+    const validFiles = filesArray.filter(
+      (file) => file.type.startsWith("image/") || file.type.startsWith("video/")
+    );
 
     if (validFiles.length < filesArray.length) {
       alert("Some files were skipped as they are not supported (only images/videos are allowed).");
@@ -41,43 +44,41 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
       alert("Cannot create an empty post.");
       return;
     }
-
-    if (!accountIdentifier) {
-      alert("You need to log in to create a post.");
-      return;
-    }
-
+  
     setUploading(true);
-
     try {
       const uploadedMediaUrls: string[] = [];
-
-      // Upload each media file to Supabase storage
+    
       for (const file of mediaFiles) {
-        const fileName = `${Date.now()}_${file.name}`; // Ensure unique file names
+        const fileName = `${Date.now()}_${file.name}`;
+    
+        // Upload the file to the Supabase storage
         const { error: uploadError } = await supabase.storage
           .from("post-images")
           .upload(fileName, file);
-
+    
         if (uploadError) {
           throw new Error(`Failed to upload media: ${file.name}`);
         }
-
-        // Get the public URL for the uploaded file
+    
+        // Retrieve the public URL for the uploaded file
         const { data: publicUrlData } = supabase.storage
           .from("post-images")
           .getPublicUrl(fileName);
-
-        if (publicUrlData?.publicUrl) {
-          uploadedMediaUrls.push(publicUrlData.publicUrl);
+    
+        if (!publicUrlData || !publicUrlData.publicUrl) {
+          throw new Error(`Failed to retrieve public URL for: ${fileName}`);
         }
+    
+        // Push the public URL to the array
+        uploadedMediaUrls.push(publicUrlData.publicUrl);
       }
-
-      // Insert post data into the database
-      const { error } = await supabase.from("posts").insert({
+    
+      // Insert the post data into the database
+      const { error: insertError } = await supabase.from("posts").insert({
         profile_id: accountIdentifier,
-        content: content.trim(),
-        media: uploadedMediaUrls,
+        content,
+        media_links: uploadedMediaUrls,
         timestamp: new Date().toISOString(),
         likes: 0,
         dislikes: 0,
@@ -85,12 +86,12 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
         reshares: 0,
         comments_count: 0,
       });
-
-      if (error) {
-        throw error;
+    
+      if (insertError) {
+        throw insertError;
       }
-
-      // Clear form and notify parent component
+    
+      // Reset the form after successful post creation
       setContent("");
       setMediaFiles([]);
       onPostCreated();
@@ -100,7 +101,10 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
     } finally {
       setUploading(false);
     }
+    
+
   };
+  
 
   return (
     <div className="create-post p-4 border-b bg-white dark:bg-gray-900">
@@ -124,7 +128,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
           ></textarea>
           {mediaFiles.length > 0 && (
             <div className="media-preview grid grid-cols-3 gap-2 mt-2">
-              {mediaFiles.slice(0, 5).map((file, index) => (
+              {mediaFiles.map((file, index) => (
                 <div key={index} className="relative">
                   <Image
                     src={URL.createObjectURL(file)}
@@ -141,11 +145,6 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
                   </button>
                 </div>
               ))}
-              {mediaFiles.length > 5 && (
-                <div className="relative flex items-center justify-center bg-gray-300 rounded-lg text-black font-bold">
-                  +{mediaFiles.length - 5}
-                </div>
-              )}
             </div>
           )}
           <div className="flex items-center justify-between mt-4">

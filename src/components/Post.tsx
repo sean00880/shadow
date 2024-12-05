@@ -2,11 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation"; // For dynamic URL navigation
+import { useRouter } from "next/navigation";
 import { supabase } from "../utils/supaBaseClient";
 import Comment from "./Comment";
 import { useAuthContext } from "../context/AuthContext";
-
 
 interface Profile {
   id: string;
@@ -14,13 +13,13 @@ interface Profile {
   username: string;
   profile_image: string;
   verified: boolean;
-  links: number; // Followers count
+  links: number;
 }
 
 interface CommentProps {
   id: string;
   profile_id: string;
-  post_id: string;
+  parent_id: string | null;
   content: string;
   media?: string[];
   timestamp: string;
@@ -39,7 +38,7 @@ interface PostProps {
     id: string;
     profile_id: string;
     content: string;
-    media: string[];
+    media_links: string[];
     timestamp: string;
     likes: number;
     dislikes: number;
@@ -57,11 +56,10 @@ const Post: React.FC<PostProps> = ({ post, isDarkMode }) => {
   const [dislikes, setDislikes] = useState(post.dislikes);
   const [boosts, setBoosts] = useState(post.boosts);
   const [reshares, setReshares] = useState(post.reshares);
-  const [userReaction, setUserReaction] = useState<null | "like" | "dislike">(null);
   const [isCommentsVisible, setIsCommentsVisible] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [isReplyModalOpen, setIsReplyModalOpen] = useState(false);
+  const [replyContent, setReplyContent] = useState("");
   const { accountIdentifier, activeProfile } = useAuthContext();
-  const [currentImageIndex, setCurrentImageIndex] = useState<number | null>(null); // Modal state for image
   const router = useRouter();
 
   // Fetch profile associated with the post
@@ -94,52 +92,49 @@ const Post: React.FC<PostProps> = ({ post, isDarkMode }) => {
   }, [post.profile_id]);
 
   // Fetch comments for the post
-  useEffect(() => {
-    if (isCommentsVisible && activeProfile) {
-      const fetchComments = async () => {
-        const { data, error } = await supabase
-          .from("replies")
-          .select(
-            "id, profile_id, post_id, content, media, timestamp, likes, dislikes, boosts, reshares, comments_count, username, profile_image_url, membership_tier"
-          )
-          .eq("post_id", post.id)
-          .eq("profile_id", activeProfile.id); // Filter by activeProfile ID
+  const fetchReplies = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("posts")
+        .select("*, profile:profiles(id, display_name, username, profile_image, membership_tier)")
+        .eq("parent_id", post.id)
+        .order("timestamp", { ascending: true });
 
-        if (error) {
-          console.error("Error fetching comments:", error.message);
-          return;
-        }
+      if (error) throw error;
 
-        setComments(data || []);
-      };
-
-      fetchComments();
+      setComments(data || []);
+    } catch (error) {
+      console.error("Error fetching replies:", error.message);
     }
-  }, [isCommentsVisible, post.id, activeProfile]);
-
-  const openImageModal = (index: number) => {
-    setCurrentImageIndex(index);
-    router.push(`/post/${post.id}/image/${index + 1}`);
   };
 
-  const closeImageModal = () => {
-    setCurrentImageIndex(null);
-    router.back();
-  };
-
-  const navigateImage = (direction: "next" | "prev") => {
-    if (currentImageIndex === null) return;
-
-    const newIndex =
-      direction === "next"
-        ? (currentImageIndex + 1) % post.media.length
-        : (currentImageIndex - 1 + post.media.length) % post.media.length;
-
-    setCurrentImageIndex(newIndex);
-    router.push(`/post/${post.id}/image/${newIndex + 1}`);
-  };
+  useEffect(() => {
+    if (isCommentsVisible) fetchReplies();
+  }, [isCommentsVisible]);
 
   const toggleCommentsVisibility = () => setIsCommentsVisible(!isCommentsVisible);
+
+  const handleReaction = async (type: "like" | "dislike") => {
+    if (!activeProfile) {
+      alert("You need to be logged in to interact with posts.");
+      return;
+    }
+
+    const isLike = type === "like";
+
+    if (isLike) {
+      setLikes((prev) => prev + 1);
+    } else {
+      setDislikes((prev) => prev + 1);
+    }
+
+    const updatedReactions = {
+      likes: isLike ? likes + 1 : likes,
+      dislikes: !isLike ? dislikes + 1 : dislikes,
+    };
+
+    await supabase.from("posts").update(updatedReactions).eq("id", post.id);
+  };
 
   const handleBoost = async () => {
     if (!accountIdentifier) {
@@ -159,55 +154,57 @@ const Post: React.FC<PostProps> = ({ post, isDarkMode }) => {
     await supabase.from("posts").update({ reshares: reshares + 1 }).eq("id", post.id);
   };
 
-  const handleReaction = async (type: "like" | "dislike") => {
-    if (!activeProfile) {
-      alert("You need to be logged in to interact with posts.");
+  const openReplyModal = () => setIsReplyModalOpen(true);
+  const closeReplyModal = () => setIsReplyModalOpen(false);
+
+  const handleReplySubmit = async () => {
+    if (!replyContent.trim()) {
+      alert("Reply content cannot be empty.");
       return;
     }
 
-    const isLike = type === "like";
-
-    if (userReaction === type) {
-      if (isLike) {
-        setLikes((prev) => prev - 1);
-      } else {
-        setDislikes((prev) => prev - 1);
-      }
-      setUserReaction(null);
-    } else {
-      if (isLike) {
-        setLikes((prev) => prev + 1);
-      } else {
-        setDislikes((prev) => prev + 1);
-      }
-
-      if (userReaction) {
-        if (userReaction === "like") {
-          setLikes((prev) => prev - 1);
-        } else {
-          setDislikes((prev) => prev - 1);
-        }
-      }
-
-      setUserReaction(type);
+    if (!accountIdentifier) {
+      alert("You need to log in to reply.");
+      return;
     }
 
-    const updatedReactions = {
-      likes: isLike ? likes + 1 : likes,
-      dislikes: !isLike ? dislikes + 1 : dislikes,
-    };
+    try {
+      const { error } = await supabase.from("posts").insert({
+        profile_id: accountIdentifier,
+        parent_id: post.id,
+        content: replyContent.trim(),
+        media_links: [],
+        timestamp: new Date().toISOString(),
+        likes: 0,
+        dislikes: 0,
+        boosts: 0,
+        reshares: 0,
+        comments_count: 0,
+      });
 
-    await supabase.from("posts").update(updatedReactions).eq("id", post.id);
+      if (error) throw error;
+
+      setReplyContent("");
+      closeReplyModal();
+      fetchReplies();
+    } catch (error) {
+      console.error("Error submitting reply:", error.message);
+      alert("Failed to submit reply. Please try again.");
+    }
   };
 
   const renderMedia = () => {
-    if (!post.media || post.media.length === 0) return null;
+    if (!post.media_links || post.media_links.length === 0) return null;
 
     return (
       <div className="post-media grid grid-cols-2 gap-2">
-        {post.media.map((image, index) => (
-          <div key={index} className="relative cursor-pointer" onClick={() => openImageModal(index)}>
-            <Image src={image} alt={`Post media ${index + 1}`} width={250} height={250} className="rounded-lg" />
+        {post.media_links.map((url, index) => (
+          <div
+            key={index}
+            className="relative cursor-pointer"
+            onClick={() => router.push(`/posts/${post.id}/media/${index}`)}
+          >
+            <Image src={url} alt={`Media ${index + 1}`} width={250} height={250} className="rounded-lg" />
           </div>
         ))}
       </div>
@@ -215,104 +212,64 @@ const Post: React.FC<PostProps> = ({ post, isDarkMode }) => {
   };
 
   return (
-    <>
-      <div
-        className={`post mb-6 p-4 border rounded-lg ${isDarkMode ? "bg-black text-white" : "bg-white text-gray-800"}`}
-      >
-        {profile && (
-          <div className="post-header flex items-center justify-between mb-2">
-            <div className="flex items-center">
-              <Image
-                src={profile.profile_image}
-                alt="Profile"
-                width={40}
-                height={40}
-                className="rounded-full"
-              />
-              <div className="ml-3">
-                <span className="font-semibold flex items-center">
-                  {profile.display_name}
-                  {profile.verified && (
-                    <Image src="/icons/verified2.png" alt="Verified" width={16} height={16} className="ml-1" />
-                  )}
-                </span>
-                <p className="text-sm text-gray-500">
-                  @{profile.username} • {new Date(post.timestamp).toLocaleString()}
-                </p>
-                <p className="text-sm">{profile.links} Followers</p>
-              </div>
-            </div>
-            {profile?.id === activeProfile?.id && (
-            <div className="relative">
-              <button className="menu-button" onClick={() => setMenuOpen(!menuOpen)}>
-                ⋮
-              </button>
-              {menuOpen && (
-                <div className="absolute top-12 right-0 bg-gray-800 text-white p-2 rounded-lg shadow-lg">
-                  <button className="block w-full text-left px-4 py-2" onClick={() => {/* Handle Edit */}}>
-                    Edit
-                  </button>
-                  <button className="block w-full text-left px-4 py-2" onClick={() => {/* Handle Delete */}}>
-                    Delete
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-
+    <div className={`post mb-6 p-4 border rounded-lg ${isDarkMode ? "bg-black text-white" : "bg-white text-gray-800"}`}>
+      {profile && (
+        <div className="post-header flex items-center mb-2">
+          <Image src={profile.profile_image} alt="Profile" width={40} height={40} className="rounded-full" />
+          <div className="ml-3">
+            <span className="font-semibold flex items-center">
+              {profile.display_name}
+              {profile.verified && <Image src="/icons/verified2.png" alt="Verified" width={16} height={16} />}
+            </span>
+            <p className="text-sm text-gray-500">@{profile.username}</p>
           </div>
-        )}
-        <p className="text-base mb-3">{post.content}</p>
-        {renderMedia()}
-        <div className="post-interactions flex justify-between mt-3">
-          <button onClick={() => handleReaction("like")} className="interaction-button">
-            👍 {likes}
-          </button>
-          <button onClick={() => handleReaction("dislike")} className="interaction-button">
-            👎 {dislikes}
-          </button>
-          <button onClick={toggleCommentsVisibility} className="interaction-button">
-            💬 {comments.length} Comments
-          </button>
-          <button onClick={handleReshare} className="interaction-button">
-            🔁 {reshares} Reshares
-          </button>
-          <button onClick={handleBoost} className="interaction-button">
-            🚀 {boosts} Boosts
-          </button>
-        </div>
-        {isCommentsVisible && (
-          <div className="comments-section mt-4">
-            {comments.map((comment) => (
-              <Comment key={comment.id} comment={comment} />
-            ))}
-          </div>
-        )}
-      </div>
-
-      {currentImageIndex !== null && (
-        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
-          <button className="absolute top-4 left-4 text-white text-2xl" onClick={closeImageModal}>
-            ✖
-          </button>
-          <button className="absolute left-4 text-white text-2xl" onClick={() => navigateImage("prev")}>
-            ◀
-          </button>
-          <div className="relative">
-            <Image
-              src={post.media[currentImageIndex]}
-              alt={`Post media ${currentImageIndex + 1}`}
-              width={800}
-              height={800}
-              className="rounded-lg"
-            />
-          </div>
-          <button className="absolute right-4 text-white text-2xl" onClick={() => navigateImage("next")}>
-            ▶
-          </button>
         </div>
       )}
-    </>
+      <p className="text-base mb-3">{post.content}</p>
+      {renderMedia()}
+      <div className="post-interactions flex justify-between mt-3">
+        <button onClick={() => handleReaction("like")} className="interaction-button">👍 {likes}</button>
+        <button onClick={() => handleReaction("dislike")} className="interaction-button">👎 {dislikes}</button>
+        <button onClick={toggleCommentsVisibility} className="interaction-button">💬 {comments.length} Comments</button>
+        <button onClick={handleReshare} className="interaction-button">🔁 {reshares}</button>
+        <button onClick={handleBoost} className="interaction-button">🚀 {boosts}</button>
+      </div>
+      {isCommentsVisible && (
+        <div className="comments-section mt-4">
+          {comments.map((comment) => (
+            <Comment key={comment.id} comment={comment} />
+          ))}
+        </div>
+      )}
+      {isReplyModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-lg w-96">
+            <h3 className="text-lg font-semibold mb-4">Reply to Post</h3>
+            <textarea
+              className="w-full p-2 border rounded-lg dark:bg-gray-800 dark:text-white"
+              rows={4}
+              placeholder="Write your reply..."
+              value={replyContent}
+              onChange={(e) => setReplyContent(e.target.value)}
+            ></textarea>
+            <div className="flex justify-end mt-4 space-x-2">
+              <button
+                className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+                onClick={closeReplyModal}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                onClick={handleReplySubmit}
+              >
+                Reply
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

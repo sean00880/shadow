@@ -159,7 +159,7 @@ export default function CreateProfilePage() {
       if (error) throw new Error(error.message);
 
       // Refresh profiles after creation
-      await fetchProfiles();
+      await fetchProfiles(walletAddress);
 
       setAlertMessage("Profile created successfully!");
       setShowRedirect(true);
