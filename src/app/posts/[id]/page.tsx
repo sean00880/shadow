@@ -1,13 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/router";
+import { useParams } from "next/navigation"; // Correct hook for dynamic parameters
 import { supabase } from "../../../utils/supaBaseClient";
 import Post from "../../../components/Post";
 
 const PostPage = () => {
-  const router = useRouter();
-  const { id } = router.query; // Fetch the dynamic ID from the route
+  const { id } = useParams(); // Use useParams to fetch the dynamic ID
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -27,11 +26,14 @@ const PostPage = () => {
           .eq("id", id)
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error("Error fetching post:", (error as Error).message);
+          return;
+        }
 
         setPost(data);
-      } catch (error) {
-        console.error("Error fetching post:", error.message);
+      } catch (err) {
+        console.error("Unexpected error:", err instanceof Error ? err.message : err);
       } finally {
         setLoading(false);
       }
