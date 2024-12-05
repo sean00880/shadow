@@ -2,10 +2,16 @@
 
 import { motion } from "framer-motion";
 import { ClipLoader } from "react-spinners"; // Example spinner
-import { useAuthContext } from "../../../context/AuthContext";
+import { useAuthContext, Profile } from "../../../context/AuthContext";
 
 export default function ConnectPage() {
-  const { walletAddress, blockchainWallet, profiles, activeProfile, switchProfile } = useAuthContext(); // Authentication-related data
+  const {
+    walletAddress,
+    blockchainWallet,
+    profiles,
+    activeProfile,
+    switchProfile,
+  } = useAuthContext(); // Authentication-related data
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
@@ -18,15 +24,15 @@ export default function ConnectPage() {
         Connect Your Wallet
       </motion.h2>
 
-      {/* Conditional rendering based on the connection state */}
-      {!walletAddress ? (
-        // Show connect button if wallet is not connected
+      {!activeProfile ? (
         <div className="mt-8 flex flex-col space-y-4">
           <w3m-button />
-          <p className="mt-4 text-sm text-gray-500">Please connect your wallet.</p>
+          <p className="mt-4 text-sm text-gray-500">
+            Please connect your wallet.
+          </p>
+          <w3m-button />
         </div>
       ) : activeProfile ? (
-        // Show active profile and profiles list if connected and active profile exists
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -39,11 +45,11 @@ export default function ConnectPage() {
           <p className="text-sm">Blockchain Wallet: {blockchainWallet}</p>
 
           {/* Profiles Section */}
-          {profiles.length > 0 ? (
+          {profiles && profiles.length > 0 ? (
             <div className="mt-4">
               <h4 className="text-md font-medium">Linked Profiles:</h4>
               <ul className="mt-2 space-y-2">
-                {profiles.map((profile) => (
+                {profiles.map((profile: Profile) => (
                   <li
                     key={profile.id}
                     className={`p-2 border rounded-md cursor-pointer ${
@@ -65,15 +71,17 @@ export default function ConnectPage() {
             </div>
           ) : (
             <p className="mt-4 text-sm text-gray-500">
-              No linked profiles found for this wallet. Please create a profile or connect to an existing one.
+              No linked profiles found for this wallet. Please create a profile or connect to
+              an existing one.
             </p>
           )}
         </motion.div>
       ) : (
-        // Show a spinner while fetching active profile or data
         <div className="mt-8">
           <ClipLoader color="#4A90E2" size={50} />
-          <p className="mt-4 text-sm text-gray-500">Fetching profile information...</p>
+          <p className="mt-4 text-sm text-gray-500">
+            Fetching profile information...
+          </p>
         </div>
       )}
     </div>
