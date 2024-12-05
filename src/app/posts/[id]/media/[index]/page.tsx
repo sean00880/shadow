@@ -1,10 +1,11 @@
-"use client";
-
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { supabase } from "../../../../../utils/supaBaseClient";
 import Comment from "../../../../../components/Comment";
-import { useAuthContext } from "../../../../../context/AuthContext";
+
+interface MediaPageProps {
+  params: { id: string; index: string }; // Ensure params includes id and index as strings
+}
 
 interface PostMediaProps {
   id: string;
@@ -25,7 +26,7 @@ interface CommentProps {
   membership_tier: string;
 }
 
-const MediaPage = ({ params }: { params: { id: string; index: string } }) => {
+const MediaPage: React.FC<MediaPageProps> = ({ params }) => {
   const { id, index } = params;
   const [post, setPost] = useState<PostMediaProps | null>(null);
   const [currentMedia, setCurrentMedia] = useState<{ id: string; postId: string; url: string } | null>(
@@ -33,7 +34,6 @@ const MediaPage = ({ params }: { params: { id: string; index: string } }) => {
   );
   const [comments, setComments] = useState<CommentProps[]>([]);
   const [loading, setLoading] = useState(true);
-  const { accountIdentifier } = useAuthContext();
 
   useEffect(() => {
     if (!id || index === undefined) return;
