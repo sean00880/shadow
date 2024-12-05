@@ -62,6 +62,14 @@ type AuthProviderProps = {
   children: ReactNode;
 };
 
+type CaipAddress =
+  | `eip155:${string}:${string}`
+  | `solana:${string}:${string}`
+  | `polkadot:${number}:${string}`
+  | `solana:${number}:${string}`
+  | undefined;
+
+
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const { connect, connectors } = useConnect();
   const { disconnect: wagmiDisconnect } = useDisconnect();
@@ -118,7 +126,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   // Debounced wallet update to prevent flickering
   const debouncedUpdateWallet = useCallback(
-    debounce((newAddress: string | null, caip: string | null) => {
+    debounce((newAddress: string | null, caip: string | null | undefined) => {
       setWalletAddress(newAddress);
       setBlockchainWallet(caip || null);
 
