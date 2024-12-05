@@ -5,10 +5,6 @@ import Image from "next/image";
 import { supabase } from "../../../../../utils/supaBaseClient";
 import Comment from "../../../../../components/Comment";
 
-interface MediaPageProps {
-  params: { id: string; index: string }; // Ensure params includes id and index as strings
-}
-
 interface PostMediaProps {
   id: string;
   media_links: string[];
@@ -28,7 +24,7 @@ interface CommentProps {
   membership_tier: string;
 }
 
-const MediaPage: React.FC<MediaPageProps> = ({ params }) => {
+const MediaPage = ({ params }: { params: { id: string; index: string } }) => {
   const { id, index } = params;
   const [post, setPost] = useState<PostMediaProps | null>(null);
   const [currentMedia, setCurrentMedia] = useState<{ id: string; postId: string; url: string } | null>(
