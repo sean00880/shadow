@@ -258,13 +258,6 @@ const handleReaction = async (postId: string, type: "like" | "dislike") => {
 };
 
 
-
-
-
-
-  
-  
-
   useEffect(() => {
     fetchPosts();
   }, [fetchPosts]);

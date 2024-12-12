@@ -47,6 +47,10 @@ const Post: React.FC<PostProps> = ({ post, isDarkMode }) => {
   }, [fetchProfile, post.profile_id]);
 
 
+useEffect(() => {
+    if (isCommentsVisible) fetchComments(post.id);
+  }, [isCommentsVisible]);
+
 
   const toggleCommentsVisibility = () =>
     setIsCommentsVisible(!isCommentsVisible);
@@ -119,7 +123,7 @@ const Post: React.FC<PostProps> = ({ post, isDarkMode }) => {
           👎 {post.dislikes}
         </div>
         <div
-          onClick={() => toggleReaction("boost")}
+          onClick={() => toggleReaction(post.id,"boost")}
           className={`interaction-button cursor-pointer ${
             post.boosted_by.includes(post.profile_id) ? "text-blue-500" : ""
           }`}
@@ -127,7 +131,7 @@ const Post: React.FC<PostProps> = ({ post, isDarkMode }) => {
           🚀 {post.boosts}
         </div>
         <div
-          onClick={() => toggleReaction("reshare")}
+          onClick={() => toggleReaction(post.id,"reshare")}
           className={`interaction-button cursor-pointer ${
             post.reshared_by.includes(post.profile_id) ? "text-green-500" : ""
           }`}
