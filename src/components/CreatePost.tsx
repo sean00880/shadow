@@ -6,15 +6,20 @@ import { supabase } from "../utils/supaBaseClient";
 import { useAuthContext } from "../context/AuthContext";
 
 interface CreatePostProps {
-  onPostCreated: () => void; // Callback to refresh the post list after creating a new post
-  parentId?: string | null; // Optional parent ID for replies
+  onPostCreated: () => void;
+  parentId?: string | null;
 }
 
+
+
 const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated, parentId = null }) => {
-  const { accountIdentifier } = useAuthContext();
+
+  const { activeProfile } = useAuthContext(); // Use activeProfile directly
   const [content, setContent] = useState("");
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
+
+  
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
@@ -45,38 +50,43 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated, parentId = null 
       return;
     }
   
+    if (!activeProfile?.id || !activeProfile?.username || !activeProfile?.accountIdentifier) {
+      console.error("Missing activeProfile, username, or account_identifier");
+      alert("You need to log in to create a post.");
+      return;
+    }
+  
     setUploading(true);
+  
     try {
       const uploadedMediaUrls: string[] = [];
-    
+  
       for (const file of mediaFiles) {
         const fileName = `${Date.now()}_${file.name}`;
-    
-        // Upload the file to the Supabase storage
+  
         const { error: uploadError } = await supabase.storage
           .from("post-images")
           .upload(fileName, file);
-    
+  
         if (uploadError) {
           throw new Error(`Failed to upload media: ${file.name}`);
         }
-    
-        // Retrieve the public URL for the uploaded file
+  
         const { data: publicUrlData } = supabase.storage
           .from("post-images")
           .getPublicUrl(fileName);
-    
-        if (!publicUrlData || !publicUrlData.publicUrl) {
+  
+        if (!publicUrlData?.publicUrl) {
           throw new Error(`Failed to retrieve public URL for: ${fileName}`);
         }
-    
-        // Push the public URL to the array
+  
         uploadedMediaUrls.push(publicUrlData.publicUrl);
       }
-    
-      // Insert the post data into the database
-      const { error: insertError } = await supabase.from("posts").insert({
-        profile_id: accountIdentifier,
+  
+      const { data, error: insertError } = await supabase.from("posts").insert({
+        author_profile_id: activeProfile.id,            // Profile ID reference
+        creator_account_identifier: activeProfile.accountIdentifier, // Account identifier
+        username: activeProfile.username,              // Username
         content,
         media_links: uploadedMediaUrls,
         timestamp: new Date().toISOString(),
@@ -86,23 +96,20 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated, parentId = null 
         reshares: 0,
         comments_count: 0,
       });
-    
+  
       if (insertError) {
         throw insertError;
       }
-    
-      // Reset the form after successful post creation
+  
       setContent("");
       setMediaFiles([]);
       onPostCreated();
     } catch (error) {
       console.error("Error creating post:", error);
-      alert("Error creating post. Please try again.");
+      alert(`Error creating post: ${error instanceof Error ? error.message : "Unknown error"}`);
     } finally {
       setUploading(false);
     }
-    
-
   };
   
 

@@ -9,17 +9,26 @@ import CreatePost from "../../components/CreatePost";
 import { supabase } from "../../utils/supaBaseClient";
 import { useAuthContext } from "../../context/AuthContext";
 
+interface ProfileData {
+  id: string;
+  display_name: string;
+  username: string;
+  profile_image_url: string | null; // Corrected to match database schema
+  verified: boolean;
+}
+
 interface PostData {
   id: string;
-  profile_id: string;
+  author_profile_id: string;
   content: string;
-  media_links: string[]; // Aligned with Post and CreatePost logic
+  media_links: string[];
   timestamp: string;
   likes: number;
   dislikes: number;
   boosts: number;
   reshares: number;
   comments_count: number;
+  profile: ProfileData; // Nested profile object
 }
 
 export default function FeedPage() {
@@ -32,16 +41,41 @@ export default function FeedPage() {
       const { data, error } = await supabase
         .from("posts")
         .select(
-          "id, profile_id, content, media_links, timestamp, likes, dislikes, boosts, reshares, comments_count, profile:profiles(id, display_name, username, profile_image, membership_tier)"
+          `id, author_profile_id, content, media_links, timestamp, likes, dislikes, boosts, reshares, comments_count,
+          profile:profiles!author_profile_id(id, display_name, username, profile_image_url)`
         )
-        .is("parent_id", null) // Fetch only top-level posts
+        .is("parent_id", null)
         .order("timestamp", { ascending: false });
 
       if (error) throw error;
 
-      setPosts(data || []);
+      const placeholderImage = "/public/images/MLLogo.png"; // Placeholder for missing profile images
+
+      // Ensure all required properties are properly assigned
+      const postsWithProfiles: PostData[] = (data || []).map((post: any) => ({
+        id: post.id,
+        author_profile_id: post.author_profile_id,
+        content: post.content,
+        media_links: post.media_links,
+        timestamp: post.timestamp,
+        likes: post.likes,
+        dislikes: post.dislikes,
+        boosts: post.boosts,
+        reshares: post.reshares,
+        comments_count: post.comments_count,
+        profile: {
+          id: post.profile?.id || "",
+          display_name: post.profile?.display_name || "Anonymous",
+          username: post.profile?.username || "anonymous",
+          profile_image_url: post.profile?.profile_image_url || placeholderImage,
+          verified: false, // Add your verification logic if needed
+        },
+      }));
+
+      setPosts(postsWithProfiles);
+      localStorage.setItem("posts", JSON.stringify(postsWithProfiles));
     } catch (error) {
-      console.error("Error fetching posts:", (error as Error).message);
+      console.error("Error fetching posts:", error);
       setPosts([]);
     } finally {
       setLoading(false);
@@ -49,8 +83,10 @@ export default function FeedPage() {
   }, []);
 
   useEffect(() => {
-    fetchPosts();
-  }, [fetchPosts]);
+    if (activeProfile) {
+      fetchPosts();
+    }
+  }, [activeProfile, fetchPosts]);
 
   const handlePostCreated = async () => {
     await fetchPosts(); // Refetch posts after creating a new one
