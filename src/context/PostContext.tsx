@@ -44,11 +44,7 @@ interface PostContextType {
   posts: Post[];
   fetchPosts: () => Promise<void>;
   fetchProfile: (profileId: string) => Promise<Profile | null>;
-  handleReaction: (postId: string, type: "like" | "dislike") => Promise<void>;
-  toggleReaction: (
-    postId: string,
-    type: "boost" | "reshare"
-  ) => Promise<void>;
+  toggleOrHandleReaction: (postId: string, type: "likes" | "dislikes"| "boosts" | "reshares") => Promise<void>;
   fetchComments: (postId: string) => Promise<Comment[]>;
 }
 
@@ -155,50 +151,10 @@ useEffect(() => {
   };
 }, []);
 
-  // Toggle boosts and reshares
-  const toggleReaction = async (postId: string, type: "boost" | "reshare") => {
-    if (!activeProfile) {
-      alert("You need to log in to interact with posts.");
-      return;
-    }
-
-    const profileId = activeProfile.id;
-
-    try {
-      const { data: existingReaction, error } = await supabase
-        .from("reactions")
-        .select("*")
-        .eq("post_id", postId)
-        .eq("profile_id", profileId)
-        .single();
-
-      if (error && error.code !== "PGRST116") {
-        console.error("Error fetching reaction:", error.message);
-        return;
-      }
-
-      if (!existingReaction) {
-        await supabase.from("reactions").insert({
-          post_id: postId,
-          profile_id: profileId,
-          [type]: 1,
-        });
-      } else {
-        const updatedReaction = {
-          [type]: existingReaction[type] === 1 ? 0 : 1,
-        };
-
-        await supabase
-          .from("reactions")
-          .update(updatedReaction)
-          .eq("id", existingReaction.id);
-      }
-    } catch (error) {
-      console.error("Error toggling reaction:", error);
-    }
-  };
-
-const handleReaction = async (postId: string, type: "like" | "dislike") => {
+const toggleOrHandleReaction = async (
+  postId: string,
+  type: "like" | "dislike" | "boost" | "reshare"
+) => {
   if (!activeProfile) {
     alert("You need to log in to interact with posts.");
     return;
@@ -207,55 +163,48 @@ const handleReaction = async (postId: string, type: "like" | "dislike") => {
   const profileId = activeProfile.id;
 
   try {
-    // Fetch existing reaction
-    const { data: existingReaction, error: fetchError } = await supabase
+    // Fetch existing reaction for the post by the current user
+    const { data: existingReaction, error } = await supabase
       .from("reactions")
       .select("*")
       .eq("post_id", postId)
       .eq("profile_id", profileId)
-      .limit(1)
       .single();
 
-    if (fetchError && fetchError.code !== "PGRST116") {
-      // Log other errors
-      console.error("Error fetching reaction:", fetchError.message);
+    if (error && error.code !== "PGRST116") {
+      console.error("Error fetching reaction:", error.message);
       return;
     }
 
     if (!existingReaction) {
-      console.log("Inserting new reaction...");
-      // No reaction exists: insert new
-      const { error: insertError } = await supabase.from("reactions").insert({
+      // Insert new reaction
+      const newReaction = {
         post_id: postId,
         profile_id: profileId,
-        likes: type === "like" ? 1 : 0,
-        dislikes: type === "dislike" ? 1 : 0,
-      });
-
-      if (insertError) {
-        console.error("Error inserting reaction:", insertError.message);
-      }
+        [type]: 1, // Set the specified type (like, dislike, boost, reshare)
+        ...(type === "like" && { dislikes: 0 }), // Ensure mutual exclusivity
+        ...(type === "dislike" && { likes: 0 }), // Ensure mutual exclusivity
+      };
+      await supabase.from("reactions").insert(newReaction);
     } else {
-      console.log("Updating existing reaction...");
-      // Reaction exists: update it
+      // Update existing reaction
       const updatedReaction = {
-        likes: type === "like" ? (existingReaction.likes === 1 ? 0 : 1) : 0,
-        dislikes: type === "dislike" ? (existingReaction.dislikes === 1 ? 0 : 1) : 0,
+        [type]: existingReaction[type] === 1 ? 0 : 1, // Toggle the type
+        ...(type === "like" && { dislikes: 0 }), // Ensure mutual exclusivity
+        ...(type === "dislike" && { likes: 0 }), // Ensure mutual exclusivity
       };
 
-      const { error: updateError } = await supabase
+      await supabase
         .from("reactions")
         .update(updatedReaction)
         .eq("id", existingReaction.id);
-
-      if (updateError) {
-        console.error("Error updating reaction:", updateError.message);
-      }
     }
   } catch (error) {
-    console.error("Error handling reaction:", error);
+    console.error(`Error toggling ${type}:`, error);
   }
 };
+
+
 
 
   useEffect(() => {
@@ -264,12 +213,14 @@ const handleReaction = async (postId: string, type: "like" | "dislike") => {
 
   return (
     <PostContext.Provider
-      value={{ posts, fetchPosts, fetchProfile, handleReaction, fetchComments , toggleReaction }}
+      value={{ posts, fetchPosts, fetchProfile, fetchComments , toggleOrHandleReaction }}
     >
       {children}
     </PostContext.Provider>
   );
 };
+
+
 
 export const usePostContext = () => {
   const context = useContext(PostContext);

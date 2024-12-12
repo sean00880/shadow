@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { usePostContext } from "../context/PostContext";
 import Comment from "./Comment";
+import { useAuthContext } from "../context/AuthContext"; // 
 
 interface PostProps {
   post: {
@@ -35,8 +36,8 @@ const Post: React.FC<PostProps> = ({ post, isDarkMode }) => {
   } | null>(null);
   const [comments, setComments] = useState<any[]>([]);
   const [isCommentsVisible, setIsCommentsVisible] = useState(false);
-  const { fetchProfile, handleReaction, toggleReaction, fetchComments } = usePostContext();
-
+  const { fetchProfile,toggleOrHandleReaction, fetchComments } = usePostContext();
+  const { activeProfile } = useAuthContext(); // Get activeProfile from AuthContext
   // Fetch profile data
   useEffect(() => {
     const loadProfile = async () => {
@@ -76,6 +77,16 @@ useEffect(() => {
     );
   };
 
+  const isBoosted = activeProfile
+  ? post.boosted_by?.includes(activeProfile.id) || false
+  : false;
+
+const isReshared = activeProfile
+  ? post.reshared_by?.includes(activeProfile.id) || false
+  : false;
+
+
+
   return (
     <div
       className={`post mb-6 p-4 border rounded-lg ${
@@ -111,29 +122,29 @@ useEffect(() => {
       {renderMedia()}
       <div className="post-interactions flex justify-between mt-3">
         <div
-          onClick={() => handleReaction(post.id, "like")}
+          onClick={() => toggleOrHandleReaction(post.id, "likes")}
           className="interaction-button cursor-pointer"
         >
           👍 {post.likes}
         </div>
         <div
-          onClick={() => handleReaction(post.id, "dislike")}
+          onClick={() => toggleOrHandleReaction(post.id, "dislikes")}
           className="interaction-button cursor-pointer"
         >
           👎 {post.dislikes}
         </div>
         <div
-          onClick={() => toggleReaction(post.id,"boost")}
+          onClick={() => toggleOrHandleReaction(post.id, "boosts")}
           className={`interaction-button cursor-pointer ${
-            post.boosted_by.includes(post.profile_id) ? "text-blue-500" : ""
+            isBoosted ? "text-blue-500" : ""
           }`}
         >
           🚀 {post.boosts}
         </div>
         <div
-          onClick={() => toggleReaction(post.id,"reshare")}
+          onClick={() => toggleOrHandleReaction(post.id, "reshares")}
           className={`interaction-button cursor-pointer ${
-            post.reshared_by.includes(post.profile_id) ? "text-green-500" : ""
+            isReshared ? "text-green-500" : ""
           }`}
         >
           🔁 {post.reshares}
