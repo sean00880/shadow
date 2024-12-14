@@ -4,10 +4,7 @@ import { motion } from "framer-motion";
 import { useAuthContext } from "../../context/AuthContext";
 
 export default function ConnectPage() {
-  const {
-    walletAddress,
-    activeProfile,
-  } = useAuthContext(); // Authentication-related data
+  const { walletAddress, activeProfile } = useAuthContext(); // Uses walletAddress and activeProfile from user_metadata
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen heading">
@@ -20,8 +17,9 @@ export default function ConnectPage() {
         Connect Your Wallet
       </motion.h2>
 
+      {/* If walletAddress is not set, we consider that no wallet is connected at the metadata level */}
       {!walletAddress ? (
-        // Case 1: No wallet connected
+        // Case 1: No wallet connected in user metadata
         <div className="mt-8 flex flex-col space-y-4">
           <w3m-button />
           <p className="mt-4 text-sm text-gray-400">
@@ -29,7 +27,7 @@ export default function ConnectPage() {
           </p>
         </div>
       ) : !activeProfile ? (
-        // Case 2: Wallet connected but no activeProfile found in user_metadata
+        // Case 2: Wallet connected in user metadata, but no activeProfile found
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -52,7 +50,7 @@ export default function ConnectPage() {
           </div>
         </motion.div>
       ) : (
-        // Case 3: Wallet connected and activeProfile found
+        // Case 3: Wallet connected and activeProfile is found in user_metadata
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -61,7 +59,9 @@ export default function ConnectPage() {
         >
           {/* Interactive Dashboard Section */}
           <div className="p-6 bg-opacity-20 bg-white rounded-lg shadow-md mb-8">
-            <h3 className="text-xl font-semibold">Welcome, {activeProfile.displayName || "User"}</h3>
+            <h3 className="text-xl font-semibold">
+              Welcome, {activeProfile.displayName || "User"}
+            </h3>
             <p className="text-sm info mt-2">
               Manage your profiles, trends, and advertisements all in one place.
             </p>
@@ -113,7 +113,15 @@ export default function ConnectPage() {
   );
 }
 
-function ActionCard({ title, href, description }: { title: string; href: string; description: string }) {
+function ActionCard({
+  title,
+  href,
+  description,
+}: {
+  title: string;
+  href: string;
+  description: string;
+}) {
   return (
     <motion.a
       href={href}
