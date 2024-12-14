@@ -19,7 +19,7 @@ export default function ConnectPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="text-xl font-bold"
+        className="text-xl font-bold heading"
       >
         Connect Your Wallet
       </motion.h2>

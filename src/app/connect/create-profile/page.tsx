@@ -9,15 +9,13 @@ import { useAuthContext } from "../../../context/AuthContext";
 import { useRouter } from "next/navigation";
 import { generateShortId } from "../../../utils/idGenerator";
 
-
-
 // Memoized Components
 const MemoizedProfileForm = memo(ProfileForm);
 const MemoizedProfilePreview = memo(ProfilePreview);
 const MemoizedAlertModal = memo(AlertModal);
 
 export default function CreateProfilePage() {
-  const { walletAddress, accountIdentifier, blockchainWallet, profiles, fetchProfiles  } = useAuthContext();
+  const { walletAddress, accountIdentifier, blockchainWallet, profiles, fetchProfiles } = useAuthContext();
   const router = useRouter();
 
   const [profileData, setProfileData] = useState({
@@ -76,7 +74,10 @@ export default function CreateProfilePage() {
 
   // Check if form is valid
   const isFormValid = useMemo(
-    () => !Object.values(errors).some((error) => error) && profileData.displayName && profileData.username,
+    () =>
+      !Object.values(errors).some((error) => error) &&
+      profileData.displayName &&
+      profileData.username,
     [errors, profileData.displayName, profileData.username]
   );
 
@@ -109,24 +110,24 @@ export default function CreateProfilePage() {
       if (!walletAddress) errors.push("Please connect your wallet.");
       if (!isFormValid) errors.push("Please fix all errors before submitting.");
       if (!accountIdentifier) errors.push("Account identifier is missing.");
-  
+
       setAlertMessage(errors.join(" "));
       return;
     }
-  
+
     setLoading(true);
-  
+
     try {
       const profileFolder = profileData.username || "default";
-  
+
       // Concurrently upload images for optimization
       const [profileImageUrl, bannerImageUrl] = await Promise.all([
         uploadImageToBucket(profileData.profilePicture, profileFolder, "profile"),
         uploadImageToBucket(profileData.bannerImage, profileFolder, "banner"),
       ]);
-  
+
       const shortId = await generateShortId();
-  
+
       const payload = {
         display_name: profileData.displayName,
         username: profileData.username,
@@ -144,22 +145,30 @@ export default function CreateProfilePage() {
         ...(profileData.links.length > 0 && { links: profileData.links }),
         short_id: shortId,
       };
-  
+
       // Check for existing profiles by wallet address
       const existingProfile = profiles.find(
         (profile) =>
           profile.walletAddress === walletAddress &&
           profile.accountIdentifier === accountIdentifier
       );
-  
+
       if (existingProfile) {
         throw new Error("A profile already exists for this wallet address.");
       }
-  
-      // Insert the new profile
-      const { error } = await supabase.from("profiles").insert(payload);
-      if (error) throw new Error(error.message);
-  
+
+      // Insert the new profile and return the created row
+      const { data: insertedProfiles, error: insertError } = await supabase
+        .from("profiles")
+        .insert(payload)
+        .select("*");
+      if (insertError) throw new Error(insertError.message);
+
+      const insertedProfile = insertedProfiles?.[0];
+      if (!insertedProfile) {
+        throw new Error("Profile insertion failed, no profile returned.");
+      }
+
       // Sign up the user in Supabase
       const email = `${profileData.username}@yourdomain.com`;
       const password = `${walletAddress}-${profileData.username}`;
@@ -167,27 +176,39 @@ export default function CreateProfilePage() {
         email,
         password,
       });
-  
+
       if (signUpError) {
         console.error("Error during Supabase sign-up:", signUpError.message);
         throw new Error("Failed to sign up user in Supabase.");
       }
-  
+
+      // Update user metadata with new profile_id and walletAddress
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: {
+          walletAddress: walletAddress,
+          profile_id: insertedProfile.id,
+        },
+      });
+      if (updateError) {
+        throw new Error("Failed to update user metadata with new profile.");
+      }
+
       // Refresh profiles after creation
       await fetchProfiles(walletAddress);
-  
+
       setAlertMessage("Profile created successfully!");
       setShowRedirect(true);
     } catch (error) {
       console.error("Profile creation failed:", error);
       setAlertMessage(
-        error instanceof Error ? error.message : "An unexpected error occurred during profile creation."
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred during profile creation."
       );
     } finally {
       setLoading(false);
     }
   };
-  
 
   const alertModal = useMemo(() => {
     if (!alertMessage) return null;

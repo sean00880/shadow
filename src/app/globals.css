@@ -496,6 +496,10 @@ section{
   overflow: hidden;
 }
 
+[data-theme="light"] .heading{
+  color:black!important;
+}
+
 .project-box .membersTable tr:hover{
 background-color: none!important;
 }
@@ -574,9 +578,6 @@ img{
   --border-color: var(--border-color-light);
   --shadow-color: var(--shadow-color-light);
 
-  .radio-container input[type="radio"] {
-
-  }
   
   .radio-container label {
     display: flex;
@@ -656,6 +657,95 @@ input[type="file"] {
   }
 }
 
+[data-theme="light"] {
+  --background: var(--background-light);
+  --foreground: var(--foreground-light);
+  --sidebar-bg: var(--sidebar-bg-light);
+  --card-bg: var(--card-bg-light);
+  --card-text: var(--card-text-light);
+  --topbar-bg: var(--topbar-bg-light);
+  --topbar-text: var(--topbar-text-light);
+  --border-color: var(--border-color-light);
+  --shadow-color: var(--shadow-color-light);
+  --dashboard-bg-image: url('/images/GROWSZBG.PNG');
+  --overlay-gradient: linear-gradient(0deg, rgba(255, 255, 255, 0.89), rgba(255, 255, 255, 0.99));
+}
+
+[data-theme="light"] .radio-container label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+[data-theme="light"] .radio-container label span {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #ccc;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+  transition: 0.3s ease;
+}
+
+[data-theme="light"] .radio-container input[type="radio"]:checked + span {
+  border-color: #00ff59;
+  background-color: red;
+  accent-color: red;
+}
+
+[data-theme="light"] .bg-light-background {
+  background: white;
+}
+
+[data-theme="light"] select,
+[data-theme="light"] textarea {
+  appearance: none;
+  background-color: rgb(238, 238, 238);
+  color: var(--text-primary-light);
+  padding: 0.75rem;
+  border: 3px solid rgba(225, 239, 224, 0.14);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 1rem;
+  width: 100%;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+[data-theme="light"] .white {
+  color: white;
+}
+
+[data-theme="light"] .custom-upload-button {
+  display: inline-block;
+  cursor: pointer;
+}
+
+[data-theme="light"] input[type="file"] {
+  display: none;
+}
+
+[data-theme="light"] .text {
+  color: black;
+}
+
+[data-theme="light"] a {
+  color: rgb(29, 29, 29);
+}
+
+[data-theme="light"] table th {
+  color: #2c2c2c;
+  font-weight: bold;
+}
+
+[data-theme="light"] .dashboard {
+  background: white;
+}
+
+[data-theme="light"] .auth {
+  background-color: white;
+}
+
+
 .project-box .icon-container{
   padding: 0;
     height: 50px;
@@ -679,6 +769,9 @@ input[type="file"] {
     color: #f3f3f3;
     font-weight: bold;
   }
+  .bg-background{
+    background-color: black;
+  }
   .dashboard{
     background:#060606;
   }
@@ -688,6 +781,10 @@ input[type="file"] {
   table td {
     color: white;
   }
+}
+
+.page-bg{
+  background:black;
 }
 
 .textarea, input[type="text"]{
@@ -770,6 +867,10 @@ table td {
   margin: .3rem 0;
 }
 
+
+.page-bg{
+  background:#f5f5f5;
+}
 
 
 @keyframes gradient-animation {
@@ -871,10 +972,6 @@ Img{
 
 .MonkeyShitInu{
  font-family:'Newton Italic'
-}
-
-.MSI{
-
 }
 
 .pentagon-container {

@@ -18,7 +18,7 @@ const DefaultLayout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const toggleTheme = () => setIsDarkMode(!isDarkMode);
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className={`flex flex-col top-[6vh] min-h-screen ${isDarkMode ? "bg-[#090909] text-white" : "bg-[#f5f5f5] text-black"}`}>
       <TopBar isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
       <div className="flex flex-1 justify-end">
         <Sidebar
@@ -31,10 +31,14 @@ const DefaultLayout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
             isSidebarOpen
               ? "md:ml-64 w-[calc(100%-16rem)]"
               : "md:ml-16 w-[calc(100%-4rem)]"
-          } bg-background text-foreground flex-1`}
+          } flex-1`}
         >
           {/* Wrap children in PostProvider */}
-          <PostProvider>{children}</PostProvider>
+          <PostProvider>
+            <div className={` ${isDarkMode ? "bg-[#090909] text-white" : "bg-[#f5f5f5] text-black"} p-4`}>
+              {children}
+            </div>
+          </PostProvider>
         </main>
       </div>
     </div>

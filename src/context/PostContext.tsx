@@ -153,7 +153,7 @@ useEffect(() => {
 
 const toggleOrHandleReaction = async (
   postId: string,
-  type: "like" | "dislike" | "boost" | "reshare"
+  type: "likes" | "dislikes" | "boosts" | "reshares"
 ) => {
   if (!activeProfile) {
     alert("You need to log in to interact with posts.");
@@ -182,16 +182,16 @@ const toggleOrHandleReaction = async (
         post_id: postId,
         profile_id: profileId,
         [type]: 1, // Set the specified type (like, dislike, boost, reshare)
-        ...(type === "like" && { dislikes: 0 }), // Ensure mutual exclusivity
-        ...(type === "dislike" && { likes: 0 }), // Ensure mutual exclusivity
+        ...(type === "likes" && { dislikes: 0 }), // Ensure mutual exclusivity
+        ...(type === "dislikes" && { likes: 0 }), // Ensure mutual exclusivity
       };
       await supabase.from("reactions").insert(newReaction);
     } else {
       // Update existing reaction
       const updatedReaction = {
         [type]: existingReaction[type] === 1 ? 0 : 1, // Toggle the type
-        ...(type === "like" && { dislikes: 0 }), // Ensure mutual exclusivity
-        ...(type === "dislike" && { likes: 0 }), // Ensure mutual exclusivity
+        ...(type === "likes" && { dislikes: 0 }), // Ensure mutual exclusivity
+        ...(type === "dislikes" && { likes: 0 }), // Ensure mutual exclusivity
       };
 
       await supabase

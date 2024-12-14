@@ -123,7 +123,7 @@ export default function FeedPage() {
           {/* Right Section with GetLinked and Explore Links (4 columns) */}
           <div className="col-span-4 p-4 border rounded-lg">
             <GetLinked />
-            <h3 className="text-lg font-bold mb-2">Explore</h3>
+            <h3 className="heading text-lg font-bold mb-2">Explore</h3>
             <ul>
               <li>
                 <a href="#" className="text-[gold] hover:underline">
