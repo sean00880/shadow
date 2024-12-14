@@ -235,10 +235,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const logout = useCallback(async () => {
     try {
+        // Disconnect
+      await appKit.adapter?.connectionControllerClient?.disconnect();
+  
+      console.error(
       await supabase.auth.signOut();
     } catch (error) {
       console.error("Error during logout:", error);
     }
+    
   }, []);
 
   const assignCredentials = useCallback(async () => {
