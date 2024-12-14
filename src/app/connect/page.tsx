@@ -1,16 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ClipLoader } from "react-spinners"; // Example spinner
-import { useAuthContext, Profile } from "../../context/AuthContext";
+import { useAuthContext } from "../../context/AuthContext";
 
 export default function ConnectPage() {
   const {
     walletAddress,
-    blockchainWallet,
-    profiles,
     activeProfile,
-    switchProfile,
   } = useAuthContext(); // Authentication-related data
 
   return (
@@ -32,8 +28,8 @@ export default function ConnectPage() {
             Please connect your wallet to proceed.
           </p>
         </div>
-      ) : profiles.length === 0 ? (
-        // Case 2: Wallet connected but no profile found
+      ) : !activeProfile ? (
+        // Case 2: Wallet connected but no activeProfile found in user_metadata
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -56,7 +52,7 @@ export default function ConnectPage() {
           </div>
         </motion.div>
       ) : (
-        // Case 3: Wallet connected and profile found
+        // Case 3: Wallet connected and activeProfile found
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -65,7 +61,7 @@ export default function ConnectPage() {
         >
           {/* Interactive Dashboard Section */}
           <div className="p-6 bg-opacity-20 bg-white rounded-lg shadow-md mb-8">
-            <h3 className="text-xl font-semibold">Welcome, {activeProfile?.displayName || "User"}</h3>
+            <h3 className="text-xl font-semibold">Welcome, {activeProfile.displayName || "User"}</h3>
             <p className="text-sm info mt-2">
               Manage your profiles, trends, and advertisements all in one place.
             </p>
