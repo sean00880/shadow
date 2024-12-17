@@ -12,9 +12,9 @@ export default function TopBar({ isDarkMode, toggleTheme }: TopBarProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const { walletAddress, logout, activeProfile } = useAuthContext();
+  const { walletAddress, logout, profiles, activeProfile, switchProfile } = useAuthContext();
 
-  const profileImage = activeProfile?.profile_image_url || "/images/default_logo.jpg";
+  const profileImage = activeProfile?.profileImageUrl || "/images/default_logo.jpg";
 
   const handleProfileHover = () => setIsMenuOpen(true);
   const handleProfileLeave = () => setIsMenuOpen(false);
@@ -30,6 +30,10 @@ export default function TopBar({ isDarkMode, toggleTheme }: TopBarProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const filteredProfiles = profiles.filter((profile) =>
+    profile.displayName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    profile.username?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div
@@ -64,17 +68,16 @@ export default function TopBar({ isDarkMode, toggleTheme }: TopBarProps) {
         >
           {isDarkMode ? "☀️" : "🌙"}
         </button>
-        {activeProfile ? (
-      
+        {walletAddress && activeProfile ? (
           <div
-
-          
             ref={menuRef}
             className="relative"
             onMouseEnter={handleProfileHover}
             onMouseLeave={handleProfileLeave}
           >
-                <w3m-button/>
+
+<w3m-button/>
+          
             <Image
               src={profileImage}
               alt="Profile Image"
@@ -90,8 +93,17 @@ export default function TopBar({ isDarkMode, toggleTheme }: TopBarProps) {
                 }`}
               >
                 <ul className="py-2">
-                  
-                   
+                  {filteredProfiles.map((profile) => (
+                    <li
+                      key={profile.id}
+                      className={`px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer transition-colors duration-200 ${
+                        activeProfile.id === profile.id ? "font-bold" : ""
+                      }`}
+                      onClick={() => switchProfile(profile.id)}
+                    >
+                      {profile.displayName || profile.username}
+                    </li>
+                  ))}
                   <li
                     className="px-4 py-2 text-sm text-red-500 hover:bg-gray-100 cursor-pointer transition-colors duration-200"
                     onClick={logout}

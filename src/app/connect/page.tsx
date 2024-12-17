@@ -2,9 +2,24 @@
 
 import { motion } from "framer-motion";
 import { useAuthContext } from "../../context/AuthContext";
+import { useEffect } from "react";
 
 export default function ConnectPage() {
-  const { walletAddress, activeProfile } = useAuthContext(); // Uses walletAddress and activeProfile from user_metadata
+  const { walletAddress, activeProfile, isConnected, fetchProfile } = useAuthContext();
+
+  // Fetch profile if wallet is connected but activeProfile is not yet loaded
+  useEffect(() => {
+    if (isConnected && walletAddress && !activeProfile) {
+      console.log("Fetching profile for connected wallet...");
+      fetchProfile();
+    }
+  }, [walletAddress, isConnected, activeProfile, fetchProfile]);
+
+  // Log the state once on component mount
+  useEffect(() => {
+    console.log("Wallet Address:", walletAddress);
+    console.log("Active Profile:", activeProfile);
+  }, [walletAddress, activeProfile]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen heading">
@@ -17,17 +32,14 @@ export default function ConnectPage() {
         Connect Your Wallet
       </motion.h2>
 
-      {/* If walletAddress is not set, we consider that no wallet is connected at the metadata level */}
-      {!walletAddress ? (
-        // Case 1: No wallet connected in user metadata
+      {/* Case 1: No wallet connected */}
+      {!isConnected || !walletAddress ? (
         <div className="mt-8 flex flex-col space-y-4">
           <w3m-button />
-          <p className="mt-4 text-sm text-gray-400">
-            Please connect your wallet to proceed.
-          </p>
+          <p className="mt-4 text-sm text-gray-400">Please connect your wallet to proceed.</p>
         </div>
-      ) : !activeProfile ? (
-        // Case 2: Wallet connected in user metadata, but no activeProfile found
+      ) : /* Case 2: Wallet connected but no active profile found */
+      !activeProfile ? (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -49,8 +61,8 @@ export default function ConnectPage() {
             </motion.a>
           </div>
         </motion.div>
-      ) : (
-        // Case 3: Wallet connected and activeProfile is found in user_metadata
+      ) : /* Case 3: Wallet connected and active profile found */
+      (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -60,7 +72,7 @@ export default function ConnectPage() {
           {/* Interactive Dashboard Section */}
           <div className="p-6 bg-opacity-20 bg-white rounded-lg shadow-md mb-8">
             <h3 className="text-xl font-semibold">
-              Welcome, {activeProfile.displayName || "User"}
+              Welcome, {activeProfile.display_name || "User"}
             </h3>
             <p className="text-sm info mt-2">
               Manage your profiles, trends, and advertisements all in one place.

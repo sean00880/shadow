@@ -9,7 +9,7 @@ import React, {
   ReactNode,
 } from "react";
 import { supabase } from "../utils/supaBaseClient";
-import { useAuthContext } from "../context/AuthContext";
+import { useAuthContext } from "./AuthContext";
 
 interface Post {
   id: string;
@@ -31,38 +31,54 @@ interface Profile {
   verified: boolean;
 }
 
-interface RealtimePayload {
-    new: {
-      id: string;
-      likes: number;
-      dislikes: number;
-    };
-  }
-  
-
 interface PostContextType {
   posts: Post[];
   fetchPosts: () => Promise<void>;
   fetchProfile: (profileId: string) => Promise<Profile | null>;
-  toggleOrHandleReaction: (postId: string, type: "likes" | "dislikes"| "boosts" | "reshares") => Promise<void>;
+  toggleOrHandleReaction: (postId: string, type: "likes" | "dislikes" | "boosts" | "reshares") => Promise<void>;
   fetchComments: (postId: string) => Promise<Comment[]>;
 }
 
 const PostContext = createContext<PostContextType | undefined>(undefined);
 
-export const PostProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
+export const PostProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [posts, setPosts] = useState<Post[]>([]);
-  const { activeProfile } = useAuthContext();
+  const { activeProfile, walletAddress, profiles, isConnected } = useAuthContext();
+
+  // Function to log Supabase session and authenticated user
+  const logSupabaseAuthSession = useCallback(async () => {
+    try {
+      const { data: { user }, error } = await supabase.auth.getUser();
+
+      if (error) {
+        console.error("Error fetching Supabase auth session:", error.message);
+        return;
+      }
+
+      console.log("Supabase Authenticated User:", user);
+      console.log("User Metadata:", user?.user_metadata);
+      console.log("Session Status: Authenticated:", !!user);
+    } catch (error) {
+      console.error("Error logging Supabase session:", error);
+    }
+  }, []);
+
+  // Log values from AuthContext and Supabase session
+  useEffect(() => {
+    console.log("Logging values from AuthContext in PostContext:");
+    console.log("activeProfile:", activeProfile);
+    console.log("walletAddress:", walletAddress);
+    console.log("profiles:", profiles);
+    console.log("isConnected:", isConnected);
+
+    logSupabaseAuthSession();
+  }, [activeProfile, walletAddress, profiles, isConnected, logSupabaseAuthSession]);
 
   // Fetch all posts
   const fetchPosts = useCallback(async () => {
     try {
       const { data, error } = await supabase.from("posts").select("*");
-
       if (error) throw new Error(error.message);
-
       if (data) {
         setPosts(data);
       }
@@ -101,8 +117,8 @@ export const PostProvider: React.FC<{ children: ReactNode }> = ({
     []
   );
 
-   // Fetch comments for a post
-   const fetchComments = async (postId: string): Promise<Comment[]> => {
+  // Fetch comments for a post
+  const fetchComments = async (postId: string): Promise<Comment[]> => {
     try {
       const { data, error } = await supabase
         .from("posts")
@@ -121,91 +137,102 @@ export const PostProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
-useEffect(() => {
-  // Create a real-time channel for updates to the 'posts' table
-  const channel = supabase
-    .channel('posts-realtime')
-    .on(
-      'postgres_changes',
-      { event: 'UPDATE', schema: 'public', table: 'posts' },
-      (payload) => {
-        const updatedPost = payload.new;
-        setPosts((prevPosts) =>
-          prevPosts.map((post) =>
-            post.id === updatedPost.id
-              ? {
-                  ...post,
-                  likes: updatedPost.likes,
-                  dislikes: updatedPost.dislikes,
-                }
-              : post
-          )
-        );
-      }
-    )
-    .subscribe();
+  // Realtime updates for posts
+  useEffect(() => {
+    const channel = supabase
+      .channel("posts-realtime")
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "posts" },
+        (payload) => {
+          const updatedPost = payload.new;
+          setPosts((prevPosts) =>
+            prevPosts.map((post) =>
+              post.id === updatedPost.id
+                ? {
+                    ...post,
+                    likes: updatedPost.likes,
+                    dislikes: updatedPost.dislikes,
+                  }
+                : post
+            )
+          );
+        }
+      )
+      .subscribe();
 
-  // Clean up the subscription on component unmount
-  return () => {
-    supabase.removeChannel(channel);
-  };
-}, []);
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
-const toggleOrHandleReaction = async (
-  postId: string,
-  type: "likes" | "dislikes" | "boosts" | "reshares"
-) => {
-  if (!activeProfile) {
-    alert("You need to log in to interact with posts.");
-    return;
-  }
-
-  const profileId = activeProfile.id;
-
-  try {
-    // Fetch existing reaction for the post by the current user
-    const { data: existingReaction, error } = await supabase
-      .from("reactions")
-      .select("*")
-      .eq("post_id", postId)
-      .eq("profile_id", profileId)
-      .single();
-
-    if (error && error.code !== "PGRST116") {
-      console.error("Error fetching reaction:", error.message);
+  const toggleOrHandleReaction = async (
+    postId: string,
+    type: "likes" | "dislikes" | "boosts" | "reshares"
+  ) => {
+    if (!activeProfile) {
+      alert("You need to log in to interact with posts.");
       return;
     }
-
-    if (!existingReaction) {
-      // Insert new reaction
-      const newReaction = {
-        post_id: postId,
-        profile_id: profileId,
-        [type]: 1, // Set the specified type (like, dislike, boost, reshare)
-        ...(type === "likes" && { dislikes: 0 }), // Ensure mutual exclusivity
-        ...(type === "dislikes" && { likes: 0 }), // Ensure mutual exclusivity
-      };
-      await supabase.from("reactions").insert(newReaction);
-    } else {
-      // Update existing reaction
-      const updatedReaction = {
-        [type]: existingReaction[type] === 1 ? 0 : 1, // Toggle the type
-        ...(type === "likes" && { dislikes: 0 }), // Ensure mutual exclusivity
-        ...(type === "dislikes" && { likes: 0 }), // Ensure mutual exclusivity
-      };
-
-      await supabase
+  
+    const profileId = activeProfile.id;
+  
+    try {
+      console.log("Updating reaction and post counts...");
+      console.log("Post ID:", postId);
+      console.log("Reaction Type:", type);
+      console.log("Profile ID:", profileId);
+  
+      // Step 1: Check for existing reaction
+      const { data: existingReaction, error: fetchError } = await supabase
         .from("reactions")
-        .update(updatedReaction)
-        .eq("id", existingReaction.id);
+        .select("*")
+        .eq("post_id", postId)
+        .eq("profile_id", profileId)
+        .single();
+  
+      if (fetchError && fetchError.code !== "PGRST116") {
+        console.error("Error fetching existing reaction:", fetchError.message);
+        return;
+      }
+  
+      let newReactionValue = 1;
+  
+      if (existingReaction) {
+        // Toggle the reaction: 1 -> 0, or 0 -> 1
+        newReactionValue = existingReaction[type] === 1 ? 0 : 1;
+  
+        // Update existing reaction
+        await supabase
+          .from("reactions")
+          .update({ [type]: newReactionValue })
+          .eq("id", existingReaction.id);
+      } else {
+        // Insert a new reaction
+        const newReaction = {
+          post_id: postId,
+          profile_id: profileId,
+          [type]: 1,
+        };
+        await supabase.from("reactions").insert(newReaction);
+      }
+  
+      console.log("Reaction updated. Now updating posts table...");
+  
+      // Step 2: Directly update the posts table with the same value
+      await supabase.rpc("increment_post_reactions", {
+        post_id_input: postId,
+        column_name: type,
+        increment_value: newReactionValue === 1 ? 1 : -1, // Add 1 or subtract 1
+      });
+  
+      console.log("Posts table updated successfully.");
+    } catch (error) {
+      console.error("Error toggling reaction and updating post counts:", error);
     }
-  } catch (error) {
-    console.error(`Error toggling ${type}:`, error);
-  }
-};
-
-
-
+  };
+  
+  
 
   useEffect(() => {
     fetchPosts();
@@ -213,14 +240,12 @@ const toggleOrHandleReaction = async (
 
   return (
     <PostContext.Provider
-      value={{ posts, fetchPosts, fetchProfile, fetchComments , toggleOrHandleReaction }}
+      value={{ posts, fetchPosts, fetchProfile, fetchComments, toggleOrHandleReaction }}
     >
       {children}
     </PostContext.Provider>
   );
 };
-
-
 
 export const usePostContext = () => {
   const context = useContext(PostContext);

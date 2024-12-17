@@ -4,11 +4,13 @@ import { motion } from "framer-motion";
 import { ClipLoader } from "react-spinners"; // Example spinner
 import { useAuthContext, Profile } from "../../../context/AuthContext";
 
+
 export default function ConnectPage() {
   const {
     walletAddress,
     blockchainWallet,
     profiles,
+    isConnected,
     activeProfile,
     switchProfile,
   } = useAuthContext(); // Authentication-related data
@@ -25,7 +27,9 @@ export default function ConnectPage() {
       </motion.h2>
 
       {!activeProfile ? (
+
         <div className="mt-8 flex flex-col space-y-4">
+  
           <w3m-button />
           <p className="mt-4 text-sm text-gray-500">
             Please connect your wallet.

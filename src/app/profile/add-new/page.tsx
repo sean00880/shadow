@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAuthContext } from "../../../../src/context/AuthContext";
+import { useAuthContext } from "../../../context/AuthContext";
 import LinkProfiles from "../../../../src/components/LinkProfiles";
 
 export default function SettingsPage() {

@@ -12,8 +12,7 @@ import { Connector, useConnect, useDisconnect } from "wagmi";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { supabase } from "../utils/supaBaseClient";
 import { wagmiAdapter, projectId } from "../lib/config";
-import debounce from "lodash.debounce";
-import { mainnet, sepolia, bsc, base } from "wagmi/chains";
+import { mainnet, bsc, base } from "wagmi/chains";
 import { createAppKit } from "@reown/appkit";
 
 export const appKit = createAppKit({
@@ -21,7 +20,6 @@ export const appKit = createAppKit({
   projectId,
   networks: [mainnet, base, bsc],
   defaultNetwork: mainnet,
-  
 });
 
 export interface Profile {
@@ -68,6 +66,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [activeProfile, setActiveProfile] = useState<Profile | null>(null);
   const [isSwitchingProfile, setIsSwitchingProfile] = useState<boolean>(false);
 
+  // OPTIONAL: Only run once, if needed.
   useEffect(() => {
     assignCredentials();
   }, []);
@@ -126,18 +125,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       }
     }
   }, []);
-  
-  
-
-  // Helper function to get cached profiles
   const getCachedProfiles = (address: string | null) => {
     if (!address) return null;
-
     const cachedProfiles = localStorage.getItem(`profiles_${address}`);
     const cachedAccountIdentifier = localStorage.getItem("accountIdentifier");
     const cachedTimestamp = localStorage.getItem(`profiles_${address}_timestamp`);
     const isCacheValid = cachedTimestamp && Date.now() - parseInt(cachedTimestamp) < 1000 * 60 * 60 * 24;
-
+  
     if (cachedProfiles && cachedAccountIdentifier && isCacheValid) {
       return {
         profiles: JSON.parse(cachedProfiles),
@@ -146,8 +140,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
     return null;
   };
+  
 
-  // Fetch profiles and update state
   const fetchProfiles = useCallback(
     async (wallet: string | null) => {
       if (!wallet) return;
@@ -157,14 +151,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setProfiles(cachedData.profiles || []);
         setAccountIdentifier(cachedData.accountIdentifier || null);
 
-        // Set active profile from cache
         const activeProfileId = localStorage.getItem("activeProfileId");
         const activeProfile =
-  cachedData.profiles?.find((profile: Profile) => profile.id === activeProfileId) ||
-  cachedData.profiles?.[0];
+          cachedData.profiles?.find((profile: Profile) => profile.id === activeProfileId) ||
+          cachedData.profiles?.[0];
 
         setActiveProfile(activeProfile || null);
-        return; // Avoid refetching if cache is valid
+        return;
       }
 
       try {
@@ -179,12 +172,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           setProfiles(data);
           setAccountIdentifier(data[0].accountIdentifier);
 
-          // Set active profile
           const activeProfileId = localStorage.getItem("activeProfileId");
-          const activeProfile = data.find((profile) => profile.id === activeProfileId) || data[0];
+          const activeProfile = data.find((p) => p.id === activeProfileId) || data[0];
           setActiveProfile(activeProfile);
 
-          // Cache data
           localStorage.setItem(`profiles_${wallet}`, JSON.stringify(data));
           localStorage.setItem("accountIdentifier", data[0].accountIdentifier);
           localStorage.setItem(`profiles_${wallet}_timestamp`, Date.now().toString());
@@ -200,178 +191,91 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     [setProfiles, setActiveProfile, setAccountIdentifier]
   );
 
-  // Preload cached active profile on initial render
+  // Single effect to manage state based on `address`.
   useEffect(() => {
-    const cachedWallet = localStorage.getItem("walletAddress");
-    if (cachedWallet) {
-      setWalletAddress(cachedWallet);
-      const cachedData = getCachedProfiles(cachedWallet);
-      if (cachedData) {
-        setProfiles(cachedData.profiles || []);
-        setAccountIdentifier(cachedData.accountIdentifier || null);
-  
+    if (address) {
+      // Wallet connected or restored
+      setWalletAddress(address);
+      setBlockchainWallet(caipAddress || null);
+
+      // Attempt to load or fetch profiles
+      const cachedLoaded = getCachedProfiles(address);
+      if (cachedLoaded) {
+        // If loaded from cache
+        setProfiles(cachedLoaded.profiles || []);
+        setAccountIdentifier(cachedLoaded.accountIdentifier || null);
+
         const activeProfileId = localStorage.getItem("activeProfileId");
         const activeProfile =
-          cachedData.profiles?.find((profile: Profile) => profile.id === activeProfileId) ||
-          cachedData.profiles?.[0];
-  
+          cachedLoaded.profiles?.find((p: Profile) => p.id === activeProfileId) ||
+          cachedLoaded.profiles?.[0];
+
         setActiveProfile(activeProfile || null);
+      } else {
+        // No cache, fetch from supabase
+        fetchProfiles(address);
       }
-    }
-  }, []);
-
-  const loadFromCache = (address: string | null): boolean => {
-    if (!address) return false; // Exit early if no wallet address is provided
-  
-    const cachedData = getCachedProfiles(address); // Retrieve cached profiles
-    if (!cachedData) return false; // Return false if no cached data is found
-  
-    const activeProfileId = localStorage.getItem("activeProfileId");
-    const activeProfile =
-      cachedData.profiles?.find((profile: Profile) => profile.id === activeProfileId) ||
-      cachedData.profiles?.[0]; // Default to the first profile if no activeProfileId
-  
-    // Set profiles and active profile without disrupting the wallet connection
-    if (cachedData.profiles) {
-      setProfiles(cachedData.profiles); // Update profiles state
-    }
-    if (activeProfile) {
-      setActiveProfile(activeProfile); // Update active profile state
-      setAccountIdentifier(activeProfile.accountIdentifier || null); // Use accountIdentifier from active profile
     } else {
-      setActiveProfile(null); // Clear active profile if none found
-      setAccountIdentifier(null); // Clear accountIdentifier
-    }
-  
-    return true; // Return true since cache loading was successful
-  };
-  
-
-
-  const loadCachedProfiles = useCallback(async () => {
-    if (address && !loadFromCache(address) && isConnected) {
-      await fetchProfiles(address);
-    }
-  }, [address, isConnected, fetchProfiles, loadFromCache]);
-  
-  
-  useEffect(() => {
-    let isMounted = true; // Add a flag to prevent unnecessary state updates if unmounted
-    const fetchProfilesOnce = async () => {
-        if (isMounted) {
-            await loadCachedProfiles();
-        }
-    };
-
-    fetchProfilesOnce();
-
-    return () => {
-        isMounted = false; // Cleanup to prevent state updates after unmount
-    };
-}, [address, isConnected]); // Refine the dependency array
-
-  
-  
-
-  const debouncedUpdateWallet = useCallback(
-    debounce(async (newAddress: string | null, caip: string | null | undefined) => {
-      if (!newAddress) return;
-  
-      setWalletAddress(newAddress);
-      setBlockchainWallet(caip || null);
-  
-      if (!loadFromCache(newAddress)) {
-        await fetchProfiles(newAddress); // Fetch only if cache is invalid
-      }
-    }, 300),
-    [fetchProfiles, loadFromCache]
-  );
-  
-
-  
-  // Handle wallet connection changes
-  useEffect(() => {
-    if (address) {
-      debouncedUpdateWallet(address, caipAddress);
-  
-
-    }
-  }, [isConnected, address, caipAddress, debouncedUpdateWallet]);
-  
-
-  // Update wallet address and profiles when address changes
-  useEffect(() => {
-    if (address) {
-      fetchProfiles(address);
-    }
-  }, [isConnected, address, fetchProfiles]);
-
-  // Switch profile
-
-  const switchProfile = useCallback(async (profileId: string) => {
-    setIsSwitchingProfile(true);
-    try {
-      const selectedProfile = profiles.find((profile) => profile.id === profileId);
-      if (selectedProfile) {
-        setActiveProfile(selectedProfile);
-  
-        // Cache only the activeProfileId in local storage
-        localStorage.setItem("activeProfileId", profileId);
-      }
-    } catch (error) {
-      console.error("Error switching profiles:", error);
-    } finally {
-      setIsSwitchingProfile(false);
-    }
-  }, [profiles]);
-
-  const { disconnect } = useDisconnect();
-
-  const logout = useCallback(async () => {
-    try {
-      // Sign out from Supabase
-      await supabase.auth.signOut();
-  
-      // Clear localStorage
-      localStorage.clear();
+      // Address is null, user disconnected
       setWalletAddress(null);
       setBlockchainWallet(null);
       setProfiles([]);
       setActiveProfile(null);
       setAccountIdentifier(null);
-  
-      // Disconnect from wagmi and AppKit
-      await appKit.adapter?.connectionControllerClient?.disconnect();
-      await disconnect(); // Ensure wagmi also disconnects
-      window.location.reload(); // Refresh the page to clear any cached data
-      
-    } catch (error) {
-      console.error("Error during logout:", error);
     }
-  }, [disconnect]);
-  
-  
-  
+  }, [address, caipAddress, fetchProfiles]);
 
+  const switchProfile = useCallback(
+    async (profileId: string) => {
+      setIsSwitchingProfile(true);
+      try {
+        const selectedProfile = profiles.find((p) => p.id === profileId);
+        if (selectedProfile) {
+          setActiveProfile(selectedProfile);
+          localStorage.setItem("activeProfileId", profileId);
+        }
+      } catch (error) {
+        console.error("Error switching profiles:", error);
+      } finally {
+        setIsSwitchingProfile(false);
+      }
+    },
+    [profiles]
+  );
+  const logout = useCallback(async () => {
+    
+    
+    localStorage.clear();
+    console.log("Local storage cleared");
+     // Call your disconnect method (if applicable)
+     setWalletAddress(null);
+      setBlockchainWallet(null);
+      setProfiles([]);
+      setActiveProfile(null);
+      setAccountIdentifier(null);
+  
+     appKit.adapter?.connectionControllerClient?.disconnect();
+     await supabase.auth.signOut();
+  }, []);
+  
 
   return (
     <AuthContext.Provider
-    value={{
-      walletAddress,
-      accountIdentifier,
-      blockchainWallet,
-      profiles,
-      activeProfile,
-      isConnected,
-      isSwitchingProfile,
-      setActiveProfile,
-      switchProfile,
-      fetchProfiles,
-      logout, // Ensure this is included
-      connect: async (connector: Connector) => await connect({ connector }),
-      connectors,
-      
-    }}
+      value={{
+        walletAddress,
+        accountIdentifier,
+        blockchainWallet,
+        profiles,
+        activeProfile,
+        isConnected,
+        isSwitchingProfile,
+        setActiveProfile,
+        switchProfile,
+        fetchProfiles,
+        logout,
+        connect: async (connector: Connector) => await connect({ connector }),
+        connectors,
+      }}
     >
       {children}
     </AuthContext.Provider>
