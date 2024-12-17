@@ -19,7 +19,7 @@ const DefaultLayout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
   return (
     <div className={`flex flex-col top-[6vh] min-h-screen ${isDarkMode ? "bg-[#090909] text-white" : "bg-[#f5f5f5] text-black"}`}>
-      <TopBar isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
+      <TopBar isDarkMode={isDarkMode} toggleTheme={toggleTheme} isSidebarOpen={isSidebarOpen} />
       <div className="flex flex-1 justify-end">
         <Sidebar
           isOpen={isSidebarOpen}

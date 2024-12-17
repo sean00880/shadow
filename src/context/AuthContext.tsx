@@ -27,6 +27,8 @@ export interface Profile {
   membership_tier: string | null;
   profile_type: string | null;
   role: string | null;
+  email?: string;
+  links?: string[];
 }
 
 interface AuthContextType {
@@ -40,20 +42,54 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const { address } = useAppKitAccount();
+  const { address, isConnected } = useAppKitAccount();
   const { disconnect } = useDisconnect();
 
   const [activeProfile, setActiveProfile] = useState<Profile | null>(null);
 
   /**
-   * Fetch profile for connected wallet
+   * Authenticate user with Supabase using wallet address.
+   */
+  const authenticateUser = useCallback(async (walletAddress: string, username: string) => {
+    const email = `${username}@yourdomain.com`;
+    const password = walletAddress;
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      console.error("Authentication error:", error.message);
+      throw new Error("Supabase authentication failed.");
+    }
+    console.log("User authenticated successfully.");
+  }, []);
+
+  /**
+   * Fetch profile for the connected wallet.
    */
   const fetchProfile = useCallback(async () => {
-    if (!address) return;
+    if (!address) {
+      console.warn("No wallet connected.");
+      setActiveProfile(null);
+      return;
+    }
 
     try {
-      console.log("Fetching profile for wallet:", address);
+      console.log("Authenticating and fetching profile for wallet:", address);
 
+      // Step 1: Check for existing Supabase session and user metadata
+      const { data: session, error: sessionError } = await supabase.auth.getUser();
+      if (sessionError) {
+        console.error("Error fetching Supabase session:", sessionError);
+      }
+
+      const metadata = session?.user?.user_metadata;
+      if (metadata?.wallet_address === address) {
+        console.log("Using metadata for profile.");
+        setActiveProfile(metadata as Profile);
+        localStorage.setItem("activeProfile", JSON.stringify(metadata));
+        return;
+      }
+
+      // Step 2: Fetch profile from database as fallback
       const { data: profile, error } = await supabase
         .from("profiles")
         .select("*")
@@ -67,60 +103,65 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return;
       }
 
-      console.log("Profile fetched successfully:", profile);
+      console.log("Profile fetched:", profile);
 
-      const email = `${profile.username}@yourdomain.com`;
-      const password = address;
+      // Step 3: Authenticate user
+      await authenticateUser(address, profile.username);
 
-      // Authenticate user
-      const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
-      if (authError) {
-        console.error("Authentication error:", authError);
-        return;
-      }
+      // Step 4: Update user metadata
+      await supabase.auth.updateUser({ data: { ...profile } });
 
-      console.log("User authenticated successfully.");
+      // Step 5: Set activeProfile and cache it
       setActiveProfile(profile);
       localStorage.setItem("activeProfile", JSON.stringify(profile));
+      console.log("Profile and metadata updated successfully.");
     } catch (error) {
       console.error("Error in fetchProfile:", error);
     }
-  }, [address]);
+  }, [address, authenticateUser]);
 
   /**
-   * Initialize profile from localStorage and wallet address.
+   * Initialize profile from localStorage or fetch it on wallet connection.
    */
   useEffect(() => {
-    // Load cached profile immediately
+    // Load cached profile from localStorage
     const cachedProfile = localStorage.getItem("activeProfile");
     if (cachedProfile) {
       console.log("Loaded activeProfile from localStorage.");
       setActiveProfile(JSON.parse(cachedProfile));
     }
 
-    // Fetch profile if wallet address exists
+    // Fetch profile if wallet is connected
     if (address) {
-      console.log("Wallet address detected. Validating profile...");
+      console.log("Wallet address detected. Reinitializing profile...");
       fetchProfile();
     }
   }, [address, fetchProfile]);
 
   /**
-   * Logout handler
+   * Logout handler: Clears all states, cached data, and disconnects wallet.
    */
   const logout = useCallback(async () => {
     console.log("Logging out...");
 
     try {
+      // Step 1: Sign out from Supabase
       await supabase.auth.signOut();
+      await disconnect();
+      // Step 2: Clear all cached data and reset states
       localStorage.removeItem("activeProfile");
       setActiveProfile(null);
-      await disconnect();
-      console.log("Logout complete. States and cache cleared.");
+      localStorage.clear();
+ 
+      // Step 3: Disconnect wallet
+
+      console.log("Logout complete. State and cache cleared.");
     } catch (error) {
       console.error("Error during logout:", error);
     }
+
     window.location.reload(); // Refresh the page to clear any cached data
+  
   }, [disconnect]);
 
   return (
