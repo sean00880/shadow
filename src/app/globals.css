@@ -804,7 +804,7 @@ input[type="file"] {
 /* Project and Community Box Styling */
 .project-box, .community-box {
   background-color: var(--card-bg);
-  color: var(--card-text);
+  color: greenyellow;
   border: 1px solid var(--border-color);
   box-shadow: 0 2px 8px var(--shadow-color);
   transition: background-color 0.3s ease, color 0.3s ease;
@@ -812,8 +812,9 @@ input[type="file"] {
 
 /* TopBar Styling */
 .topbar {
-  background-color: var(--topbar-bg);
+  background-color: rgba(0, 0, 0, 0.641);
   color: var(--topbar-text);
+  align-items: center;
   transition: background-color 0.3s, color 0.3s;
 }
 

@@ -40,47 +40,49 @@ export default function TopBar() {
       </div>
 
       {/* Desktop Navigation Links */}
-      <nav className="hidden md:flex w-1/3 justify-end items-center space-x-4 lg:space-x-6">
-        <Link href="/#home" className="hover:text-green-300 transition">
-          Home
-        </Link>
-        
-          <Link href="/#about" className="hover:text-green-300 transition">
-            About
-          </Link>
-          <Link href="/#utilities" className="hover:text-green-300 transition">
-            Utilities
-          </Link>
-   
-   
-        <Link href="/#tokenomics" className="hover:text-green-300 transition">
-          Tokenomics
-        </Link>
-        <Link href="/#roadmap" className="hover:text-green-300 transition">
-          Roadmap
-        </Link>
-    
-        <div className="group relative">
-          <Link href="/#resources" className="hover:text-green-300 transition">
-            Resources
-          </Link>
-          {/* Submenu for Resources */}
-          <div className="absolute left-[-120%] transform bg-black text-white p-2 rounded shadow-lg hidden group-hover:block">
-            <Link
-              href="#blog"
-              className="block px-2 py-1 hover:bg-gray-800 rounded"
-            >
-              Blog
-            </Link>
-            <Link
-              href="#documentation"
-              className="block px-2 py-1 hover:bg-gray-800 rounded"
-            >
-              Documentation
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <nav className="hidden md:flex justify-end items-center space-x-4 lg:space-x-6 bg-black bg-opacity-40 backdrop-blur-md shadow-md rounded-lg p-4">
+  <Link href="/#home" className="hover:text-green-300 text-purple-400 transition">
+    Home
+  </Link>
+
+  <Link href="/#about" className="hover:text-green-300 text-purple-400 transition">
+    About
+  </Link>
+  
+  <Link href="/#utilities" className="hover:text-green-300 text-purple-400 transition">
+    Utilities
+  </Link>
+
+  <Link href="/#tokenomics" className="hover:text-green-300 text-purple-400 transition">
+    Tokenomics
+  </Link>
+  
+  <Link href="/#roadmap" className="hover:text-green-300 text-purple-400 transition">
+    Roadmap
+  </Link>
+
+  <div className="group relative">
+    <Link href="/#resources" className="hover:text-green-300 text-purple-400 transition">
+      Resources
+    </Link>
+    {/* Submenu for Resources */}
+    <div className="absolute left-[-120%] transform bg-black bg-opacity-60 backdrop-blur-lg text-white p-3 rounded-lg shadow-lg hidden group-hover:block">
+      <Link
+        href="#blog"
+        className="block px-3 py-2 hover:bg-gray-800 rounded-lg transition"
+      >
+        Blog
+      </Link>
+      <Link
+        href="#documentation"
+        className="block px-3 py-2 hover:bg-gray-800 rounded-lg transition"
+      >
+        Documentation
+      </Link>
+    </div>
+  </div>
+</nav>
+
 
       {/* Mobile Navigation Menu */}
       {isMobileMenuOpen && (
