@@ -65,10 +65,10 @@ const Footer: React.FC = () => {
             <h3 className="text-xl font-bold mb-2">Legal</h3>
             <ul>
               <li className="mb-1 hover:text-green-300">
-                <Link href="/privacy-policy">Privacy Policy</Link>
+                <Link href="/#">Privacy Policy</Link>
               </li>
               <li className="mb-1 hover:text-green-300">
-                <Link href="/terms-of-use">Terms of Use</Link>
+                <Link href="/#">Terms of Use</Link>
               </li>
             </ul>
           </div>
@@ -77,10 +77,10 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-xl font-bold mb-2">Connect with Us</h3>
             <div className="flex space-x-4">
-              <a href="https://t.me/your-telegram-link" target="_blank" rel="noopener noreferrer" className="hover:text-green-300">
+              <a href="https://t.me/" target="_blank" rel="noopener noreferrer" className="hover:text-green-300">
                 <FaTelegramPlane size={24} />
               </a>
-              <a href="https://twitter.com/your-twitter-link" target="_blank" rel="noopener noreferrer" className="hover:text-green-300">
+              <a href="https://x.com/" target="_blank" rel="noopener noreferrer" className="hover:text-green-300">
                 <FaTwitter size={24} />
               </a>
             </div>

@@ -77,16 +77,7 @@ const RoadmapSection: React.FC = () => {
         </div>
       </div>
 
-      {/* Bottom Left Image */}
-      <div className="absolute bottom-4 left-4">
-        <Image
-          src="/images/roadmap.png"
-          alt="Monkey Sol Inu Roadmap"
-          width={192}
-          height={192}
-          className="rounded-lg shadow-[0_0_15px_rgba(0,255,135,0.7)] backdrop-blur-md"
-        />
-      </div>
+     
     </section>
   );
 };
