@@ -87,10 +87,11 @@ export default function TopBar({ isDarkMode, toggleTheme, isSidebarOpen  }: TopB
         {activeProfile ? (
           <div
             ref={menuRef}
-            className="relative"
+            className="relative flex flex-row"
             onMouseEnter={handleProfileHover}
             onMouseLeave={handleProfileLeave}
           >
+              <w3m-button />
             <Image
               src={profileImage}
               alt="Profile Image"

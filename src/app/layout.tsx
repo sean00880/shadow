@@ -42,7 +42,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         <head>
           <meta charSet="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <title>MemeLinked</title>
+          <title>MSI</title>
         </head>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}

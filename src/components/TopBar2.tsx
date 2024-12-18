@@ -12,9 +12,9 @@ export default function TopBar() {
   };
 
   return (
-    <div className="topbar flex items-center justify-between px-4 py-4 shadow-lg border-b border-[#ffbf00] relative">
+    <div className="topbar flex items-center justify-between px-4 py-4 shadow-lg border-b border-[#ffbf00] relative z-50">
       {/* Hamburger Menu for Mobile */}
-      <div className="flex md:hidden">
+      <div className="flex md:hidden z-[60]">
         <button
           className={`hamburger ${isMobileMenuOpen ? "open" : ""}`}
           onClick={toggleMobileMenu}
@@ -29,13 +29,14 @@ export default function TopBar() {
       {/* Centered Logo Container */}
       <div className="flex-1 md:flex-none flex justify-center items-center">
         <Link href="#">
-        <Image
-          src="/images/LOGODARK.png" // Static logo path for simplicity
-          alt="Logo"
-          width={240}
-          height={40}
-          className="glitch-effect"
-        /></Link>
+          <Image
+            src="/images/LOGODARK.png"
+            alt="Logo"
+            width={240}
+            height={40}
+            className="glitch-effect"
+          />
+        </Link>
       </div>
 
       {/* Desktop Navigation Links */}
@@ -49,13 +50,22 @@ export default function TopBar() {
           </Link>
           {/* Submenu for About */}
           <div className="absolute left-[-120%] transform bg-black text-white p-2 rounded shadow-lg hidden group-hover:block">
-            <Link href="/#defi-social-network" className="block px-2 py-1 hover:bg-gray-800 rounded">
+            <Link
+              href="/#defi-social-network"
+              className="block px-2 py-1 hover:bg-gray-800 rounded"
+            >
               DeFi Social Network
             </Link>
-            <Link href="/#gamefi" className="block px-2 py-1 hover:bg-gray-800 rounded">
+            <Link
+              href="/#gamefi"
+              className="block px-2 py-1 hover:bg-gray-800 rounded"
+            >
               GameFi
             </Link>
-            <Link href="/#memes" className="block px-2 py-1 hover:bg-gray-800 rounded">
+            <Link
+              href="/#memes"
+              className="block px-2 py-1 hover:bg-gray-800 rounded"
+            >
               Memes
             </Link>
           </div>
@@ -75,10 +85,16 @@ export default function TopBar() {
           </Link>
           {/* Submenu for Resources */}
           <div className="absolute left-[-120%] transform bg-black text-white p-2 rounded shadow-lg hidden group-hover:block">
-            <Link href="#blog" className="block px-2 py-1 hover:bg-gray-800 rounded">
+            <Link
+              href="#blog"
+              className="block px-2 py-1 hover:bg-gray-800 rounded"
+            >
               Blog
             </Link>
-            <Link href="#documentation" className="block px-2 py-1 hover:bg-gray-800 rounded">
+            <Link
+              href="#documentation"
+              className="block px-2 py-1 hover:bg-gray-800 rounded"
+            >
               Documentation
             </Link>
           </div>
@@ -87,44 +103,77 @@ export default function TopBar() {
 
       {/* Mobile Navigation Menu */}
       {isMobileMenuOpen && (
-        <div className="block absolute top-16 left-0 w-full bg-gray-900 text-white p-4 shadow-lg rounded-lg z-50">
-          <Link href="/#home" className="block px-4 py-2 hover:bg-black rounded">
+        <div className="block absolute top-16 left-0 w-full bg-gray-900 text-white p-4 shadow-lg rounded-lg z-40">
+          <Link
+            href="/#home"
+            className="block px-4 py-2 hover:bg-gray-800 rounded"
+          >
             Home
           </Link>
           <div className="group relative">
-            <Link href="/#about" className="block px-4 py-2 hover:bg-black rounded">
+            <Link
+              href="/#about"
+              className="block px-4 py-2 hover:bg-gray-800 rounded"
+            >
               About
             </Link>
             <div className="pl-4 mt-2 hidden group-hover:block">
-              <Link href="/#defi-social-network" className="block px-2 py-1 hover:bg-black rounded">
+              <Link
+                href="/#defi-social-network"
+                className="block px-2 py-1 hover:bg-gray-800 rounded"
+              >
                 DeFi Social Network
               </Link>
-              <Link href="/#gamefi" className="block px-2 py-1 hover:bg-black rounded">
+              <Link
+                href="/#gamefi"
+                className="block px-2 py-1 hover:bg-gray-800 rounded"
+              >
                 GameFi
               </Link>
-              <Link href="/#memes" className="block px-2 py-1 hover:bg-black rounded">
+              <Link
+                href="/#memes"
+                className="block px-2 py-1 hover:bg-gray-800 rounded"
+              >
                 Memes
               </Link>
             </div>
           </div>
-          <Link href="/#tokenomics" className="block px-4 py-2 hover:bg-black rounded">
+          <Link
+            href="/#tokenomics"
+            className="block px-4 py-2 hover:bg-gray-800 rounded"
+          >
             Tokenomics
           </Link>
-          <Link href="/#roadmap" className="block px-4 py-2 hover:bg-black rounded">
+          <Link
+            href="/#roadmap"
+            className="block px-4 py-2 hover:bg-gray-800 rounded"
+          >
             Roadmap
           </Link>
-          <Link href="/#whitepaper" className="block px-4 py-2 hover:bg-black rounded">
+          <Link
+            href="/#whitepaper"
+            className="block px-4 py-2 hover:bg-gray-800 rounded"
+          >
             Whitepaper
           </Link>
           <div className="group relative">
-            <Link href="/#resources" className="block px-4 py-2 hover:bg-black rounded">
+            <Link
+              href="/#resources"
+              className="block px-4 py-2 hover:bg-gray-800 rounded"
+            >
               Resources
             </Link>
             <div className="pl-4 mt-2 hidden group-hover:block">
-              <Link href="#blog" className="block px-2 py-1 hover:bg-black rounded">
+              <Link
+                href="#blog"
+                className="block px-2 py-1 hover:bg-gray-800 rounded"
+              >
                 Blog
               </Link>
-              <Link href="#documentation" className="block px-2 py-1 hover:bg-black rounded">
+              <Link
+                href="#documentation"
+                className="block px-2 py-1 hover:bg-gray-800 rounded"
+              >
                 Documentation
               </Link>
             </div>
@@ -143,6 +192,7 @@ export default function TopBar() {
           background: transparent;
           border: none;
           cursor: pointer;
+          z-index: 60;
         }
         .line {
           width: 100%;

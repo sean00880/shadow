@@ -7,8 +7,8 @@ export default function BlogPage() {
 
   return (
     <section className="flex flex-col md:pl-10 lg:ml-[25%]">
-      <h1 className="text-3xl font-bold mb-4">Welcome to the MemeLinked Blog</h1>
-      <p className="mb-6">Explore our latest posts and insights about MemeLinked and the broader DeFi space...</p>
+      <h1 className="text-3xl font-bold mb-4">Welcome to the MSI Blog</h1>
+      <p className="mb-6">Explore our latest posts and insights about MSI and the broader DeFi space...</p>
 
       {/* Blog Post Content */}
       <div className="blog-posts mt-8 space-y-6">

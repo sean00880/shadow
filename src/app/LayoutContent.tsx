@@ -2,7 +2,6 @@
 
 import React, { ReactNode } from "react";
 import { usePathname } from "next/navigation";
-import DefaultLayout from "../components/DefaultLayout";
 import DocumentationLayout from "../components/DocumentationLayout";
 import DocumentationLayout2 from "../components/DocumentationLayout2";
 
@@ -28,7 +27,5 @@ export default function LayoutContent({ children }: LayoutContentProps) {
     return <DocumentationLayout2 posts={posts}>{children}</DocumentationLayout2>;
   } else if (isBlogPage) {
     return <DocumentationLayout posts={posts}>{children}</DocumentationLayout>;
-  } else {
-    return <DefaultLayout>{children}</DefaultLayout>;
-  }
+  } 
 }

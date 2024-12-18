@@ -1055,7 +1055,7 @@ Img{
 
 .holographic-effect {
   border-radius: 10px;
-  background: linear-gradient(135deg, #000000, #4d4d4d);
+  background: linear-gradient(135deg, #000000, #ffffff);
   animation: holographic-move 5s infinite alternate;
   backdrop-filter: blur(10px);
   padding: 10px;
