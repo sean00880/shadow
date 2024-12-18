@@ -2,10 +2,9 @@
 
 import React, { useState } from "react";
 import { useAuthContext } from "../../../context/AuthContext";
-import LinkProfiles from "../../../../src/components/LinkProfiles";
 
 export default function SettingsPage() {
-  const { profiles, activeProfile, isConnected, walletAddress } = useAuthContext();
+  const { activeProfile, isConnected, walletAddress } = useAuthContext();
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   return (
@@ -36,7 +35,6 @@ export default function SettingsPage() {
             </h2>
             <p>Active Wallet: {walletAddress}</p>
             <p>Active Profile: {activeProfile?.username || "None selected"}</p>
-            <LinkProfiles isDarkMode={isDarkMode} />
           </section>
         </>
       ) : (
