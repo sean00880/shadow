@@ -2,6 +2,8 @@
 \connect\create-profile\page.tsx 
 */
 
+/*
+
 "use client";
 
 import { useState, useMemo, memo } from "react";
@@ -260,3 +262,5 @@ export default function CreateProfilePage() {
     </div>
   );
 }
+
+*/
