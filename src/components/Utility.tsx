@@ -46,7 +46,7 @@ const TabsSection: React.FC = () => {
   };
 
   return (
-    <section className="py-16 px-4 md:px-8 bg-black text-white relative">
+    <section id="utilities" className="py-16 px-4 md:px-8 bg-black text-white relative">
       {/* Background Gradient */}
       <div className="absolute inset-0 animate-pulse bg-gradient-to-t from-black via-green-600 to-purple-600 opacity-50 blur-2xl"></div>
 

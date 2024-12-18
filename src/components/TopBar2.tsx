@@ -12,7 +12,7 @@ export default function TopBar() {
   };
 
   return (
-    <div className="topbar flex items-center justify-between px-4 py-4 shadow-lg border-b border-[#ffbf00] relative z-50">
+    <div className="topbar flex items-center justify-between px-4 shadow-lg border-b border-[#ffbf00] relative z-50">
       {/* Hamburger Menu for Mobile */}
       <div className="flex md:hidden z-[60]">
         <button
@@ -41,46 +41,27 @@ export default function TopBar() {
 
       {/* Desktop Navigation Links */}
       <nav className="hidden md:flex w-1/3 justify-end items-center space-x-4 lg:space-x-6">
-        <Link href="/#home" className="hover:text-yellow-500 transition">
+        <Link href="/#home" className="hover:text-green-300 transition">
           Home
         </Link>
-        <div className="group relative">
-          <Link href="/#about" className="hover:text-yellow-500 transition">
+        
+          <Link href="/#about" className="hover:text-green-300 transition">
             About
           </Link>
-          {/* Submenu for About */}
-          <div className="absolute left-[-120%] transform bg-black text-white p-2 rounded shadow-lg hidden group-hover:block">
-            <Link
-              href="/#defi-social-network"
-              className="block px-2 py-1 hover:bg-gray-800 rounded"
-            >
-              DeFi Social Network
-            </Link>
-            <Link
-              href="/#gamefi"
-              className="block px-2 py-1 hover:bg-gray-800 rounded"
-            >
-              GameFi
-            </Link>
-            <Link
-              href="/#memes"
-              className="block px-2 py-1 hover:bg-gray-800 rounded"
-            >
-              Memes
-            </Link>
-          </div>
-        </div>
-        <Link href="/#tokenomics" className="hover:text-yellow-500 transition">
+          <Link href="/#utilities" className="hover:text-green-300 transition">
+            Utilities
+          </Link>
+   
+   
+        <Link href="/#tokenomics" className="hover:text-green-300 transition">
           Tokenomics
         </Link>
-        <Link href="/#roadmap" className="hover:text-yellow-500 transition">
+        <Link href="/#roadmap" className="hover:text-green-300 transition">
           Roadmap
         </Link>
-        <Link href="/#whitepaper" className="hover:text-yellow-500 transition">
-          Whitepaper
-        </Link>
+    
         <div className="group relative">
-          <Link href="/#resources" className="hover:text-yellow-500 transition">
+          <Link href="/#resources" className="hover:text-green-300 transition">
             Resources
           </Link>
           {/* Submenu for Resources */}

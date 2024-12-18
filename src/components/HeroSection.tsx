@@ -6,16 +6,16 @@ import Link from "next/link";
 const HeroSection: React.FC = () => {
   return (
     <section
-      className="hero-section flex items-center mt-[20vh] md:mt-0 h-screen justify-center bg-cover bg-center relative"
+      className="hero-section flex items-center md:mt-0 h-screen justify-center bg-cover bg-center relative"
       style={{ backgroundImage: "url('/images/monkeybg.webp')" }}
     >
       {/* Background Layer */}
       <div className="absolute inset-0 bg-[#000] bg-opacity-70"></div>
 
       {/* Foreground Content */}
-      <div className="z-10 grid grid-cols-1 md:grid-cols-2 w-full h-full">
+      <div className="z-10  grid grid-cols-1 md:grid-cols-2 w-full h-full">
         {/* Left Column */}
-        <div className="flex items-center justify-center text-left w-full">
+        <div className="hidden md:flex items-center justify-center text-left w-full">
           <Image
             src="/images/MSITOKEN.png"
             width={1000}
@@ -27,7 +27,7 @@ const HeroSection: React.FC = () => {
 
         {/* Right Column */}
         <div
-          className="relative flex flex-col justify-center items-center text-white h-full w-full"
+          className="relative pt-0 md:pt-[20vh] flex flex-col justify-center items-center text-white h-full w-full"
           style={{
             background:
               "linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.8))",
@@ -36,10 +36,10 @@ const HeroSection: React.FC = () => {
           {/* Hero Image */}
           <Image
             src="/images/MSIblue.png"
-            width={400}
-            height={400}
+            width={300}
+            height={300}
             alt="Monkey Shit Inu Logo"
-            className="w-[300px] mb-6"
+            className="w-[230px] mb-6"
           />
 
           {/* Subtitle */}

@@ -50,7 +50,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ images }) => {
   ];
 
   return (
-    <section className="py-16 px-4 md:px-8 bg-black text-white relative ">
+    <section id="about" className="py-16 px-4 md:px-8 bg-black text-white relative ">
       <div className="bg-[url('/images/monkeybg.png')] bg-cover bg-fixed bg-center">
       <div className="absolute inset-0 animate-pulse bg-gradient-to-b from-purple-700 via-green-600 opacity-[10%] to-black blur-2xl"></div>
 

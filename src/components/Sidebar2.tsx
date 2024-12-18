@@ -14,7 +14,7 @@ const Sidebar: React.FC<SidebarProps> = ({ posts }) => {
       <ul className="space-y-2">
         {posts.map((post, index) => (
           <li key={index}>
-            <Link href={post.href} className="hover:text-yellow-500 transition">
+            <Link href={post.href} className="hover:text-green-300 transition">
               {post.title}
             </Link>
           </li>

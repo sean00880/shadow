@@ -39,22 +39,22 @@ const Footer: React.FC = () => {
           <div className="mb-8 md:mb-0">
             <h3 className="text-xl font-bold mb-2">Menu</h3>
             <ul>
-              <li className="mb-1 hover:text-yellow-500">
+              <li className="mb-1 hover:text-green-400">
                 <Link href="/#home">Home</Link>
               </li>
-              <li className="mb-1 hover:text-yellow-500">
+              <li className="mb-1 hover:text-green-300">
                 <Link href="/#about">About</Link>
               </li>
-              <li className="mb-1 hover:text-yellow-500">
+              <li className="mb-1 hover:text-green-300">
                 <Link href="/#tokenomics">Tokenomics</Link>
               </li>
-              <li className="mb-1 hover:text-yellow-500">
+              <li className="mb-1 hover:text-green-300">
                 <Link href="/#roadmap">Roadmap</Link>
               </li>
-              <li className="mb-1 hover:text-yellow-500">
+              <li className="mb-1 hover:text-green-300">
                 <Link href="/#whitepaper">Whitepaper</Link>
               </li>
-              <li className="mb-1 hover:text-yellow-500">
+              <li className="mb-1 hover:text-green-300">
                 <Link href="/#resources">Resources</Link>
               </li>
             </ul>
@@ -64,10 +64,10 @@ const Footer: React.FC = () => {
           <div className="mb-8 md:mb-0">
             <h3 className="text-xl font-bold mb-2">Legal</h3>
             <ul>
-              <li className="mb-1 hover:text-yellow-500">
+              <li className="mb-1 hover:text-green-300">
                 <Link href="/privacy-policy">Privacy Policy</Link>
               </li>
-              <li className="mb-1 hover:text-yellow-500">
+              <li className="mb-1 hover:text-green-300">
                 <Link href="/terms-of-use">Terms of Use</Link>
               </li>
             </ul>
@@ -77,10 +77,10 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-xl font-bold mb-2">Connect with Us</h3>
             <div className="flex space-x-4">
-              <a href="https://t.me/your-telegram-link" target="_blank" rel="noopener noreferrer" className="hover:text-yellow-500">
+              <a href="https://t.me/your-telegram-link" target="_blank" rel="noopener noreferrer" className="hover:text-green-300">
                 <FaTelegramPlane size={24} />
               </a>
-              <a href="https://twitter.com/your-twitter-link" target="_blank" rel="noopener noreferrer" className="hover:text-yellow-500">
+              <a href="https://twitter.com/your-twitter-link" target="_blank" rel="noopener noreferrer" className="hover:text-green-300">
                 <FaTwitter size={24} />
               </a>
             </div>
