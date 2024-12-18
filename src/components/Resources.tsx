@@ -9,10 +9,10 @@ const ResourcesSection: React.FC = () => {
   const posts = [
     {
       title: "How Monkey Sol Inu Reshapes Meme Utility",
-      href: "/blog/meme-utility",
+      href: "/blog/utility",
       description:
         "Explore how Monkey Sol Inu combines meme culture with real utility, driving innovation in the crypto space.",
-      previewImage: "/images/utility.png",
+      previewImage: "/images/utility.webp",
     },
     {
       title: "The Role of GameFi in the MSI Ecosystem",
@@ -26,7 +26,7 @@ const ResourcesSection: React.FC = () => {
       href: "/blog/community-resilience",
       description:
         "Learn how the community bounced back stronger than ever after the GemPad incident.",
-      previewImage: "/images/resilience.png",
+      previewImage: "/images/supermonkey.webp",
     },
   ];
 

@@ -11,7 +11,7 @@ const posts = [
       <>
         <div className="lg:ml-[26%] mt-[10vh] flex flex-col items-center p-6 glassmorphism rounded-xl shadow-2xl backdrop-blur-lg transition-transform">
           <Image
-            src="/images/utility.png"
+            src="/images/utility.webp"
             alt="Meme Utility"
             width={1000}
             height={400}
@@ -128,7 +128,7 @@ const posts = [
       <>
         <div className="lg:ml-[26%] mt-[10vh] flex flex-col items-center p-6 glassmorphism rounded-xl shadow-2xl backdrop-blur-lg transition-transform ">
           <Image
-            src="/images/resilience.png"
+            src="/images/supermonkey.webp"
             alt="Community Resilience"
             width={1000}
             height={400}

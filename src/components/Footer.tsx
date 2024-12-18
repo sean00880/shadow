@@ -7,7 +7,19 @@ import { FaTelegramPlane, FaTwitter } from 'react-icons/fa';
 
 const Footer: React.FC = () => {
   return (
+
+    
     <footer className="bg-black text-white py-12 bottom-0 w-full z-30">
+      <div className="text-center items-center flex flex-col">
+
+<Image
+  src="/images/MSIonSol.png"
+  alt="Banner Image"
+  className="w-full rounded-lg"
+  width={1500}
+  height={500}
+/>
+</div>
       <div className="container mx-auto px-4 md:px-8 flex flex-col md:flex-row justify-between items-center">
         {/* Left Section - Logo and Subtitle */}
         <div className="mb-8 md:mb-0 flex flex-col items-center">
