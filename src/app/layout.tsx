@@ -1,9 +1,7 @@
 import React, { ReactNode } from "react";
 import "./globals.css";
 import localFont from "next/font/local";
-import { Providers } from "./providers";
-import { cookieToInitialState } from "wagmi";
-import { getConfig } from "./config";
+
 
 import { headers } from "next/headers"; // Use headers for server-side operations
 import LayoutContent from "./LayoutContent";
@@ -32,12 +30,11 @@ interface RootLayoutProps {
 
 export default async function RootLayout({ children }: RootLayoutProps) {
   const headersData = await headers(); // Resolve the promise
-  const cookies = headersData.get("cookie") || ""; // Safely retrieve cookies
-  const initialState = cookieToInitialState(getConfig(), cookies);
+  const cookies = headersData.get("cookie") || ""; // Safely retrieve cookies;
 
 
   return (
-    <Providers initialState={initialState}>
+    
       <html lang="en">
         <head>
           <meta charSet="UTF-8" />
@@ -50,6 +47,6 @@ export default async function RootLayout({ children }: RootLayoutProps) {
        <LayoutContent>{children}</LayoutContent>
         </body>
       </html>
-    </Providers>
+ 
   );
 }
