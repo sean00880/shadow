@@ -153,7 +153,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ images }) => {
             alt="Why Monkey Sol Inu"
             width={400}
             height={300}
-            className="rounded-lg shadow-[0_0_20px_rgba(0,255,135,0.8)] hover:scale-105 transition-transform"
+            className="rounded-lg hover:scale-105 transition-transform"
           />
         </div>
         </div>
