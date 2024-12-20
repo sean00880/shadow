@@ -14,7 +14,7 @@ export default function DocumentationPage() {
       title: "Security Best Practices",
       description:
         "Understand how to interact securely with the Monkey Sol Inu ecosystem. Learn tips and practices to keep your tokens and data safe.",
-      href: "/docs/security",
+      href: "/docs/security-best-practices",
     },
   ];
 

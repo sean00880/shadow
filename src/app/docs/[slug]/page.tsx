@@ -97,7 +97,7 @@ const docs = [
       <>
         <div className="lg:ml-[26%] mt-[10vh] flex flex-col items-center p-6 bg-black/70 rounded-xl shadow-lg backdrop-blur-lg transition-transform">
           <Image
-            src="/images/security-best-practices.png"
+            src="/images/security.webp"
             alt="Security Best Practices"
             width={1000}
             height={400}

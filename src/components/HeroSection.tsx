@@ -64,7 +64,7 @@ const HeroSection: React.FC = () => {
 
           {/* Social Media Links */}
           <div className="bg-black/50 backdrop-blur-lg p-4 rounded-xl shadow-lg flex justify-center space-x-4 w-full mt-6">
-            <Link href="https://x.com/">
+            <Link href="https://x.com/msi_token/">
               <Image
                 src="/icons/x.png"
                 width={50}
@@ -73,7 +73,7 @@ const HeroSection: React.FC = () => {
                 className="rounded-full hover:scale-105 border-2 border-white transition"
               />
             </Link>
-            <Link href="https://t.me/">
+            <Link href="https://t.me/monkeyshitinu">
               <Image
                 src="/icons/telegram.png"
                 width={50}
@@ -82,7 +82,7 @@ const HeroSection: React.FC = () => {
                 className="rounded-full hover:scale-105 border-2 border-white transition"
               />
             </Link>
-            <Link href="https://www.dexscreener.com/">
+            <Link href="https://dexscreener.com/solana/gej39qh7wizmw94hhycrt5m3aqdunrnn8mfg9ygrqxvw">
               <Image
                 src="/icons/dexscreener.png"
                 width={50}
@@ -91,7 +91,7 @@ const HeroSection: React.FC = () => {
                 className="rounded-full bg-white hover:scale-105 transition border-2 border-white transition"
               />
             </Link>
-            <Link href="https://www.dextools.io/">
+            <Link href="https://www.dextools.io/app/en/solana/pair-explorer/GeJ39qH7WiZmw94HHyCrT5M3AQDUnrNn8MfG9ygRQxvw?t=1734722897099">
               <Image
                 src="/icons/dextools.png"
                 width={50}
@@ -100,7 +100,7 @@ const HeroSection: React.FC = () => {
                 className="rounded-full hover:scale-105 border-2 border-white transition"
               />
             </Link>
-            <Link href="https://www.linktree.com/">
+            <Link href="https://linktr.ee/pablocro">
               <Image
                 src="/icons/linktree.png"
                 width={50}

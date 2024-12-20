@@ -74,10 +74,10 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-xl font-bold mb-2">Connect with Us</h3>
             <div className="flex space-x-4">
-              <a href="https://t.me/" target="_blank" rel="noopener noreferrer" className="hover:text-green-300">
+              <a href="https://t.me/monkeyshitinu" target="_blank" rel="noopener noreferrer" className="hover:text-green-300">
                 <FaTelegramPlane size={24} />
               </a>
-              <a href="https://x.com/" target="_blank" rel="noopener noreferrer" className="hover:text-green-300">
+              <a href="https://x.com/msi_token/" target="_blank" rel="noopener noreferrer" className="hover:text-green-300">
                 <FaTwitter size={24} />
               </a>
             </div>
