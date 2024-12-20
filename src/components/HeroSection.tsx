@@ -102,7 +102,7 @@ const HeroSection: React.FC = () => {
             </Link>
             <Link href="https://www.tickertrending.com/">
               <Image
-                src="/icons/tickertrending.jpg"
+                src="/icons/TickerTrending.jpg"
                 width={50}
                 height={50}
                 alt="Linktree"
