@@ -19,7 +19,7 @@ const ResourcesSection: React.FC = () => {
       href: "/blog/gamefi-role",
       description:
         "Discover how Monkey Sol Inu introduces fun and rewarding GameFi elements to keep the community engaged.",
-      previewImage: "/images/gamefi.png",
+      previewImage: "/images/gamefinew.webp",
     },
     {
       title: "The Resilience of Monkey Sol Inu",
