@@ -109,7 +109,7 @@ const HeroSection: React.FC = () => {
                 className="rounded-full bg-white hover:scale-105 border-2 border-white transition"
               />
             </Link>
-            <Link href="https://www.tickertrending.com/">
+            <Link href="https://www.tickertrending.com/ticker/MSI">
               <Image
                 src="/icons/TickerTrending.jpg"
                 width={50}
