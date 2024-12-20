@@ -589,6 +589,10 @@ background-color: none!important;
   box-shadow: 0px 0px 15px #ffd400;
 }
 
+.features{
+  box-shadow: rgb(204, 219, 232) 3px 3px 6px 0px inset, rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
+}
+
 [data-theme="dark"].gradient-button:hover {
   box-shadow: 0px 0px 5px rgba(232, 48, 48, 0.7)!important;
   transform: scale(1.05);

@@ -78,7 +78,7 @@ const TabsSection: React.FC = () => {
         {/* Content Based on Active Tab */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           {/* Left: Content */}
-          <div className="space-y-4 p-6 bg-white/70 rounded-xl backdrop-blur-lg shadow-lg">
+          <div className="space-y-4 p-6 bg-white/90 features rounded-xl backdrop-blur-lg">
   <h3 className="text-3xl font-semibold text-black mb-4">
     {content[activeTab as keyof typeof content].title}
   </h3>

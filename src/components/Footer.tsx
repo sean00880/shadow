@@ -87,7 +87,7 @@ const Footer: React.FC = () => {
 
       {/* Copyright Bar */}
       <div className="glass mt-8 text-center text-gray-300 border-t border-green-300 pt-4">
-        &copy; PabloCRO | 2024 | Powered by MSI
+        &copy; PabloCRO | 2024 | Property of MSI
       </div>
     </footer>
   );
