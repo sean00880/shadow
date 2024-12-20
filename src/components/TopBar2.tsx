@@ -41,28 +41,28 @@ export default function TopBar() {
 
       {/* Desktop Navigation Links */}
       <nav className="hidden md:flex justify-end items-center space-x-4 lg:space-x-6 bg-black bg-opacity-40 backdrop-blur-md shadow-md rounded-lg p-4">
-  <Link href="/#home" className="hover:text-green-300 text-purple-400 transition">
+  <Link href="/#home" className="hover:text-green-300 text-white transition">
     Home
   </Link>
 
-  <Link href="/#about" className="hover:text-green-300 text-purple-400 transition">
+  <Link href="/#about" className="hover:text-green-300 text-white transition">
     About
   </Link>
   
-  <Link href="/#utilities" className="hover:text-green-300 text-purple-400 transition">
+  <Link href="/#utilities" className="hover:text-green-300 text-white transition">
     Utilities
   </Link>
 
-  <Link href="/#tokenomics" className="hover:text-green-300 text-purple-400 transition">
+  <Link href="/#tokenomics" className="hover:text-green-300 text-white transition">
     Tokenomics
   </Link>
   
-  <Link href="/#roadmap" className="hover:text-green-300 text-purple-400 transition">
+  <Link href="/#roadmap" className="hover:text-green-300 text-white transition">
     Roadmap
   </Link>
 
   <div className="group relative">
-    <Link href="/#resources" className="hover:text-green-300 text-purple-400 transition">
+    <Link href="/#resources" className="hover:text-green-300 text-white transition">
       Resources
     </Link>
     {/* Submenu for Resources */}

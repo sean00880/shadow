@@ -86,7 +86,7 @@ const Footer: React.FC = () => {
       </div>
 
       {/* Copyright Bar */}
-      <div className="mt-8 text-center text-gray-300 border-t border-[#ffbf00] pt-4">
+      <div className="glass mt-8 text-center text-gray-300 border-t border-green-300 pt-4">
         &copy; PabloCRO | 2024 | Powered by MSI
       </div>
     </footer>

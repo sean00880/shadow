@@ -9,7 +9,7 @@ const ResourcesSection: React.FC = () => {
   const posts = [
     {
       title: "How Monkey Sol Inu Reshapes Meme Utility",
-      href: "/blog/utility",
+      href: "/blog/meme-utility",
       description:
         "Explore how Monkey Sol Inu combines meme culture with real utility, driving innovation in the crypto space.",
       previewImage: "/images/utility.webp",

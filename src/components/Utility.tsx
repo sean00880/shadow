@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
-
+import Link from "next/link";
 const TabsSection: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("utility");
 
@@ -14,6 +14,7 @@ const TabsSection: React.FC = () => {
   const content = {
     utility: {
       title: "Key Features of TickerTrending",
+      url:"https://tickertrending.com",
       features: [
         "Real-Time Price and Market Data: Stay ahead of the market with up-to-the-minute price data for meme coins.",
         "Advanced Analytics and Sentiment Analysis: Gain insights into market trends with powerful analytics.",
@@ -25,6 +26,7 @@ const TabsSection: React.FC = () => {
     },
     msicards: {
       title: "Key Features of MSI Cards",
+      url:"https://shitcards.info",
       features: [
         "Exclusive and Customizable MSI Cards: Virtual and physical crypto-funded cards for top global brands.",
         "Seamless Payment Experience: Simple and secure transactions for personal and gift purposes.",
@@ -35,13 +37,14 @@ const TabsSection: React.FC = () => {
     },
     msishop: {
       title: "Key Features of MSI Shop",
+      url:"https://msi-shop.com",
       features: [
         "Unique and Customizable MSI Merchandise: TurdShirts, Poodies, CrapCaps, and more creative swag.",
         "Seamless Shopping Experience: Intuitive interface, secure payments, and fast delivery.",
         "Direct Support for the MSI Ecosystem: A portion of proceeds helps fund MSI community initiatives.",
         "And More: Limited-edition items, collaborations, and surprises for the MSI community.",
       ],
-      image: "/images/MSISHOP.gif",
+      image: "/images/MSI-shop.jpg",
     },
   };
 
@@ -96,6 +99,7 @@ const TabsSection: React.FC = () => {
 
           {/* Right: Visual */}
           <div className="flex justify-center">
+            <Link href={content[activeTab as keyof typeof content].url}>
             <Image
               src={content[activeTab as keyof typeof content].image}
               alt={content[activeTab as keyof typeof content].title}
@@ -103,6 +107,7 @@ const TabsSection: React.FC = () => {
               height={400}
               className="rounded-lg bg-[#0d0d0d] shadow-[0_0_20px_rgba(138,43,226,0.8)] hover:scale-105 transition-transform"
             />
+            </Link>
           </div>
         </div>
 

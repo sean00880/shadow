@@ -50,7 +50,7 @@ const HeroSection: React.FC = () => {
           {/* Contract Address with Rotating Glow */}
           <div className="relative flex items-center justify-center">
             <div className="relative bg-white text-black px-6 py-3 rounded-md font-bold shadow-lg z-10">
-              <span className="font-mono">0xYourContractAddressHere</span>
+              <span className="font-mono">m0nkeyS0L1Nuca</span>
             </div>
             {/* Glowing Rotating Ring */}
             <div
@@ -64,7 +64,7 @@ const HeroSection: React.FC = () => {
 
           {/* Social Media Links */}
           <div className="bg-black/50 backdrop-blur-lg p-4 rounded-xl shadow-lg flex justify-center space-x-4 w-full mt-6">
-            <Link href="https://x.com/MonkeyShitInu">
+            <Link href="https://x.com/">
               <Image
                 src="/icons/x.png"
                 width={50}
@@ -73,7 +73,7 @@ const HeroSection: React.FC = () => {
                 className="rounded-full hover:scale-105 transition"
               />
             </Link>
-            <Link href="https://t.me/MonkeyShitInu">
+            <Link href="https://t.me/">
               <Image
                 src="/icons/telegram.png"
                 width={50}
@@ -91,9 +91,18 @@ const HeroSection: React.FC = () => {
                 className="rounded-full hover:scale-105 transition"
               />
             </Link>
-            <Link href="https://www.linktree.com/msi">
+            <Link href="https://www.linktree.com/">
               <Image
                 src="/icons/linktree.png"
+                width={50}
+                height={50}
+                alt="Linktree"
+                className="rounded-full bg-white hover:scale-105 transition"
+              />
+            </Link>
+            <Link href="https://www.tickertrending.com/">
+              <Image
+                src="/icons/tickertrending.jpg"
                 width={50}
                 height={50}
                 alt="Linktree"

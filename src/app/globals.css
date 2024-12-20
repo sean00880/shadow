@@ -60,7 +60,74 @@ select, textarea{
   font-weight: 300;
 }
 
-h1,h2,h3, h4, h5{
+
+@font-face{
+  font-family: 'Newton';
+  src: url('/fonts/Newton.otf');
+  font-weight: normal;
+}
+h1, h2 {
+  font-family: 'Newton', sans-serif;
+  color: #ffffff;
+  position: relative;
+  display: inline-block;
+  /* Base subtle glow */
+  text-shadow:
+    0 0 5px rgba(255,255,255,0.8),
+    0 0 10px rgba(255,255,255,0.6),
+    0 0 20px rgba(255,255,255,0.4),
+    0 0 40px rgba(255,255,255,0.2);
+}
+
+/* The pseudo-element will rotate and apply a holographic effect */
+h1::before, h2::before {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  color: #ffffff;
+  /* Stronger initial glow */
+  text-shadow:
+    0 0 2px #2d2d2d,
+    0 0 4px #751370,
+    0 0 8px #000000;
+
+  /* Enable 3D transform perspective */
+  transform-style: preserve-3d;
+  transform-origin: center;
+  /* The animation creates the holographic rotation and hue shift */
+  animation: hologramRotate 3s linear infinite;
+  pointer-events: none; /* Prevent text selection issues */
+}
+
+/* Keyframes for the holographic 3D rotation and color shift */
+@keyframes hologramRotate {
+  0% {
+    transform: perspective(1000px) rotateY(0deg);
+    filter: hue-rotate(0deg);
+  }
+  25% {
+    transform: perspective(1000px) rotateY(90deg);
+    filter: hue-rotate(60deg);
+  }
+  50% {
+    transform: perspective(1000px) rotateY(180deg);
+    filter: hue-rotate(120deg);
+  }
+  75% {
+    transform: perspective(1000px) rotateY(270deg);
+    filter: hue-rotate(180deg);
+  }
+  100% {
+    transform: perspective(1000px) rotateY(360deg);
+    filter: hue-rotate(240deg);
+  }
+}
+
+
+ h4, h5{
   font-family: 'Exo2.0';
   letter-spacing: 2px;
   font-weight: 300;
