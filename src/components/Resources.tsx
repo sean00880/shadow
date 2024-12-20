@@ -43,7 +43,7 @@ const ResourcesSection: React.FC = () => {
         <h2 className="text-4xl font-bold mb-8 text-center text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-purple-500">
           Resources
         </h2>
-        <div className="h-1 bg-green-400 mb-8 mx-auto w-1/4 rounded"></div>
+        <div className="h-1 bg-purple-400 mb-8 mx-auto w-1/4 rounded"></div>
 
         {/* Tabs */}
         <div className="flex justify-center mb-8 space-x-4">
@@ -107,7 +107,7 @@ const ResourcesSection: React.FC = () => {
             </div>
           ) : (
             <div>
-              <h3 className="text-2xl font-semibold mb-4 text-purple-400">
+              <h3 className="text-2xl font-semibold mb-4 text-green-400">
                 Comprehensive Documentation
               </h3>
               <p className="text-gray-300 mb-6">
@@ -116,7 +116,7 @@ const ResourcesSection: React.FC = () => {
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="p-4 bg-black/80 border border-green-500 rounded-lg shadow-lg">
-                  <h4 className="text-xl font-semibold text-green-400 mb-2">
+                  <h4 className="text-xl font-semibold italic text-purple-400 mb-2">
                     Monkey Sol Inu Ecosystem Overview
                   </h4>
                   <p className="text-gray-300">
@@ -124,13 +124,13 @@ const ResourcesSection: React.FC = () => {
                   </p>
                   <Link
                     href="/docs/overview"
-                    className="text-green-400 hover:text-green-300 mt-2 inline-block transition"
+                    className="text-white hover:text-green-300 mt-2 inline-block transition"
                   >
                     Read more →
                   </Link>
                 </div>
                 <div className="p-4 bg-black/80 border border-green-500 rounded-lg shadow-lg">
-                  <h4 className="text-xl font-semibold text-purple-400 mb-2">
+                  <h4 className="text-xl font-semibold italic text-purple-400 mb-2">
                     Security Best Practices
                   </h4>
                   <p className="text-gray-300">
@@ -138,7 +138,7 @@ const ResourcesSection: React.FC = () => {
                   </p>
                   <Link
                     href="/docs/security-best-practices"
-                    className="text-green-400 hover:text-green-300 mt-2 inline-block transition"
+                    className="text-white hover:text-green-300 mt-2 inline-block transition"
                   >
                     Read more →
                   </Link>

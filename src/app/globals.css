@@ -6,8 +6,8 @@
 
 /* Font Imports */
 @font-face {
-  font-family: 'Exo2.0';
-  src: url('/fonts/Exo2.0-Regular.otf') format('opentype');
+  font-family: 'Barlow';
+  src: url('/fonts/Barlow-Regular.otf') format('opentype');
   font-weight: normal;
 }
 
@@ -33,8 +33,8 @@ select, textarea{
   font-weight: normal;
 }
 @font-face {
-  font-family: 'Exo2.0-Thin';
-  src: url('/fonts/Exo2.0-Thin.otf') format('opentype');
+  font-family: 'Barlow-Thin';
+  src: url('/fonts/Barlow-Thin.otf') format('opentype');
   font-weight: 300;
 }
 
@@ -59,6 +59,14 @@ select, textarea{
   src: url('/fonts/NobodyTalks.ttf');
   font-weight: 300;
 }
+
+@font-face {
+  font-family: 'Barlow';
+  src: url('/fonts/BarlowCondensed-LightItalic.ttf');
+  font-weight: 300;
+}
+
+
 
 
 @font-face{
@@ -127,10 +135,9 @@ h1::before, h2::before {
 }
 
 
- h4, h5{
-  font-family: 'Exo2.0';
-  letter-spacing: 2px;
-  font-weight: 300;
+ 
+span, a, h3, h4, h5, h6, button{
+  font-family: 'Barlow';
 }
 
 h3 span{
@@ -139,7 +146,7 @@ h3 span{
 }
 
 .button{
-  font-family: 'Exo2.0';
+  font-family: 'Barlow';
 }
 
 ol li{
@@ -148,16 +155,16 @@ ol li{
 
 span, button{
   font-size: 1rem;
-  font-family: 'Exo2.0';
+  font-family: 'Barlow';
 }
 p, li{
   font-size: .8rem;
-  font-family: 'Exo2.0';
+  font-family: 'titillium web';
 }
 
 table td{
   font-size: .81rem;
-  font-family: 'Exo2.0';
+  font-family: 'Barlow';
 
 }
 
@@ -167,7 +174,7 @@ table tr{
 }
 
 table th{
-  font-family: 'Exo2.0';
+  font-family: 'Barlow';
   font-size: .9rem;
   font-weight: 200!important;
   font-style:italic;
@@ -190,7 +197,7 @@ h1 span{
 }
 
 h6{
-  font-family: 'Exo2.0';
+  font-family: 'Barlow';
 }
 h3{
   font-size: 1.1rem;
@@ -234,7 +241,7 @@ body {
 }
 
 nav a{
-  font-family: 'Exo2.0';
+  font-family: 'Barlow';
 }
 
 .landing-heading {

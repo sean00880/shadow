@@ -2,7 +2,7 @@ export default function BlogPage() {
   const posts = [
     { title: 'How Monkey Sol Inu Reshapes Meme Utility', href: '/blog/meme-utility' },
     { title: 'GameFi’s Role in the MSI Ecosystem', href: '/blog/gamefi-role' },
-    { title: 'The Future of Meme-Driven Finance', href: '/blog/meme-finance-future' },
+    { title: 'The Resilience of Monkey Sol Inu', href: '/blog/community-resilience' },
   ];
 
 
