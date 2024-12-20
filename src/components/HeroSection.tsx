@@ -70,7 +70,7 @@ const HeroSection: React.FC = () => {
                 width={50}
                 height={50}
                 alt="Twitter"
-                className="rounded-full hover:scale-105 transition"
+                className="rounded-full hover:scale-105 border-2 border-white transition"
               />
             </Link>
             <Link href="https://t.me/">
@@ -79,7 +79,16 @@ const HeroSection: React.FC = () => {
                 width={50}
                 height={50}
                 alt="Telegram"
-                className="rounded-full hover:scale-105 transition"
+                className="rounded-full hover:scale-105 border-2 border-white transition"
+              />
+            </Link>
+            <Link href="https://www.dexscreener.com/">
+              <Image
+                src="/icons/dexscreener.png"
+                width={50}
+                height={50}
+                alt="DexScreener"
+                className="rounded-full bg-white hover:scale-105 transition border-2 border-white transition"
               />
             </Link>
             <Link href="https://www.dextools.io/">
@@ -88,7 +97,7 @@ const HeroSection: React.FC = () => {
                 width={50}
                 height={50}
                 alt="DexTools"
-                className="rounded-full hover:scale-105 transition"
+                className="rounded-full hover:scale-105 border-2 border-white transition"
               />
             </Link>
             <Link href="https://www.linktree.com/">
@@ -97,7 +106,7 @@ const HeroSection: React.FC = () => {
                 width={50}
                 height={50}
                 alt="Linktree"
-                className="rounded-full bg-white hover:scale-105 transition"
+                className="rounded-full bg-white hover:scale-105 border-2 border-white transition"
               />
             </Link>
             <Link href="https://www.tickertrending.com/">
@@ -106,7 +115,7 @@ const HeroSection: React.FC = () => {
                 width={50}
                 height={50}
                 alt="Linktree"
-                className="rounded-full bg-white hover:scale-105 transition"
+                className="rounded-full bg-white hover:scale-105 border-2 border-white transition"
               />
             </Link>
           </div>

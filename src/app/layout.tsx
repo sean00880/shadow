@@ -18,9 +18,9 @@ const geistMono = localFont({
 });
 
 const posts = [
-  { title: "How MSI Integrates DeFi and Social Networking", href: "/blog/defi-social-networking" },
+  { title: "How Monkey Sol Inu Reshapes Meme Utility", href: "/blog/meme-utility" },
   { title: "GameFi’s Role in the MSI Ecosystem", href: "/blog/gamefi-role" },
-  { title: "The Future of Meme-Driven Finance", href: "/blog/meme-finance-future" },
+  { title: "The Resilience of Monkey Sol Inu", href: "/blog/community-resilience" },
 ];
 
 interface RootLayoutProps {

@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
 
     
     <footer className="bg-black text-white py-12 bottom-0 w-full z-30">
-      <div className="text-center items-center flex flex-col">
+      <div className="text-center items-center flex flex-col m-8 rounded-lg">
 
 <Image
   src="/images/MSIonSol.png"
@@ -62,10 +62,10 @@ const Footer: React.FC = () => {
             <h3 className="text-xl font-bold mb-2">Legal</h3>
             <ul>
               <li className="mb-1 hover:text-green-300">
-                <Link href="/#">Privacy Policy</Link>
+                <Link href="/privacy-policy">Privacy Policy</Link>
               </li>
               <li className="mb-1 hover:text-green-300">
-                <Link href="/#">Terms of Use</Link>
+                <Link href="/terms-of-servce">Terms of Use</Link>
               </li>
             </ul>
           </div>

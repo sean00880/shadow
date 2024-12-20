@@ -75,7 +75,7 @@ const posts = [
             height={400}
             className="rounded-lg shadow-lg transform hover:scale-105 my-10 transition-transform duration-500"
           />
-          <h1 className="text-5xl font-extrabold mb-4 text-purple-400 text-center">
+          <h1 className="text-5xl font-extrabold mb-4 text-white text-center">
             The Role of GameFi in the MSI Ecosystem
           </h1>
           <div className="w-full h-[2px] bg-purple-400 mb-6"></div>
@@ -134,7 +134,7 @@ const posts = [
             height={400}
             className="rounded-lg shadow-lg transform hover:scale-105 my-10 transition-transform duration-500"
           />
-          <h1 className="text-5xl font-extrabold mb-4 text-green-400 text-center">
+          <h1 className="text-5xl font-extrabold mb-4 text-white text-center">
             The Resilience of Monkey Sol Inu
           </h1>
           <div className="w-full h-[2px] bg-green-400 mb-6"></div>

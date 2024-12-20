@@ -1,137 +1,160 @@
-// src/app/privacy-policy/page.tsx
-'use client';
-import React from 'react';
+"use client";
 
-const PrivacyPolicyPage = () => {
+import React from "react";
+
+export default function PrivacyPolicy() {
   return (
-    <div className="privacy-policy-container px-6 py-12">
-      <h1 className="text-3xl font-bold mb-4">Privacy Policy</h1>
-      <p className="text-gray-700 mb-4">Last Modified: November 19, 2024</p>
+    <section className="py-16 px-4 md:px-8 bg-black text-white relative">
+      {/* Background Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-green-700 to-purple-700 opacity-50 blur-2xl animate-pulse"></div>
 
-      <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-2">1. Introduction</h2>
-        <p>
-          This is the Privacy Policy of [Your Company Name] (“we”, “us”, or “our”). We operate the [Your Platform/Service Name], including web extensions, dashboard applications, and mobile applications (collectively, the “Services”). This Privacy Policy explains how we collect, use, and disclose personal information and your rights regarding your data.
+      <div className="relative z-10 max-w-6xl mx-auto">
+        {/* Section Title */}
+        <h1 className="text-5xl font-extrabold mb-6 text-center text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-purple-500">
+          Privacy Policy
+        </h1>
+        <p className="text-lg text-gray-300 mb-8 text-center">
+          Effective Date: 12/20/2024
         </p>
-      </section>
 
-      <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-2">2. Consent from users outside the EEA, UK, Switzerland, and [Your Jurisdiction]</h2>
-        <p>
-          By accessing or using our Services, you agree to this Privacy Policy. If you are based in the EEA, UK, Switzerland, or [Other Jurisdictions], additional provisions may apply (see below).
-        </p>
-      </section>
+        {/* Privacy Policy Content */}
+        <div className="p-6 bg-black/70 border border-green-500 rounded-lg shadow-lg backdrop-blur-lg">
+          <h2 className="text-3xl font-semibold text-green-400 mb-4">
+            Privacy Policy for Monkey Sol Inu (MSI Token Ecosystem)
+          </h2>
+          <p className="text-gray-300 mb-6">
+            Monkey Sol Inu (“we,” “our,” or “us”) is committed to protecting the
+            privacy of its users (“users,” “you,” or “your”). This Privacy
+            Policy outlines how we collect, use, disclose, and safeguard your
+            information when you interact with the Monkey Sol Inu token
+            ecosystem, including our website, services, and other digital
+            properties (collectively, the "Platform").
+          </p>
+          <p className="text-gray-300 mb-6">
+            By accessing or using our Platform, you agree to the terms of this
+            Privacy Policy. If you do not agree with the terms, please
+            discontinue use of the Platform.
+          </p>
 
-      <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-2">3. What is personal information?</h2>
-        <p>
-          Personal information is any information relating to an identified or identifiable individual, such as an email address, username, or IP address.
-        </p>
-      </section>
+          {/* Information We Collect */}
+          <h3 className="text-2xl font-semibold text-purple-400 mb-4">
+            1. Information We Collect
+          </h3>
+          <p className="text-gray-300 mb-4">
+            We may collect the following categories of information:
+          </p>
+          <ul className="list-disc ml-6 text-gray-300 space-y-2">
+            <li>
+              <strong>1.1. Personal Information:</strong> Name, email address,
+              wallet address, and social media handles (if provided).
+            </li>
+            <li>
+              <strong>1.2. Non-Personal Information:</strong> Browser type,
+              operating system, device information, geographic location, and
+              usage data.
+            </li>
+            <li>
+              <strong>1.3. Blockchain Data:</strong> Wallet addresses,
+              transaction IDs, and token balances stored on public blockchain
+              networks.
+            </li>
+          </ul>
 
-      <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-2">4. Information that we collect</h2>
-        <p>
-          We may collect personal information including, but not limited to:
-        </p>
-        <ul className="list-disc pl-6">
-          <li>Account Information: email, username, password, wallet address.</li>
-          <li>Technical Information: IP address, device identifiers.</li>
-          <li>Information provided when you contact us: additional details you choose to provide.</li>
-        </ul>
-      </section>
+          {/* How We Use Your Information */}
+          <h3 className="text-2xl font-semibold text-purple-400 mt-8 mb-4">
+            2. How We Use Your Information
+          </h3>
+          <ul className="list-disc ml-6 text-gray-300 space-y-2">
+            <li>
+              <strong>2.1. To Provide and Improve Services:</strong> Facilitate
+              transactions, enhance user experience, and optimize platform
+              performance.
+            </li>
+            <li>
+              <strong>2.2. To Communicate with You:</strong> Respond to
+              inquiries, send updates, and notify about security changes.
+            </li>
+            <li>
+              <strong>2.3. To Ensure Security:</strong> Detect, prevent, and
+              mitigate fraudulent or unauthorized activities.
+            </li>
+            <li>
+              <strong>2.4. Legal Compliance:</strong> Fulfill legal obligations
+              and comply with applicable laws and regulations.
+            </li>
+          </ul>
 
-      <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-2">5. Use of your personal information</h2>
-        <p>
-          We use your personal information to:
-        </p>
-        <ul className="list-disc pl-6">
-          <li>Manage and provide Services.</li>
-          <li>Analyze usage and improve functionality.</li>
-          <li>Communicate updates and promotional content (with consent).</li>
-          <li>Ensure security and prevent fraud.</li>
-        </ul>
-      </section>
+          {/* Information Sharing */}
+          <h3 className="text-2xl font-semibold text-purple-400 mt-8 mb-4">
+            3. Information Sharing and Disclosure
+          </h3>
+          <p className="text-gray-300 mb-4">
+            We do not sell or rent your personal information. However, we may
+            share it under the following circumstances:
+          </p>
+          <ul className="list-disc ml-6 text-gray-300 space-y-2">
+            <li>
+              <strong>3.1. With Service Providers:</strong> Vendors assisting
+              with hosting, analytics, and customer support.
+            </li>
+            <li>
+              <strong>3.2. With Legal Authorities:</strong> To comply with legal
+              obligations or protect our rights and safety.
+            </li>
+            <li>
+              <strong>3.3. With Your Consent:</strong> If explicitly authorized
+              by you.
+            </li>
+            <li>
+              <strong>3.4. In Case of Business Transfer:</strong> During mergers
+              or acquisitions.
+            </li>
+          </ul>
 
-      <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-2">6. Promotional and transactional communications</h2>
-        <p>
-          You may opt-out of promotional communications at any time. However, transactional communications related to your account and activity are mandatory.
-        </p>
-      </section>
+          {/* Cookies and Tracking */}
+          <h3 className="text-2xl font-semibold text-purple-400 mt-8 mb-4">
+            4. Cookies and Tracking Technologies
+          </h3>
+          <p className="text-gray-300 mb-6">
+            We use cookies to enhance functionality, track usage, and measure
+            marketing campaign effectiveness. You can manage your cookie
+            preferences through your browser settings.
+          </p>
 
-      <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-2">7. Disclosure and transfers of personal information</h2>
-        <p>
-          We may disclose personal information to service providers, legal entities, or during business transactions. Your data may be transferred internationally, subject to applicable laws.
-        </p>
-      </section>
+          {/* User Rights */}
+          <h3 className="text-2xl font-semibold text-purple-400 mt-8 mb-4">
+            7. Your Rights and Choices
+          </h3>
+          <ul className="list-disc ml-6 text-gray-300 space-y-2">
+            <li>
+              <strong>Access and Update:</strong> Request access to or updates
+              of your personal information.
+            </li>
+            <li>
+              <strong>Delete:</strong> Request deletion of your personal
+              information, subject to legal requirements.
+            </li>
+            <li>
+              <strong>Opt-Out:</strong> Unsubscribe from marketing
+              communications.
+            </li>
+          </ul>
 
-      <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-2">8. Aggregated data</h2>
-        <p>
-          Non-personal, aggregated data may be shared for analysis or marketing purposes.
-        </p>
-      </section>
-
-      <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-2">9. Retention of personal information</h2>
-        <p>
-          We retain personal information for as long as necessary for the purposes described in this policy or as required by law.
-        </p>
-      </section>
-
-      <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-2">10. Security and protection of personal information</h2>
-        <p>
-          We use industry-standard measures to safeguard your personal information. However, no method of transmission or storage is 100% secure.
-        </p>
-      </section>
-
-      <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-2">11. Your rights related to your personal information</h2>
-        <p>
-          Depending on your jurisdiction, you may have rights such as accessing, correcting, or deleting your personal data. Contact us to exercise your rights.
-        </p>
-      </section>
-
-      <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-2">12. Consent; withdrawal of consent</h2>
-        <p>
-          You can withdraw consent to data processing by contacting us. Note that this may affect the availability of our Services.
-        </p>
-      </section>
-
-      <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-2">13. Links to third-party resources</h2>
-        <p>
-          Our Services may contain links to external sites. We are not responsible for their privacy practices and encourage you to review their policies.
-        </p>
-      </section>
-
-      <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-2">14. Cookies</h2>
-        <p>
-          Please refer to our Cookie Policy for more information on the cookies and tracking technologies we use.
-        </p>
-      </section>
-
-      <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-2">15. Changes to this Privacy Policy</h2>
-        <p>
-          We may update this Privacy Policy from time to time. Changes will be posted on this page, and significant updates may be communicated to you directly.
-        </p>
-      </section>
-
-      <section>
-        <h2 className="text-2xl font-semibold mb-2">16. Contact information</h2>
-        <p>
-          If you have any questions about this Privacy Policy, please contact us at privacy@[yourdomain].com.
-        </p>
-      </section>
-    </div>
+          {/* Contact Information
+          <h3 className="text-2xl font-semibold text-purple-400 mt-8 mb-4">
+            12. Contact Us
+          </h3>
+          <p className="text-gray-300">
+            If you have any questions, contact us at:
+          </p>
+          <p className="text-gray-300">
+            <strong>Telegram:</strong> [Insert Email Address]
+          </p>
+          <p className="text-gray-300">
+            <strong>Address:</strong> [Insert Physical Address]
+          </p> */}
+        </div>
+      </div>
+    </section>
   );
-};
-
-export default PrivacyPolicyPage;
+}
