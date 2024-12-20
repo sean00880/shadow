@@ -23,7 +23,7 @@ const posts = [
     title: "GameFi's Role in the MSI Ecosystem",
     href: '/blog/gamefi-role',
     description: 'Explore how GameFi enhances user engagement and contributes to our growth...',
-    previewImage: '/images/ML6.png',
+    previewImage: '/images/gamefinew.webp',
   },
   // Add more blog posts with preview images here
 ];
@@ -35,7 +35,7 @@ const HomePage: React.FC = () => {
   const images = [
     '/images/ML4.png',
     '/images/ML5.png',
-    '/images/ML6.png',
+    '/images/gamefinew.webp',
     '/images/ML8.png',
     '/images/ML7.png',
   ];
