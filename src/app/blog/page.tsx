@@ -1,7 +1,7 @@
 export default function BlogPage() {
   const posts = [
-    { title: 'How MemeLinked Integrates DeFi and Social Networking', href: '/blog/defi-social-networking' },
-    { title: 'GameFi’s Role in the MemeLinked Ecosystem', href: '/blog/gamefi-role' },
+    { title: 'How MSI Integrates DeFi and Social Networking', href: '/blog/defi-social-networking' },
+    { title: 'GameFi’s Role in the MSI Ecosystem', href: '/blog/gamefi-role' },
     { title: 'The Future of Meme-Driven Finance', href: '/blog/meme-finance-future' },
   ];
 
@@ -16,7 +16,7 @@ export default function BlogPage() {
           <div key={index} className="blog-post p-4 bg-gray-800 text-white rounded-lg shadow-md">
             <h2 className="text-2xl font-semibold mb-2">{post.title}</h2>
             <p className="text-gray-300">
-              Dive into this article to explore how {post.title} influences the MemeLinked ecosystem. Discover the key
+              Dive into this article to explore how {post.title} influences the MSI ecosystem. Discover the key
               aspects, benefits, and opportunities that this topic offers within the world of decentralized finance.
             </p>
             <a

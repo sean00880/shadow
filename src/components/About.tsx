@@ -17,7 +17,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ images }) => {
     {
       title: "The Monkey Who Refused to Quit",
       content:
-        "After GemPad's breach cost us $400,000, Monkey Sol Inu stood tall. Failure wasn’t an option. The community rebuilt stronger, proving that resilience is part of our DNA.",
+        "After GemPad's breach cost us over $450,000, Monkey Sol Inu stood tall. Failure wasn’t an option. The community rebuilt stronger, proving that resilience is part of our DNA.",
     },
     {
       title: "Banana-Powered Rewards",

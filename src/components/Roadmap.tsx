@@ -22,13 +22,18 @@ const RoadmapSection: React.FC = () => {
     {
       phase: "Phase 4: Centralized Exchanges (CEXs)",
       description:
-        "Expand reach and accessibility by securing listings on major centralized exchanges. CEXs will provide seamless trading, liquidity, and exposure to a broader global audience.",
+        "Expand reach and accessibility by securing listings on centralized exchanges. CEXs will provide seamless trading, liquidity, and exposure to a broader global audience.",
     },
     {
       phase: "Phase 5: TickerTrending.com Revenue Integration",
       description:
         "The integration of TickerTrending.com revenue streams will add a sustainable financial layer to the Monkey Sol Inu ecosystem. A portion of the platform's revenue will be directed to support future developments, community incentives, and overall project growth.",
     },
+    {
+      phase: "Phase 6: DeFi Social Networking Platform",
+      description:
+        "The evolution of the Monkey Sol Inu ecosystem continues with the introduction of a decentralized social networking platform. Designed to foster meaningful interactions, collaborations, and user-generated content, this platform will empower community members to share insights, discover opportunities, and build trusted connections within the DeFi space. By integrating token utilities, governance features, and value-driven engagement strategies, the DeFi social networking platform will enhance user experience, amplify community involvement, and further solidify the MSI ecosystem’s position as a dynamic, innovation-led environment."
+    }
   ];
 
   return (

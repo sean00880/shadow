@@ -6,8 +6,8 @@ import DocumentationLayout from "../components/DocumentationLayout";
 import DocumentationLayout2 from "../components/DocumentationLayout2";
 
 const posts = [
-  { title: "How MemeLinked Integrates DeFi and Social Networking", href: "/blog/defi-social-networking" },
-  { title: "GameFi’s Role in the MemeLinked Ecosystem", href: "/blog/gamefi-role" },
+  { title: "How MSI Integrates DeFi and Social Networking", href: "/blog/defi-social-networking" },
+  { title: "GameFi’s Role in the MSI Ecosystem", href: "/blog/gamefi-role" },
   { title: "The Future of Meme-Driven Finance", href: "/blog/meme-finance-future" },
 ];
 

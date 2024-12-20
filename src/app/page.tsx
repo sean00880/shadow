@@ -14,13 +14,13 @@ import Resources from '@components/Resources';
 
 const posts = [
   {
-    title: 'How MemeLinked Integrates DeFi and Social Networking',
+    title: 'How MSI Integrates DeFi and Social Networking',
     href: '/blog/defi-social-networking',
     description: 'Understand the unique approach that blends DeFi and social interactions...',
     previewImage: '/images/ML7.png',
   },
   {
-    title: "GameFi's Role in the MemeLinked Ecosystem",
+    title: "GameFi's Role in the MSI Ecosystem",
     href: '/blog/gamefi-role',
     description: 'Explore how GameFi enhances user engagement and contributes to our growth...',
     previewImage: '/images/ML6.png',
