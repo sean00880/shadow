@@ -1,9 +1,10 @@
 export default function BlogPage() {
   const posts = [
-    { title: 'How MSI Integrates DeFi and Social Networking', href: '/blog/defi-social-networking' },
+    { title: 'How Monkey Sol Inu Reshapes Meme Utility', href: '/blog/meme-utility' },
     { title: 'GameFi’s Role in the MSI Ecosystem', href: '/blog/gamefi-role' },
     { title: 'The Future of Meme-Driven Finance', href: '/blog/meme-finance-future' },
   ];
+
 
   return (
     <section className="flex flex-col md:pl-10 lg:ml-[25%]">
