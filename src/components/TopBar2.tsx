@@ -28,7 +28,7 @@ export default function TopBar() {
 
       {/* Centered Logo Container */}
       <div className="flex-1 md:flex-none flex justify-center items-center">
-        <Link href="#">
+        <Link href="https://monkeysolinu.com">
           <Image
             src="/images/LOGODARK.png"
             alt="Logo"
