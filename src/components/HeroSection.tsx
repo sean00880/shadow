@@ -50,7 +50,7 @@ const HeroSection: React.FC = () => {
           {/* Contract Address with Rotating Glow */}
           <div className="relative flex items-center justify-center">
             <div className="relative bg-white text-black px-6 py-3 rounded-md font-bold shadow-lg z-10">
-              <span className="font-mono">m0nkeyS0L1Nuca</span>
+              <span className="font-mono">E3SPN9aQjT6yeCsQou5wKb5iaG68CbUE8ZnBaFBpump</span>
             </div>
             {/* Glowing Rotating Ring */}
             <div
