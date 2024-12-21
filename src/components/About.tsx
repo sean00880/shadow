@@ -2,162 +2,121 @@
 import React, { useState } from "react";
 import Image from "next/image";
 
+interface Feature {
+  title: string;
+  shortText: string;
+  expandedText: string;
+  image: string;
+}
+
 interface AboutSectionProps {
+  features: Feature[];
   images: string[];
 }
 
-const AboutSection: React.FC<AboutSectionProps> = ({ images }) => {
+const AboutSection: React.FC<AboutSectionProps> = ({ features, images }) => {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const [selectedImage, setSelectedImage] = useState(images[0] || "/images/default_logo.png");
 
   const toggleExpand = (index: number) => {
     setExpandedIndex(expandedIndex === index ? null : index);
   };
 
-  const topFeatures = [
-    {
-      title: "The Monkey Who Refused to Quit",
-      content:
-        "After GemPad's breach cost us over $450,000, Monkey Sol Inu stood tall. Failure wasn’t an option. The community rebuilt stronger, proving that resilience is part of our DNA.",
-    },
-    {
-      title: "Banana-Powered Rewards",
-      content:
-        "Through meme challenges, contests, and fun events, the Monkey Sol Inu community can earn rewards and unlock new opportunities—bananas and tokens alike!",
-    },
-    {
-      title: "Meme Culture Meets Utility",
-      content:
-        "It’s not just about laughs. Monkey Sol Inu integrates real DeFi tools with viral meme energy, building a platform where community and utility thrive.",
-    },
-  ];
-
-  const bottomFeatures = [
-    {
-      title: "Community Resilience",
-      content:
-        "When others give up, the Monkey Sol Inu community climbs higher. We faced challenges head-on and emerged even stronger.",
-    },
-    {
-      title: "Utility Beyond Memes",
-      content:
-        "Monkey Sol Inu is more than a token—it’s a revolution. We’re creating mini-games, earning tools, and interactive utilities for long-term growth.",
-    },
-    {
-      title: "The Climb Continues",
-      content:
-        "We’re unstoppable. Monkey Sol Inu continues to build, evolve, and climb the blockchain jungle with fearless determination.",
-    },
-  ];
+  const handleImageClick = (image: string) => {
+    setSelectedImage(image);
+  };
 
   return (
-    <section id="about" className="py-16 px-4 md:px-8 bg-black text-white relative ">
-      <div className="bg-[url('/images/monkeybg.png')] bg-cover bg-fixed bg-center">
-      <div className="absolute inset-0 animate-pulse bg-gradient-to-b from-purple-700 via-green-600 opacity-[10%] to-black blur-2xl"></div>
+    <section
+      className="about-section bg-gradient-to-b from-black via-[#1a1a1a] to-black text-white py-16 px-6 lg:px-12 relative"
+      id="about"
+    >
+      {/* Background Glow */}
+      <div className="absolute inset-0 bg-gradient-to-b from-red-600 via-black to-black opacity-80"></div>
 
-      <div className="max-w-6xl mx-auto relative z-10 ">
-        {/* Top Section */}
-        <h2 className="text-4xl font-bold mb-8 text-center text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-purple-500">
-          What is Monkey Sol Inu?
+      <div className="max-w-7xl mx-auto relative z-10">
+        {/* Section Title */}
+        <h2 className="text-4xl mb-12 text-center text-transparent w-full bg-clip-text bg-gradient-to-r from-red-500 to-white">
+          About $SHADOW
         </h2>
-<div className="flex flex-col md:flex-row">
-        <div className="grid grid-cols-1 gap-6 ">
-          {topFeatures.map((feature, index) => (
+
+        {/* Features Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {features.map((feature, index) => (
             <div
               key={index}
+              className={`relative bg-black/50 backdrop-blur-md p-6 rounded-xl shadow-lg hover:shadow-[0_0_20px_rgba(255,0,0,0.8)] cursor-pointer ${
+                expandedIndex === index ? "border border-red-500" : ""
+              }`}
               onClick={() => toggleExpand(index)}
-              className="feature-card p-4 bg-black/80 border border-purple-500 rounded-lg shadow-lg hover:shadow-[0_0_15px_rgba(0,255,135,0.7)] transform hover:scale-105 transition-transform cursor-pointer relative"
             >
-              {/* Toggle Button */}
+              {/* Feature Image */}
+              <div className="w-full h-40 mb-4 relative">
+                <Image
+                  src={feature.image}
+                  alt={feature.title}
+                  layout="fill"
+                  objectFit="contain"
+                  className="rounded-md"
+                />
+              </div>
+
+              {/* Title */}
+              <h3 className="text-xl font-semibold text-red-400 mb-2">{feature.title}</h3>
+
+              {/* Short and Expanded Text */}
               <div
-                className={`absolute -top-4 -right-4 w-8 h-8 flex items-center justify-center rounded-full bg-purple-500 text-white transition-transform duration-300 ${
+                className="text-sm text-gray-300 transition-all duration-300"
+                style={{
+                  maxHeight: expandedIndex === index ? "200px" : "50px", // Control the height for smooth expansion
+                  overflow: "hidden",
+                }}
+              >
+                <p>{expandedIndex === index ? feature.expandedText : feature.shortText}</p>
+              </div>
+
+              {/* Placeholder for consistent height */}
+              <div className="transition-all duration-300" style={{ height: expandedIndex === index ? "auto" : "0" }}></div>
+
+              {/* Rotating Button Indicator */}
+              <div
+                className={`absolute -top-4 -right-4 w-8 h-8 flex items-center justify-center rounded-full bg-red-500 text-black transition-transform duration-300 ${
                   expandedIndex === index ? "rotate-45" : "rotate-0"
                 }`}
               >
-                {expandedIndex === index ? "X" : "+"}
-              </div>
-
-              {/* Title */}
-              <h3 className="text-xl font-semibold text-green-400 mb-2">
-                {feature.title}
-              </h3>
-
-              {/* Content */}
-              <div
-                className={`text-sm text-gray-300 transition-all duration-500 overflow-hidden ${
-                  expandedIndex === index ? "max-h-96" : "max-h-0"
-                }`}
-              >
-                <p className="pt-2">{feature.content}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-       
-        {/* Top Visual */}
-        <div className="mt-8 flex justify-center">
-          <Image
-            src="/images/monkeyson.jpg"
-            alt="Monkey Sol Inu"
-            width={400}
-            height={300}
-            className="rounded-lg shadow-[0_0_20px_rgba(138,43,226,0.8)] hover:scale-105 transition-transform"
-          />
-        </div>
-</div>
-        {/* Bottom Section */}
-        <h2 className="text-4xl font-bold mt-16 mb-8 text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-green-400">
-          Why Monkey Sol Inu?
-        </h2>
-          <div className="flex flex-col md:flex-row-reverse">
-        <div className="grid grid-cols-1 gap-6">
-          {bottomFeatures.map((feature, index) => (
-            <div
-              key={index + topFeatures.length}
-              onClick={() => toggleExpand(index + topFeatures.length)}
-              className="feature-card p-4 bg-black/80 border border-green-500 rounded-lg shadow-lg hover:shadow-[0_0_15px_rgba(138,43,226,0.8)] transform hover:scale-105 transition-transform cursor-pointer relative"
-            >
-              {/* Toggle Button */}
-              <div
-                className={`absolute -top-4 -right-4 w-8 h-8 flex items-center justify-center rounded-full bg-green-500 text-white transition-transform duration-300 ${
-                  expandedIndex === index + topFeatures.length
-                    ? "rotate-45"
-                    : "rotate-0"
-                }`}
-              >
-                {expandedIndex === index + topFeatures.length ? "X" : "+"}
-              </div>
-
-              {/* Title */}
-              <h3 className="text-xl font-semibold text-purple-400 mb-2">
-                {feature.title}
-              </h3>
-
-              {/* Content */}
-              <div
-                className={`text-sm text-gray-300 transition-all duration-500 overflow-hidden ${
-                  expandedIndex === index + topFeatures.length
-                    ? "max-h-96"
-                    : "max-h-0"
-                }`}
-              >
-                <p className="pt-2">{feature.content}</p>
+                {expandedIndex === index ? "−" : "+"}
               </div>
             </div>
           ))}
         </div>
 
-        {/* Bottom Visual */}
-        <div className="mt-8 flex justify-center">
-          <Image
-            src="/images/1000x.png"
-            alt="Why Monkey Sol Inu"
-            width={400}
-            height={300}
-            className="rounded-lg hover:scale-105 transition-transform"
-          />
+        {/* Image Gallery */}
+        <div className="mt-16">
+          <h3 className="text-3xl text-center text-red-400 mb-6">Gallery of Memes</h3>
+          <div className="carousel-container flex flex-col items-center">
+            <Image
+              src={selectedImage}
+              alt="Selected Meme"
+              width={400}
+              height={400}
+              className="w-full rounded-lg border border-red-500"
+            />
+            <div className="gallery mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+              {images.map((image, index) => (
+                <div key={index} className="relative">
+                  <Image
+                    src={image}
+                    alt={`Gallery Item ${index + 1}`}
+                    className="w-full h-auto cursor-pointer rounded-lg hover:border-2 hover:border-red-500"
+                    width={150}
+                    height={150}
+                    onClick={() => handleImageClick(image)}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-        </div>
-      </div>
       </div>
     </section>
   );

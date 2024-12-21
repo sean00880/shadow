@@ -1,8 +1,8 @@
 export default function BlogPage() {
   const posts = [
-    { title: 'How Monkey Sol Inu Reshapes Meme Utility', href: '/blog/meme-utility' },
+    { title: 'How Shadow the Hedgehog Reshapes Meme Utility', href: '/blog/meme-utility' },
     { title: 'GameFi’s Role in the MSI Ecosystem', href: '/blog/gamefi-role' },
-    { title: 'The Resilience of Monkey Sol Inu', href: '/blog/community-resilience' },
+    { title: 'The Resilience of Shadow the Hedgehog', href: '/blog/community-resilience' },
   ];
 
 

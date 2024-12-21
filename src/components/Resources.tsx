@@ -8,21 +8,21 @@ const ResourcesSection: React.FC = () => {
 
   const posts = [
     {
-      title: "How Monkey Sol Inu Reshapes Meme Utility",
+      title: "How Shadow the Hedgehog Reshapes Meme Utility",
       href: "/blog/meme-utility",
       description:
-        "Explore how Monkey Sol Inu combines meme culture with real utility, driving innovation in the crypto space.",
+        "Explore how Shadow the Hedgehog combines meme culture with real utility, driving innovation in the crypto space.",
       previewImage: "/images/utility.webp",
     },
     {
       title: "The Role of GameFi in the MSI Ecosystem",
       href: "/blog/gamefi-role",
       description:
-        "Discover how Monkey Sol Inu introduces fun and rewarding GameFi elements to keep the community engaged.",
+        "Discover how Shadow the Hedgehog introduces fun and rewarding GameFi elements to keep the community engaged.",
       previewImage: "/images/gamefinew.webp",
     },
     {
-      title: "The Resilience of Monkey Sol Inu",
+      title: "The Resilience of Shadow the Hedgehog",
       href: "/blog/community-resilience",
       description:
         "Learn how the community bounced back stronger than ever after the GemPad incident.",
@@ -74,11 +74,11 @@ const ResourcesSection: React.FC = () => {
           {activeTab === "blog" ? (
             <div>
               <h3 className="text-2xl font-semibold text-green-400 mb-4">
-                Explore the Latest from Monkey Sol Inu
+                Explore the Latest from Shadow the Hedgehog
               </h3>
               <p className="text-gray-300 mb-6">
                 Stay updated with the latest developments, insights, and stories
-                from the Monkey Sol Inu ecosystem.
+                from the Shadow the Hedgehog ecosystem.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {posts.map((post, index) => (
@@ -112,15 +112,15 @@ const ResourcesSection: React.FC = () => {
               </h3>
               <p className="text-gray-300 mb-6">
                 Access guides, technical details, and essential resources to
-                fully leverage the Monkey Sol Inu ecosystem.
+                fully leverage the Shadow the Hedgehog ecosystem.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="p-4 bg-black/80 border border-green-500 rounded-lg shadow-lg">
                   <h4 className="text-xl font-semibold italic text-purple-400 mb-2">
-                    Monkey Sol Inu Ecosystem Overview
+                    Shadow the Hedgehog Ecosystem Overview
                   </h4>
                   <p className="text-gray-300">
-                    Learn about the utilities, vision, and growth plans of Monkey Sol Inu.
+                    Learn about the utilities, vision, and growth plans of Shadow the Hedgehog.
                   </p>
                   <Link
                     href="/docs/overview"
@@ -134,7 +134,7 @@ const ResourcesSection: React.FC = () => {
                     Security Best Practices
                   </h4>
                   <p className="text-gray-300">
-                    Understand how to interact securely with the Monkey Sol Inu ecosystem.
+                    Understand how to interact securely with the Shadow the Hedgehog ecosystem.
                   </p>
                   <Link
                     href="/docs/security-best-practices"

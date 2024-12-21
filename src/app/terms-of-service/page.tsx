@@ -20,11 +20,11 @@ export default function TermsOfService() {
         {/* Terms of Service Content */}
         <div className="p-6 bg-black/70 border border-green-500 rounded-lg shadow-lg backdrop-blur-lg">
           <h2 className="text-3xl font-semibold text-green-400 mb-4">
-            Terms of Service for Monkey Sol Inu
+            Terms of Service for Shadow the Hedgehog
           </h2>
           <p className="text-gray-300 mb-6">
             These Terms of Service (“Terms”) govern your access to and use of
-            the Monkey Sol Inu (“MSI”) platform, including our website,
+            the Shadow the Hedgehog (“MSI”) platform, including our website,
             services, and digital properties (collectively, the “Platform”).
             Please read these Terms carefully before using the Platform. By
             accessing or using the Platform, you agree to these Terms. If you
@@ -79,11 +79,11 @@ export default function TermsOfService() {
             <li>
               <strong>3.1. Ownership:</strong> All content on the Platform,
               including text, images, graphics, and code, is the property of
-              Monkey Sol Inu or its licensors. You may not reproduce,
+              Shadow the Hedgehog or its licensors. You may not reproduce,
               distribute, or use this content without permission.
             </li>
             <li>
-              <strong>3.2. Trademarks:</strong> Monkey Sol Inu logos, names, and
+              <strong>3.2. Trademarks:</strong> Shadow the Hedgehog logos, names, and
               trademarks are protected by intellectual property laws. Unauthorized
               use is prohibited.
             </li>
@@ -94,7 +94,7 @@ export default function TermsOfService() {
             4. Transactions
           </h3>
           <p className="text-gray-300 mb-4">
-            Transactions made within the Monkey Sol Inu ecosystem are conducted
+            Transactions made within the Shadow the Hedgehog ecosystem are conducted
             using blockchain technology. All transactions are final and cannot
             be reversed. By participating in transactions, you acknowledge the
             risks associated with blockchain technology, including potential
@@ -124,7 +124,7 @@ export default function TermsOfService() {
             6. Limitation of Liability
           </h3>
           <p className="text-gray-300 mb-4">
-            Monkey Sol Inu is not liable for any direct, indirect, incidental,
+            Shadow the Hedgehog is not liable for any direct, indirect, incidental,
             consequential, or special damages arising from your use of the
             Platform, including but not limited to loss of tokens, data, or
             profits.

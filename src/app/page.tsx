@@ -1,69 +1,70 @@
 "use client";
 // src/app/page.tsx
-import React, { useState } from 'react';
-import Image from 'next/image';
-import LandingLayout from '../components/LandingLayout';
-import Link from 'next/link';
-import Footer from '../components/Footer';
-import AboutSection from '../components/About';
-import HeroSection from '@components/HeroSection';
-import Utility from '@components/Utility';
-import Tokenomics from '@components/Tokenomics';
-import Roadmap from '@components/Roadmap';
-import Resources from '@components/Resources';
+import React, { useState } from "react";
+import Image from "next/image";
+import LandingLayout from "../components/LandingLayout";
+import Link from "next/link";
+import Footer from "../components/Footer";
+import AboutSection from "../components/About";
+import HeroSection from "@components/HeroSection";
+import Utility from "@components/Utility";
+import Tokenomics from "@components/Tokenomics";
+import Roadmap from "@components/Roadmap";
+import Resources from "@components/Resources";
 
-const posts = [
+const features = [
   {
-    title: 'How MSI Integrates DeFi and Social Networking',
-    href: '/blog/defi-social-networking',
-    description: 'Understand the unique approach that blends DeFi and social interactions...',
-    previewImage: '/images/ML7.png',
+    title: "The Ultimate Lifeform",
+    shortText: "Shadow the Hedgehog leads the Sonic Chain with unmatched power.",
+    expandedText:
+      "Designed as the ultimate lifeform, Shadow the Hedgehog brings unparalleled strength and resilience to the Sonic Chain. His legacy as a symbol of determination inspires innovation and progress in decentralized technology.",
+    image: "/images/shadow1.jpg",
   },
   {
-    title: "GameFi's Role in the MSI Ecosystem",
-    href: '/blog/gamefi-role',
-    description: 'Explore how GameFi enhances user engagement and contributes to our growth...',
-    previewImage: '/images/gamefinew.webp',
+    title: "Chaos Energy 'Utility' Development",
+    shortText: "Harness the power of Chaos Energy on the Sonic Chain.",
+    expandedText:
+      "The Sonic Chain leverages the essence of Chaos Energy, enabling groundbreaking capabilities in blockchain technology. With Shadow as its core, the chain blends speed, security, and scalability for seamless DeFi and GameFi applications.",
+    image: "/images/chaos.webp",
   },
-  // Add more blog posts with preview images here
+  {
+    title: "A Community of Strength",
+    shortText: "Unite under Shadow’s banner for a stronger blockchain ecosystem.",
+    expandedText:
+      "The Sonic Chain thrives on the collective strength of its community. Shadow’s leadership inspires collaboration, fostering a space where users, developers, and enthusiasts come together to push the boundaries of decentralized innovation.",
+    image: "/images/community.png",
+  },
 ];
 
+
 const HomePage: React.FC = () => {
-  
-
-  const [activeTab, setActiveTab] = useState('blog'); // This is for the Blog/Documentation section
+  const [activeTab, setActiveTab] = useState("blog"); // This is for the Blog/Documentation section
   const images = [
-    '/images/ML4.png',
-    '/images/ML5.png',
-    '/images/gamefinew.webp',
-    '/images/ML8.png',
-    '/images/ML7.png',
+    "/images/meme1.webp",
+    "/images/meme2.jpg",
+    "/images/meme3.webp",
+    "/images/meme4.jpeg",
+    "/images/meme5.jpeg",
   ];
-
-
 
   return (
     <LandingLayout>
       {/* Hero Section */}
-      <HeroSection/>
+      <HeroSection />
 
       {/* About Section */}
-      <AboutSection images={images} />
-       {/* Whitepaper Section */}
-     <Utility/> 
-  
-{/* Tokenomics Section */}
-<Tokenomics/>
+      <AboutSection features={features} images={images} />
+
+      {/* Utility Section */}
+      <Utility />
+
+      {/* Tokenomics Section */}
+      <Tokenomics />
 
       {/* Roadmap Section */}
-     <Roadmap/>
+      <Roadmap />
 
-      {/* Call-to-Action */}
-
-      <Resources/>
-    
-  <Footer/>
-  
+      <Footer />
     </LandingLayout>
   );
 };

@@ -18,9 +18,9 @@ const geistMono = localFont({
 });
 
 const posts = [
-  { title: "How Monkey Sol Inu Reshapes Meme Utility", href: "/blog/meme-utility" },
+  { title: "How Shadow the Hedgehog Reshapes Meme Utility", href: "/blog/meme-utility" },
   { title: "GameFi’s Role in the MSI Ecosystem", href: "/blog/gamefi-role" },
-  { title: "The Resilience of Monkey Sol Inu", href: "/blog/community-resilience" },
+  { title: "The Resilience of Shadow the Hedgehog", href: "/blog/community-resilience" },
 ];
 
 interface RootLayoutProps {
@@ -36,17 +36,17 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       <head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Monkey Sol Inu - The Future of Meme and DeFi</title>
-        <meta name="description" content="Discover Monkey Sol Inu, the revolutionary DeFi meme project driving innovation in crypto and community engagement." />
-        <meta name="keywords" content="Monkey Sol Inu, DeFi, meme coin, crypto innovation, community-driven crypto" />
-        <meta name="author" content="Monkey Sol Inu Team" />
-        <meta property="og:title" content="Monkey Sol Inu - The Future of Meme and DeFi" />
-        <meta property="og:description" content="Discover Monkey Sol Inu, the revolutionary DeFi meme project driving innovation in crypto and community engagement." />
+        <title>Shadow the Hedgehog - $SHADOW on Sonic Chain</title>
+        <meta name="description" content="Discover Shadow the Hedgehog, the revolutionary DeFi meme project driving innovation in crypto and community engagement." />
+        <meta name="keywords" content="Shadow the Hedgehog, DeFi, meme coin, crypto innovation, community-driven crypto" />
+        <meta name="author" content="Shadow the Hedgehog Team" />
+        <meta property="og:title" content="Shadow the Hedgehog - $SHADOW on Sonic Chain" />
+        <meta property="og:description" content="Discover Shadow the Hedgehog, the revolutionary DeFi meme project driving innovation in crypto and community engagement." />
         <meta property="og:image" content="/images/MSIonSOL.png" />
         <meta property="og:url" content="https://monkeysolinu.com" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Monkey Sol Inu - The Future of Meme and DeFi" />
-        <meta name="twitter:description" content="Discover Monkey Sol Inu, the revolutionary DeFi meme project driving innovation in crypto and community engagement." />
+        <meta name="twitter:title" content="Shadow the Hedgehog - $SHADOW on Sonic Chain" />
+        <meta name="twitter:description" content="Discover Shadow the Hedgehog, the revolutionary DeFi meme project driving innovation in crypto and community engagement." />
         <meta name="twitter:image" content="/images/MSIonSOL.png" />
       </head>
       <body

@@ -5,7 +5,7 @@ import Image from "next/image";
 
 const posts = [
   {
-    title: "How Monkey Sol Inu Reshapes Meme Utility",
+    title: "How Shadow the Hedgehog Reshapes Meme Utility",
     href: "meme-utility",
     content: (
       <>
@@ -18,11 +18,11 @@ const posts = [
             className="rounded-lg shadow-lg transform hover:scale-105 my-10 transition-transform duration-500"
           />
           <h1 className="text-5xl font-extrabold mb-4 text-white text-center">
-            How Monkey Sol Inu Reshapes Meme Utility
+            How Shadow the Hedgehog Reshapes Meme Utility
           </h1>
           <div className="w-full h-[2px] bg-green-400 mb-6"></div>
           <p className="text-lg mb-6 text-gray-200 text-center">
-            Explore how Monkey Sol Inu blends meme culture with real-world
+            Explore how Shadow the Hedgehog blends meme culture with real-world
             utility, pushing the boundaries of what a meme token can achieve in
             the blockchain space.
           </p>
@@ -37,7 +37,7 @@ const posts = [
             </li>
             <li>
               <strong>Community Support:</strong> Memes, rewards, and engagement
-              fuel the growth of the Monkey Sol Inu token.
+              fuel the growth of the Shadow the Hedgehog token.
             </li>
             <li>
               <strong>Creative Initiatives:</strong> Viral campaigns that bring
@@ -55,7 +55,7 @@ const posts = [
 
           <p className="text-lg text-gray-200 mt-6">
             By combining viral meme energy with tangible blockchain utilities,
-            Monkey Sol Inu is reshaping the perception of meme coins. This is a
+            Shadow the Hedgehog is reshaping the perception of meme coins. This is a
             token built to entertain and deliver real value.
           </p>
         </div>
@@ -80,7 +80,7 @@ const posts = [
           </h1>
           <div className="w-full h-[2px] bg-purple-400 mb-6"></div>
           <p className="text-lg mb-6 text-gray-200 text-center">
-            Monkey Sol Inu introduces GameFi elements to enhance engagement,
+            Shadow the Hedgehog introduces GameFi elements to enhance engagement,
             offering fun, interactive mini-games with tangible rewards for
             community members.
           </p>
@@ -112,7 +112,7 @@ const posts = [
           />
 
           <p className="text-lg text-gray-200 mt-6">
-            GameFi within Monkey Sol Inu is about creating an experience where
+            GameFi within Shadow the Hedgehog is about creating an experience where
             users can play, earn, and engage—all while contributing to the
             growth of the ecosystem. This isn't just gaming—it's GameFi with
             purpose.
@@ -122,7 +122,7 @@ const posts = [
     ),
   },
   {
-    title: "The Resilience of Monkey Sol Inu",
+    title: "The Resilience of Shadow the Hedgehog",
     href: "community-resilience",
     content: (
       <>
@@ -135,11 +135,11 @@ const posts = [
             className="rounded-lg shadow-lg transform hover:scale-105 my-10 transition-transform duration-500"
           />
           <h1 className="text-5xl font-extrabold mb-4 text-white text-center">
-            The Resilience of Monkey Sol Inu
+            The Resilience of Shadow the Hedgehog
           </h1>
           <div className="w-full h-[2px] bg-green-400 mb-6"></div>
           <p className="text-lg mb-6 text-gray-200 text-center">
-            Despite the challenges, the Monkey Sol Inu community proved its
+            Despite the challenges, the Shadow the Hedgehog community proved its
             strength and determination by bouncing back stronger after the
             GemPad incident.
           </p>
@@ -157,7 +157,7 @@ const posts = [
               introducing new utilities and features.
             </li>
             <li>
-              <strong>Looking Forward:</strong> Monkey Sol Inu remains focused
+              <strong>Looking Forward:</strong> Shadow the Hedgehog remains focused
               on delivering long-term value and innovation.
             </li>
           </ul>

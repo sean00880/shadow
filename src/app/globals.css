@@ -70,12 +70,12 @@ select, textarea{
 
 
 @font-face{
-  font-family: 'Newton';
-  src: url('/fonts/Newton.otf');
+  font-family: 'Rushblade';
+  src: url('/fonts/Rushblade.ttf');
   font-weight: normal;
 }
 h1, h2 {
-  font-family: 'Newton', sans-serif;
+  font-family: 'Rushblade', sans-serif;
   color: #ffffff;
   position: relative;
   display: inline-block;

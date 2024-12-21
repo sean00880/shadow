@@ -5,20 +5,20 @@ import Image from "next/image";
 
 const docs = [
   {
-    title: "Monkey Sol Inu Ecosystem Overview",
+    title: "Shadow the Hedgehog Ecosystem Overview",
     href: "ecosystem-overview",
     content: (
       <>
         <div className="lg:ml-[26%] mt-[10vh] flex flex-col items-center p-6 bg-black/70 rounded-xl shadow-lg backdrop-blur-lg transition-transform hover:shadow-[0_0_20px_rgba(0,255,135,0.8)]">
           <Image
             src="/images/ecosystem-overview.png"
-            alt="Monkey Sol Inu Ecosystem Overview"
+            alt="Shadow the Hedgehog Ecosystem Overview"
             width={1000}
             height={400}
             className="rounded-lg shadow-lg transform hover:scale-105 my-10 transition-transform duration-500"
           />
           <h1 className="text-5xl font-extrabold mb-4 text-green-400 text-center">
-            Monkey Sol Inu Ecosystem Overview
+            Shadow the Hedgehog Ecosystem Overview
           </h1>
           <div className="w-full h-[2px] bg-green-500 mb-6"></div>
           <p className="text-lg text-gray-300 mb-6 text-center">
@@ -83,7 +83,7 @@ const docs = [
             </li>
             <li>
               <strong>Support for Ecosystem:</strong> Contributions help fund
-              Monkey Sol Inu’s growth.
+              Shadow the Hedgehog’s growth.
             </li>
           </ul>
         </div>
@@ -91,7 +91,7 @@ const docs = [
     ),
   },
   {
-    title: "Security Best Practices in Monkey Sol Inu",
+    title: "Security Best Practices in Shadow the Hedgehog",
     href: "security-best-practices",
     content: (
       <>
@@ -104,11 +104,11 @@ const docs = [
             className="rounded-lg shadow-lg transform hover:scale-105 my-10 transition-transform duration-500"
           />
           <h1 className="text-5xl font-extrabold mb-4 text-white text-center">
-            Security Best Practices in Monkey Sol Inu
+            Security Best Practices in Shadow the Hedgehog
           </h1>
           <div className="w-full h-[2px] bg-green-500 mb-6"></div>
           <p className="text-lg text-gray-300 mb-6 text-center">
-            Learn how to stay secure while interacting with the Monkey Sol Inu
+            Learn how to stay secure while interacting with the Shadow the Hedgehog
             ecosystem. Protect your tokens and transactions with these best
             practices.
           </p>

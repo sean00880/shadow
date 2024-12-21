@@ -5,15 +5,15 @@ import Link from "next/link";
 export default function DocumentationPage() {
   const docs = [
     {
-      title: "Monkey Sol Inu Ecosystem Overview",
+      title: "Shadow the Hedgehog Ecosystem Overview",
       description:
-        "Learn about the utilities, vision, and growth plans of Monkey Sol Inu. Discover how the ecosystem brings value to its community and expands through innovation.",
+        "Learn about the utilities, vision, and growth plans of Shadow the Hedgehog. Discover how the ecosystem brings value to its community and expands through innovation.",
       href: "/docs/overview",
     },
     {
       title: "Security Best Practices",
       description:
-        "Understand how to interact securely with the Monkey Sol Inu ecosystem. Learn tips and practices to keep your tokens and data safe.",
+        "Understand how to interact securely with the Shadow the Hedgehog ecosystem. Learn tips and practices to keep your tokens and data safe.",
       href: "/docs/security-best-practices",
     },
   ];
@@ -30,7 +30,7 @@ export default function DocumentationPage() {
         </h1>
         <p className="text-lg text-gray-300 mb-8 text-center">
           Access guides, technical details, and essential resources to fully
-          leverage the Monkey Sol Inu ecosystem.
+          leverage the Shadow the Hedgehog ecosystem.
         </p>
 
         {/* Documentation Content */}

@@ -1,93 +1,104 @@
-// src/components/Footer.tsx
 "use client";
-import React from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { FaTelegramPlane, FaTwitter } from 'react-icons/fa';
+import React from "react";
+import Image from "next/image";
+import Link from "next/link";
 
 const Footer: React.FC = () => {
   return (
+    <footer className="relative bg-black text-white py-12">
+      {/* Background Glow */}
+      <div className="absolute inset-0 bg-gradient-to-t from-red-700 via-black to-transparent opacity-60 blur-2xl"></div>
 
-    
-    <footer className="bg-black text-white py-12 bottom-0 w-full z-30">
-      <div className="text-center items-center flex flex-col m-8 rounded-lg">
-
-<Image
-  src="/images/MSIonSol.png"
-  alt="Banner Image"
-  className="w-full rounded-lg"
-  width={1500}
-  height={500}
-/>
-</div>
-      <div className="container mx-auto px-4 md:px-8 flex flex-col md:flex-row justify-between items-center">
-        {/* Left Section - Logo and Subtitle */}
-        <div className="mb-8 md:mb-0 flex flex-col items-center">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 flex flex-col items-center space-y-8">
+        {/* Logo and Slogan */}
+        <div className="flex flex-col items-center text-center">
           <Image
-            src="/images/LOGODARK.png" // Replace with your logo path
-            alt="Logo"
+            src="/images/ShadowLogo.png" // Replace with your logo path
+            alt="Shadow Chain Logo"
             width={200}
             height={40}
-            className="mb-2 h-auto w-full"
+            className="mb-4 h-auto"
           />
-          <p className="text-gray-400">Connecting Communities through Memes and DeFi.</p>
+          <p className="text-gray-400 text-lg">
+            Powered by Chaos Energy: Building the Future of Decentralized Innovation.
+          </p>
         </div>
 
-        {/* Center Section - Links */}
-        <div className="flex flex-col md:flex-row justify-between w-full md:w-2/3">
-          {/* Menu Links */}
-          <div className="mb-8 md:mb-0">
-            <h3 className="text-xl font-bold mb-2">Menu</h3>
+        {/* Navigation Links */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 w-full text-center">
+          <div>
+            <h3 className="text-xl font-bold mb-3 text-red-400">Menu</h3>
             <ul>
-              <li className="mb-1 hover:text-green-400">
+              <li className="mb-2 hover:text-white">
                 <Link href="/#home">Home</Link>
               </li>
-              <li className="mb-1 hover:text-green-300">
+              <li className="mb-2 hover:text-white">
                 <Link href="/#about">About</Link>
               </li>
-              <li className="mb-1 hover:text-green-300">
+              <li className="mb-2 hover:text-white">
                 <Link href="/#tokenomics">Tokenomics</Link>
               </li>
-              <li className="mb-1 hover:text-green-300">
+              <li className="mb-2 hover:text-white">
                 <Link href="/#roadmap">Roadmap</Link>
               </li>
-              <li className="mb-1 hover:text-green-300">
+              <li className="mb-2 hover:text-white">
                 <Link href="/#resources">Resources</Link>
               </li>
             </ul>
           </div>
 
-          {/* Legal Links */}
-          <div className="mb-8 md:mb-0">
-            <h3 className="text-xl font-bold mb-2">Legal</h3>
+          <div>
+            <h3 className="text-xl font-bold mb-3 text-red-400">Explore</h3>
             <ul>
-              <li className="mb-1 hover:text-green-300">
-                <Link href="/privacy-policy">Privacy Policy</Link>
+              <li className="mb-2 hover:text-white">
+                <Link href="/whitepaper">Whitepaper</Link>
               </li>
-              <li className="mb-1 hover:text-green-300">
-                <Link href="/terms-of-servce">Terms of Use</Link>
+              <li className="mb-2 hover:text-white">
+                <Link href="/utilities">Utilities</Link>
+              </li>
+              <li className="mb-2 hover:text-white">
+                <Link href="/faq">FAQ</Link>
+              </li>
+              <li className="mb-2 hover:text-white">
+                <Link href="/contact">Contact Us</Link>
               </li>
             </ul>
           </div>
 
-          {/* Social Links */}
           <div>
-            <h3 className="text-xl font-bold mb-2">Connect with Us</h3>
-            <div className="flex space-x-4">
-              <a href="https://t.me/monkeyshitinu" target="_blank" rel="noopener noreferrer" className="hover:text-green-300">
-                <FaTelegramPlane size={24} />
-              </a>
-              <a href="https://x.com/msi_token/" target="_blank" rel="noopener noreferrer" className="hover:text-green-300">
-                <FaTwitter size={24} />
-              </a>
-            </div>
+            <h3 className="text-xl font-bold mb-3 text-red-400">Property of Chaos</h3>
+            <ul>
+              <li className="mb-2 hover:text-white">
+                <Link href="/privacy-policy">Privacy Policy</Link>
+              </li>
+              <li className="mb-2 hover:text-white">
+                <Link href="/terms-of-use">Terms of Use</Link>
+              </li>
+              <li className="mb-2 hover:text-white">
+                <Link href="/legal">Legal Notices</Link>
+              </li>
+              <li className="mb-2 hover:text-white">
+                <Link href="/disclaimer">Disclaimer</Link>
+              </li>
+            </ul>
           </div>
+        </div>
+
+        {/* Featured Image */}
+        <div className="relative w-full max-w-4xl">
+          <Image
+            src="/images/ShadowTheHedgehog.png" // Replace with your banner image
+            alt="Shadow the Hedgehog Banner"
+            width={1500}
+            height={500}
+            className="rounded-lg shadow-lg"
+          />
         </div>
       </div>
 
-      {/* Copyright Bar */}
-      <div className="glass mt-8 text-center text-gray-300 border-t border-green-300 pt-4">
-        &copy; PabloCRO | 2024 | Property of MSI
+      {/* Bottom Bar */}
+      <div className="mt-8 text-center text-gray-400 border-t border-gray-600 pt-4">
+        &copy; 2024 | $SHADOW on the Sonic Chain. All rights reserved.
       </div>
     </footer>
   );

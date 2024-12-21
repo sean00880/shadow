@@ -20,13 +20,13 @@ export default function PrivacyPolicy() {
         {/* Privacy Policy Content */}
         <div className="p-6 bg-black/70 border border-green-500 rounded-lg shadow-lg backdrop-blur-lg">
           <h2 className="text-3xl font-semibold text-green-400 mb-4">
-            Privacy Policy for Monkey Sol Inu (MSI Token Ecosystem)
+            Privacy Policy for Shadow the Hedgehog (MSI Token Ecosystem)
           </h2>
           <p className="text-gray-300 mb-6">
-            Monkey Sol Inu (“we,” “our,” or “us”) is committed to protecting the
+            Shadow the Hedgehog (“we,” “our,” or “us”) is committed to protecting the
             privacy of its users (“users,” “you,” or “your”). This Privacy
             Policy outlines how we collect, use, disclose, and safeguard your
-            information when you interact with the Monkey Sol Inu token
+            information when you interact with the Shadow the Hedgehog token
             ecosystem, including our website, services, and other digital
             properties (collectively, the "Platform").
           </p>
