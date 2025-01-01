@@ -32,8 +32,8 @@ export default function TopBar() {
           <Image
             src="/images/fuckcoinlogo.png"
             alt="Logo"
-            width={240}
-            height={40}
+            width={500}
+            height={100}
             className="glitch-effect"
           />
         </Link>
