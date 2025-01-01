@@ -25,23 +25,13 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Navigation Links */}
-        <div className="grid grid-cols-2 md:grid-cols-2 gap-6 w-full text-center">
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-6 w-full text-center">
           <div>
             <h3 className="text-xl font-bold mb-3 text-green-400">Menu</h3>
-            <ul>
-              <li className="mb-2 hover:text-white">
-                <Link href="/#home">Home</Link>
-              </li>
 
-
-              <li className="mb-2 hover:text-white">
-                <Link href="/#resources">Resources</Link>
-              </li>
-            </ul>
-          </div>
 
           <div>
-            <h3 className="text-xl font-bold mb-3 text-green-400">Explore</h3>
+           
             <ul>
             <li className="mb-2 hover:text-white">
                 <Link href="/#tokenomics">Tokenomics</Link>
@@ -59,6 +49,7 @@ const Footer: React.FC = () => {
       {/* Bottom Bar */}
       <div className="mt-8 text-center text-gray-400 border-t border-gray-600 pt-4">
         &copy; 2025 | $FUCKCOIN on SOL. All rights reserved.
+      </div>
       </div>
     </footer>
   );
