@@ -55,7 +55,7 @@ export default function PrivacyPolicy() {
             </li>
             <li>
               <strong>1.3. Blockchain Data:</strong> Wallet addresses,
-              transaction IDs, and token balances stored on public blockchain
+              transaction IDs, and token balances stogreen on public blockchain
               networks.
             </li>
           </ul>

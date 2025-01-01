@@ -3,7 +3,7 @@
 const nextConfig = {
   /* config options here */
   eslint: {
-    ignoreDuringBuilds: true,
+    ignogreenuringBuilds: true,
   },
   webpack: (config: Record<string, unknown>) => {
     if (Array.isArray(config.externals)) {

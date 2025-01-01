@@ -483,7 +483,7 @@ section{
   --matt-black: #333333;
   /* Accent Colors */
   --yellow-accent: #ffeb78;
-  --red-accent: #ff5555;
+  --green-accent: #ff5555;
 
     /* Background Colors */
     --dark-background: #090909;
@@ -636,7 +636,7 @@ img{
     color: var(--text-secondary-light);
   
 
-  /* Shared theme styles */
+  /* Shagreen theme styles */
   --border-color-light: rgba(0, 0, 0, 0.1);
   --border-color-dark: rgba(255, 255, 255, 0.2);
   --shadow-color-light: rgba(0, 0, 0, 0.2);
@@ -675,8 +675,8 @@ img{
   
   .radio-container input[type="radio"]:checked + span {
     border-color: #00ff59;
-    background-color: red;
-    accent-color: red;
+    background-color: green;
+    accent-color: green;
   }
   .bg-light-background{
     background: white;
@@ -767,8 +767,8 @@ input[type="file"] {
 
 [data-theme="light"] .radio-container input[type="radio"]:checked + span {
   border-color: #00ff59;
-  background-color: red;
-  accent-color: red;
+  background-color: green;
+  accent-color: green;
 }
 
 [data-theme="light"] .bg-light-background {
@@ -1276,3 +1276,31 @@ Img{
   z-index: 10; /* Ensure it stays above other elements */
   background-color: transparent; /* Match the background */
 }
+
+
+@keyframes translateX {
+  0% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(100px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.animation-translate {
+  animation: translateX 1s infinite ease-in-out;
+}
+
+a img {
+  filter: drop-shadow(0 0 5px #00ff00);
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+
+a:hover img {
+  filter: drop-shadow(0 0 15px #00ff00);
+  transform: scale(1.1);
+}
+

@@ -7,11 +7,11 @@ const UtilitySection: React.FC = () => {
   return (
     <section id="utilities" className="py-16 px-4 md:px-8 bg-gradient-to-b from-black via-[#1a1a1a] to-black text-white relative">
       {/* Background Glow */}
-      <div className="absolute inset-0 bg-gradient-to-b from-red-600 via-black to-black opacity-60 blur-2xl animate-pulse"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-green-600 via-black to-black opacity-60 blur-2xl animate-pulse"></div>
 
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Section Title */}
-        <h2 className="text-4xl mb-12 text-center text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-white glitch-text">
+        <h2 className="text-4xl mb-12 text-center text-transparent bg-clip-text bg-gradient-to-r from-green-500 to-white glitch-text">
           Virtual Website Game Emulator
         </h2>
 
@@ -35,21 +35,21 @@ const UtilitySection: React.FC = () => {
           
           {/* Left: Content */}
           <div className="space-y-6 p-6 bg-black/70 rounded-xl backdrop-blur-lg shadow-lg glitch-box">
-            <h3 className="text-3xl font-semibold text-red-400 mb-4 glitch-title">Coming Soon</h3>
+            <h3 className="text-3xl font-semibold text-green-400 mb-4 glitch-title">Coming Soon</h3>
             <p className="text-gray-300 leading-relaxed">
               Step into the future with the Virtual Website Game Emulator—an immersive platform on the Sonic Chain. Seamlessly
               blending interactive web-based gaming with blockchain integration, this utility pushes the boundaries of GameFi.
             </p>
             <ul className="list-disc list-inside space-y-3 text-gray-300 mt-4">
               <li>Explore virtual gaming environments with real-time interaction.</li>
-              <li>Integrate blockchain-powered features seamlessly with Chaos Energy.</li>
+              <li>Integrate blockchain-powegreen features seamlessly with Chaos Energy.</li>
               <li>Experience ultra-fast transactions for GameFi projects.</li>
               <li>Leverage community-driven enhancements for a dynamic experience.</li>
             </ul>
             <div className="mt-6">
               <Link
                 href="/"
-                className="inline-block px-6 py-3 bg-gradient-to-r from-red-500 to-white text-black font-semibold rounded-lg shadow-lg hover:scale-105 transition-transform neon-button"
+                className="inline-block px-6 py-3 bg-gradient-to-r from-green-500 to-white text-black font-semibold rounded-lg shadow-lg hover:scale-105 transition-transform neon-button"
               >
                 Coming Soon
               </Link>
@@ -60,7 +60,7 @@ const UtilitySection: React.FC = () => {
         </div>
 
         {/* Bottom Visual */}
-        <div className="mt-12 p-4 text-center text-black bg-gradient-to-r from-red-500 to-white rounded-lg shadow-lg animate-glow">
+        <div className="mt-12 p-4 text-center text-black bg-gradient-to-r from-green-500 to-white rounded-lg shadow-lg animate-glow">
           <p className="text-sm font-mono glitch-text">
             The Sonic Chain: Gaming meets blockchain in the most revolutionary way.
           </p>

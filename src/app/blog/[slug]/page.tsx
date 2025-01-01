@@ -153,7 +153,7 @@ const posts = [
               together, showing unmatched dedication.
             </li>
             <li>
-              <strong>Adapting and Growing:</strong> The project restructured,
+              <strong>Adapting and Growing:</strong> The project restructugreen,
               introducing new utilities and features.
             </li>
             <li>

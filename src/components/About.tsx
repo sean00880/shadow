@@ -32,11 +32,11 @@ const AboutSection: React.FC<AboutSectionProps> = ({ features, images }) => {
       id="about"
     >
       {/* Background Glow */}
-      <div className="absolute inset-0 bg-gradient-to-b from-red-600 via-black to-black opacity-80"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-green-600 via-black to-black opacity-80"></div>
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Section Title */}
-        <h2 className="text-4xl mb-12 text-center text-transparent w-full bg-clip-text bg-gradient-to-r from-red-500 to-white">
+        <h2 className="text-4xl mb-12 text-center text-transparent w-full bg-clip-text bg-gradient-to-r from-green-500 to-white">
           About $SHADOW
         </h2>
 
@@ -46,7 +46,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ features, images }) => {
             <div
               key={index}
               className={`relative bg-black/50 backdrop-blur-md p-6 rounded-xl shadow-lg hover:shadow-[0_0_20px_rgba(255,0,0,0.8)] cursor-pointer ${
-                expandedIndex === index ? "border border-red-500" : ""
+                expandedIndex === index ? "border border-green-500" : ""
               }`}
               onClick={() => toggleExpand(index)}
             >
@@ -62,7 +62,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ features, images }) => {
               </div>
 
               {/* Title */}
-              <h3 className="text-xl font-semibold text-red-400 mb-2">{feature.title}</h3>
+              <h3 className="text-xl font-semibold text-green-400 mb-2">{feature.title}</h3>
 
               {/* Short and Expanded Text */}
               <div
@@ -80,7 +80,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ features, images }) => {
 
               {/* Rotating Button Indicator */}
               <div
-                className={`absolute -top-4 -right-4 w-8 h-8 flex items-center justify-center rounded-full bg-red-500 text-black transition-transform duration-300 ${
+                className={`absolute -top-4 -right-4 w-8 h-8 flex items-center justify-center rounded-full bg-green-500 text-black transition-transform duration-300 ${
                   expandedIndex === index ? "rotate-45" : "rotate-0"
                 }`}
               >
@@ -92,14 +92,14 @@ const AboutSection: React.FC<AboutSectionProps> = ({ features, images }) => {
 
         {/* Image Gallery */}
         <div className="mt-16">
-          <h3 className="text-3xl text-center text-red-400 mb-6">Gallery of Memes</h3>
+          <h3 className="text-3xl text-center text-green-400 mb-6">Gallery of Memes</h3>
           <div className="carousel-container flex flex-col items-center">
             <Image
               src={selectedImage}
               alt="Selected Meme"
               width={400}
               height={400}
-              className="w-full rounded-lg border border-red-500"
+              className="w-full rounded-lg border border-green-500"
             />
             <div className="gallery mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
               {images.map((image, index) => (
@@ -107,7 +107,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ features, images }) => {
                   <Image
                     src={image}
                     alt={`Gallery Item ${index + 1}`}
-                    className="w-full h-auto cursor-pointer rounded-lg hover:border-2 hover:border-red-500"
+                    className="w-full h-auto cursor-pointer rounded-lg hover:border-2 hover:border-green-500"
                     width={150}
                     height={150}
                     onClick={() => handleImageClick(image)}

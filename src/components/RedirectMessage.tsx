@@ -2,11 +2,11 @@
 
 import React, { useEffect } from "react";
 
-interface RedirectMessageProps {
+interface greenirectMessageProps {
   message: string | null;
 }
 
-const RedirectMessage: React.FC<RedirectMessageProps> = ({ message }) => {
+const greenirectMessage: React.FC<greenirectMessageProps> = ({ message }) => {
   if (!message) return null;
 
   return (
@@ -16,4 +16,4 @@ const RedirectMessage: React.FC<RedirectMessageProps> = ({ message }) => {
   );
 };
 
-export default RedirectMessage;
+export default greenirectMessage;

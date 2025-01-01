@@ -52,12 +52,6 @@ const HomePage: React.FC = () => {
       {/* Hero Section */}
       <HeroSection />
 
-      {/* About Section */}
-      <AboutSection features={features} images={images} />
-
-      {/* Utility Section */}
-      <Utility />
-
       {/* Tokenomics Section */}
       <Tokenomics />
 

@@ -1,104 +1,119 @@
-"use client";
-import React from "react";
-import Image from "next/image";
-import Link from "next/link";
+'use client';
 
-const HeroSection: React.FC = () => {
+import { useState, useEffect } from 'react';
+
+const Hero = () => {
+  const [text, setText] = useState('');
+  const displayText = `Behold, the FUCKCOIN. A groundbreaking innovation. 
+After Fart Coin—light, fleeting, and gassy—we present FUCKCOIN: raw, explosive, and unapologetically disruptive.
+From silent whispers to full-blown detonations, we've evolved beyond limits.
+
+System Analysis:
+- Stage 1: Silent but deadly (Fart Coin legacy activated).
+- Stage 2: Loud and disruptive (F*** Coin now dominates).
+- Stage 3: Global blowout in progress.
+
+Initializing algorithm...
+Simulating chain reaction...
+Targets obliterated.
+Unstoppable momentum achieved.
+
+WARNING: Side effects may include shattered expectations, excessive gas emissions,
+and market-wide combustion. Proceed at your own risk.`;
+
+  useEffect(() => {
+    let index = 0;
+    const interval = setInterval(() => {
+      setText((prev) => prev + displayText[index]);
+      index++;
+      if (index === displayText.length) clearInterval(interval);
+    }, 5); // Typing speed
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <section
-      className="hero-section flex items-center md:mt-0 h-screen justify-center bg-cover bg-center relative"
-      style={{ backgroundImage: "url('/images/sonic.gif')" }}
-    >
-      {/* Background Layer */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-[#1a1a1a] to-[#000] opacity-60"></div>
+    <section className="relative flex flex-col md:flex-row justify-between items-center h-screen px-6">
+      {/* Left: Text Content */}
+      <div className="md:w-1/2 bg-black text-white font-mono text-sm p-6 rounded-md shadow-lg">
+        <pre>
+          {text || <span className="animate-pulse">|</span>}
+        </pre>
+        <div className="mt-6 ">
+          <p className="text-gray-300 text-xl">Contract Address:</p>
+          <p className="text-green-400 break-all text-lg">GGpY7K3XM8FFqdqWR1kA7ciCCKp3pTeBQ4s24jcGpump</p>
+        </div>
+      </div>
 
-      {/* Foreground Content */}
-      <div className="z-10 flex  w-full h-full">
-      
-        {/* Right Column */}
-        <div
-          className="relative pt-0 md:pt-[20vh] flex flex-col justify-center items-center text-white h-full w-full"
-          style={{
-            background:
-              "linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.9))",
-          }}
-        >
-          {/* Hero Image */}
-          <Image
-            src="/images/ShadowLogo.png"
-            width={300}
-            height={300}
-            alt="Shadow the Hedgehog Icon"
-            className="w-[230px] mb-6 animate-pulse"
+      {/* Right: Image and Buttons */}
+      <div className="md:w-1/2 flex flex-col items-center space-y-6">
+        {/* Animated Image */}
+        <div className="w-48 h-48 animation-translate">
+          <img
+            src="/images/fuck.jpg"
+            alt="Animated"
+            className="w-full h-full object-contain"
           />
+        </div>
 
-          {/* Subtitle */}
-          <p className="text-lg mb-6 leading-relaxed text-gray-300">
-            Harness the power of <strong className="text-red-600">Shadow</strong>. 
-            Embrace the <span className="text-red-600">Sonic Chain.</span>
-          </p>
-
-          {/* Contract Address with Animated Glow */}
-          <div className="relative flex items-center justify-center">
-            <div className="relative bg-white text-black px-6 py-3 rounded-lg font-bold shadow-xl z-10">
-              <span className="font-mono text-sm">
-                0xa115DD97F66d63cD44d56f6B4d100C9efdd2203b
-              </span>
-            </div>
-            {/* Glowing Animated Ring */}
-            <div
-              className="absolute inset-0 rounded-full animate-spin-slow -z-10"
-              style={{
-                background:
-                  "conic-gradient(from 180deg at 50% 50%, #FF0000, #8A2BE2, #FF0000)",
-                filter: "blur(15px)",
-              }}
-            ></div>
-          </div>
-
-          {/* Social Media Links */}
-          <div className="bg-white/10 backdrop-blur-md p-4 rounded-xl shadow-2xl flex justify-center space-x-4 w-full mt-6">
-            <Link href="https://x.com/shadow_token/">
-              <Image
-                src="/icons/x.png"
-                width={50}
-                height={50}
-                alt="Twitter"
-                className="rounded-full hover:scale-105 border-2 border-red-500 transition"
-              />
-            </Link>
-            <Link href="https://t.me/shadowthehedgehog">
-              <Image
-                src="/icons/telegram.png"
-                width={50}
-                height={50}
-                alt="Telegram"
-                className="rounded-full hover:scale-105 border-2 border-red-500 transition"
-              />
-            </Link>
-            <Link href="https://dexscreener.com/sonic/shadow">
-              <Image
-                src="/icons/dexscreener.png"
-                width={50}
-                height={50}
-                alt="DexScreener"
-                className="rounded-full bg-white hover:scale-105 transition border-2 border-red-500"
-              />
-            </Link>
-            <Link href="https://www.dextools.io/app/en/sonic/pair-explorer/SHADOW">
-              <Image
-                src="/icons/dextools.png"
-                width={50}
-                height={50}
-                alt="DexTools"
-                className="rounded-full hover:scale-105 border-2 border-red-500"
-              />
-            </Link>
-          </div>
+        {/* Buttons */}
+        <div className="flex flex-wrap justify-center gap-4">
+          {/* DexTools */}
+          <a
+            href="https://dextools.io"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-gray-900 p-4 rounded-full shadow-md transition-transform hover:scale-110"
+          >
+            <img
+              src="/icons/dextools.png"
+              alt="DexTools"
+              className="w-8 h-8"
+            />
+          </a>
+          {/* DexScreener */}
+          <a
+            href="https://dexscreener.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-gray-900 p-4 rounded-full shadow-md transition-transform hover:scale-110"
+          >
+            <img
+              src="/icons/dexscreener.png"
+              alt="DexScreener"
+              className="w-8 h-8"
+            />
+          </a>
+          {/* X */}
+          <a
+            href="https://twitter.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-gray-900 p-4 rounded-full shadow-md transition-transform hover:scale-110"
+          >
+            <img
+              src="/icons/x.png"
+              alt="X"
+              className="w-8 h-8"
+            />
+          </a>
+          {/* Telegram */}
+          <a
+            href="https://telegram.org"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-gray-900 p-4 rounded-full shadow-md transition-transform hover:scale-110"
+          >
+            <img
+              src="/icons/telegram.png"
+              alt="Telegram"
+              className="w-8 h-8"
+            />
+          </a>
+         
         </div>
       </div>
     </section>
   );
 };
 
-export default HeroSection;
+export default Hero;
