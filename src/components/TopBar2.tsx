@@ -40,14 +40,6 @@ export default function TopBar() {
       </div>
 
       {/* Desktop Navigation Links */}
-      <nav className="hidden md:flex justify-end items-center space-x-4 lg:space-x-6 text-white">
-        <Link href="/#tokenomics" className="hover:text-green-400 transition">
-          Tokenomics
-        </Link>
-        <Link href="/#roadmap" className="hover:text-green-400 transition">
-          Roadmap
-        </Link>
-      </nav>
 
       {/* Mobile Navigation Menu */}
       {isMobileMenuOpen && (

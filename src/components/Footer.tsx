@@ -24,27 +24,6 @@ const Footer: React.FC = () => {
           </p>
         </div>
 
-        {/* Navigation Links */}
-        <div className="grid grid-cols-1 md:grid-cols-1 gap-6 w-full text-center">
-          <div>
-            <h3 className="text-xl font-bold mb-3 text-green-400">Menu</h3>
-
-
-          <div>
-           
-            <ul>
-            <li className="mb-2 hover:text-white">
-                <Link href="/#tokenomics">Tokenomics</Link>
-              </li>
-              <li className="mb-2 hover:text-white">
-                <Link href="/#roadmap">Roadmap</Link>
-              </li>
-            </ul>
-          </div>
-
-      </div>
-
-      </div>
 
       {/* Bottom Bar */}
       <div className="mt-8 text-center text-gray-400 border-t border-gray-600 pt-4">
