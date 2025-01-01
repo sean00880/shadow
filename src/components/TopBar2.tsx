@@ -41,9 +41,6 @@ export default function TopBar() {
 
       {/* Desktop Navigation Links */}
       <nav className="hidden md:flex justify-end items-center space-x-4 lg:space-x-6 text-white">
-        <Link href="/#home" className="hover:text-green-400 transition">
-          Home
-        </Link>
         <Link href="/#tokenomics" className="hover:text-green-400 transition">
           Tokenomics
         </Link>
