@@ -3,14 +3,13 @@
 import { useState, useEffect } from 'react';
 
 const Hero = () => {
-  const [text, setText] = useState('');
-  const displayText = `Behold, the FUCKCOIN. A groundbreaking innovation. 
+  const displayText = `Behold, the FUCKCOIN. A groundbreaking innovation.
 After Fart Coin—light, fleeting, and gassy—we present FUCKCOIN: raw, explosive, and unapologetically disruptive.
 From silent whispers to full-blown detonations, we've evolved beyond limits.
 
 System Analysis:
 - Stage 1: Silent but deadly (Fart Coin legacy activated).
-- Stage 2: Loud and disruptive (F*** Coin now dominates).
+- Stage 2: Loud and disruptive (FUCKCOIN now dominates).
 - Stage 3: Global blowout in progress.
 
 Initializing algorithm...
@@ -21,36 +20,47 @@ Unstoppable momentum achieved.
 WARNING: Side effects may include shattered expectations, excessive gas emissions,
 and market-wide combustion. Proceed at your own risk.`;
 
+  const [text, setText] = useState('');
+  const [lines, setLines] = useState<string[]>([]);
+
   useEffect(() => {
     let index = 0;
     const interval = setInterval(() => {
-      setText((prev) => prev + displayText[index]);
+      const currentText = displayText.substring(0, index + 1);
+      setText(currentText); // Update full text dynamically
+      setLines(currentText.split('\n')); // Split text into lines for rendering
       index++;
       if (index === displayText.length) clearInterval(interval);
-    }, 5); // Typing speed
+    }, 20); // Adjust typing speed here
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <section className="relative flex flex-col md:flex-row justify-between items-center h-screen px-6">
-      {/* Left: Text Content */}
-      <div className="md:w-1/2 bg-black text-white font-mono text-sm p-6 rounded-md shadow-lg">
-        <pre>
-          {text || <span className="animate-pulse">|</span>}
-        </pre>
-        <div className="mt-6 ">
+    <section className="relative flex flex-col md:flex-row justify-between items-center h-screen px-6 bg-black text-white font-mono">
+      {/* Left: Dynamic Text */}
+      <div className="md:w-1/2 p-6 rounded-md shadow-lg">
+        <div>
+          {lines.map((line, index) => (
+            <p key={index} className="whitespace-pre-wrap">
+              {line}
+            </p>
+          ))}
+        </div>
+        <div className="mt-6">
           <p className="text-gray-300 text-xl">Contract Address:</p>
-          <p className="text-green-400 break-all text-lg">GGpY7K3XM8FFqdqWR1kA7ciCCKp3pTeBQ4s24jcGpump</p>
+          <p className="text-green-400 break-all text-lg">
+            GGpY7K3XM8FFqdqWR1kA7ciCCKp3pTeBQ4s24jcGpump
+          </p>
         </div>
       </div>
 
-      {/* Right: Image and Buttons */}
+      {/* Right: Animated Image and Buttons */}
       <div className="md:w-1/2 flex flex-col items-center space-y-6">
         {/* Animated Image */}
         <div className="w-48 h-48 animation-translate">
           <img
             src="/images/fuck.jpg"
-            alt="Animated"
+            alt="FUCKCOIN Animation"
             className="w-full h-full object-contain"
           />
         </div>
@@ -109,7 +119,6 @@ and market-wide combustion. Proceed at your own risk.`;
               className="w-8 h-8"
             />
           </a>
-         
         </div>
       </div>
     </section>
