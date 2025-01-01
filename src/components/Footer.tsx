@@ -20,7 +20,7 @@ const Footer: React.FC = () => {
             className="mb-4 h-auto"
           />
           <p className="text-gray-400 text-lg">
-            Powegreen by F*** Energy: Building the Future of Decentralized Innovation.
+            Powered by F*** Energy: Building the Future of Decentralized Innovation.
           </p>
         </div>
 
@@ -58,7 +58,7 @@ const Footer: React.FC = () => {
 
       {/* Bottom Bar */}
       <div className="mt-8 text-center text-gray-400 border-t border-gray-600 pt-4">
-        &copy; 2024 | $FUCKCOIN on SOL. All rights reserved.
+        &copy; 2025 | $FUCKCOIN on SOL. All rights reserved.
       </div>
     </footer>
   );
