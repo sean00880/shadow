@@ -51,13 +51,6 @@ const HomePage: React.FC = () => {
     <LandingLayout>
       {/* Hero Section */}
       <HeroSection />
-
-      {/* Tokenomics Section */}
-      <Tokenomics />
-
-      {/* Roadmap Section */}
-      <Roadmap />
-
       <Footer />
     </LandingLayout>
   );
