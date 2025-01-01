@@ -56,6 +56,7 @@ and market-wide combustion. Proceed at your own risk.`;
 
       {/* Right: Animated Image and Buttons */}
       <div className="md:w-1/2 flex flex-col items-center space-y-6">
+      
         {/* Animated Image */}
         <div className="w-48 h-48 animation-translate">
           <img
@@ -64,12 +65,12 @@ and market-wide combustion. Proceed at your own risk.`;
             className="w-full h-full object-contain"
           />
         </div>
-
+        <h2 className='text-white'>Fuck off...I'm coding.</h2>
         {/* Buttons */}
         <div className="flex flex-wrap justify-center gap-4">
           {/* DexTools */}
           <a
-            href="https://dextools.io"
+            href="https://www.dextools.io/app/en/solana/pair-explorer/7VPaUiedjRujwgwP8J5jdExPQpa9yRwmjLntR93AEU8c?t=1735695616118"
             target="_blank"
             rel="noopener noreferrer"
             className="bg-gray-900 p-4 rounded-full shadow-md transition-transform hover:scale-110"
@@ -82,7 +83,7 @@ and market-wide combustion. Proceed at your own risk.`;
           </a>
           {/* DexScreener */}
           <a
-            href="https://dexscreener.com"
+            href="https://dexscreener.com/solana/7vpauiedjrujwgwp8j5jdexpqpa9yrwmjlntr93aeu8c"
             target="_blank"
             rel="noopener noreferrer"
             className="bg-gray-900 p-4 rounded-full shadow-md transition-transform hover:scale-110"
@@ -95,7 +96,7 @@ and market-wide combustion. Proceed at your own risk.`;
           </a>
           {/* X */}
           <a
-            href="https://twitter.com"
+            href="https://x.com/fuckcoin_sol"
             target="_blank"
             rel="noopener noreferrer"
             className="bg-gray-900 p-4 rounded-full shadow-md transition-transform hover:scale-110"
@@ -108,7 +109,7 @@ and market-wide combustion. Proceed at your own risk.`;
           </a>
           {/* Telegram */}
           <a
-            href="https://telegram.org"
+            href="https://t.me/fuckcoin_sol"
             target="_blank"
             rel="noopener noreferrer"
             className="bg-gray-900 p-4 rounded-full shadow-md transition-transform hover:scale-110"
