@@ -18,9 +18,9 @@ const geistMono = localFont({
 });
 
 const posts = [
-  { title: "How Shadow the Hedgehog Reshapes Meme Utility", href: "/blog/meme-utility" },
-  { title: "GameFi’s Role in the MSI Ecosystem", href: "/blog/gamefi-role" },
-  { title: "The Resilience of Shadow the Hedgehog", href: "/blog/community-resilience" },
+  { title: "How FUCKCOIN Disrupts the Solana Ecosystem", href: "/blog/fuckcoin-solana" },
+  { title: "The No-Tax Revolution of FUCKCOIN", href: "/blog/no-tax-revolution" },
+  { title: "Why Burned Liquidity Matters for Memes", href: "/blog/burned-liquidity" },
 ];
 
 interface RootLayoutProps {
@@ -36,21 +36,33 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       <head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Shadow the Hedgehog - $SHADOW on Sonic Chain</title>
-        <meta name="description" content="Discover Shadow the Hedgehog, the revolutionary DeFi meme project driving innovation in crypto and community engagement." />
-        <meta name="keywords" content="Shadow the Hedgehog, DeFi, meme coin, crypto innovation, community-driven crypto" />
-        <meta name="author" content="Shadow the Hedgehog Team" />
-        <meta property="og:title" content="Shadow the Hedgehog - $SHADOW on Sonic Chain" />
-        <meta property="og:description" content="Discover Shadow the Hedgehog, the revolutionary DeFi meme project driving innovation in crypto and community engagement." />
-        <meta property="og:image" content="/images/MSIonSOL.png" />
-        <meta property="og:url" content="https://monkeysolinu.com" />
+        <title>FUCKCOIN - $FCK on Solana</title>
+        <meta
+          name="description"
+          content="Meet FUCKCOIN on Solana: The most explosive, community-driven DeFi meme project designed to burn the old rules and create something raw and unapologetic."
+        />
+        <meta
+          name="keywords"
+          content="FUCKCOIN, $FCK, Solana, DeFi, meme coin, no-tax crypto, Solana memes, crypto innovation"
+        />
+        <meta name="author" content="FUCKCOIN Team" />
+        <meta property="og:title" content="FUCKCOIN - $FCK on Solana" />
+        <meta
+          property="og:description"
+          content="Meet FUCKCOIN on Solana: The most explosive, community-driven DeFi meme project designed to burn the old rules and create something raw and unapologetic."
+        />
+        <meta property="og:image" content="/images/fuckcoin-solana.png" />
+        <meta property="og:url" content="https://fuckcoinonsol.com" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Shadow the Hedgehog - $SHADOW on Sonic Chain" />
-        <meta name="twitter:description" content="Discover Shadow the Hedgehog, the revolutionary DeFi meme project driving innovation in crypto and community engagement." />
-        <meta name="twitter:image" content="/images/MSIonSOL.png" />
+        <meta name="twitter:title" content="FUCKCOIN - $FCK on Solana" />
+        <meta
+          name="twitter:description"
+          content="Meet FUCKCOIN on Solana: The most explosive, community-driven DeFi meme project designed to burn the old rules and create something raw and unapologetic."
+        />
+        <meta name="twitter:image" content="/images/fuckcoin-solana.png" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white`}
       >
         <LayoutContent>{children}</LayoutContent>
       </body>
